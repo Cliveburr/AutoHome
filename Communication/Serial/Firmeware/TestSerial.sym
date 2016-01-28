@@ -1,0 +1,57 @@
+004-005 @READ_PROGRAM_MEMORY8.P1
+015     CCP_1_LOW
+015-016 CCP_1
+016     CCP_1_HIGH
+01F.6   C1OUT
+01F.7   C2OUT
+021     main.t
+022     @PRINTF_U_42.P1
+022     main.@SCRATCH1
+023     @PRINTF_U_42.P1
+024     @PUTCHAR_1_.P1
+024     @DIV88.P2
+025     @DIV88.P1
+026     @DIV88.@SCRATCH1
+077     @SCRATCH
+078     @SCRATCH
+078     _RETURN_
+079     @SCRATCH
+07A     @SCRATCH
+07B     @SCRATCH
+10D-10E @READ_PROGRAM_MEMORY8.P1
+
+ROM Allocation:
+000E  @PUTCHAR_1_
+0077  main
+0004  @const52
+002D  @DIV88
+0042  @PRINTF_U_42
+0077  @cinit
+
+Project Directory:
+    H:\Eletronica\Microcontroladores Pic\Home Automation\Communication\Serial\
+
+Project Files:
+    TestSerial.c
+    C:\Program Files (x86)\PICC\devices\16F628A.h
+
+Units:
+    H:\Eletronica\Microcontroladores Pic\Home Automation\Communication\Serial\TestSerial.c (main)
+
+Compiler Settings:
+    Processor:      PIC16F628A
+    Pointer Size:   16
+    Opt Level:      9
+    Short,Int,Long: UNSIGNED: 1,8,16
+    Float,Double:   32,32
+
+Output Files:
+    Errors:      TestSerial.err
+    Ext Symbols: TestSerial.esym
+    INHX8:       TestSerial.hex
+    Symbols:     TestSerial.sym
+    List:        TestSerial.lst
+    Debug/COFF:  TestSerial.cof
+    Project:     TestSerial.PJT
+    Call Tree:   TestSerial.tre
+    Statistics:  TestSerial.sta

@@ -1,0 +1,119 @@
+CCS PCM C Compiler, Version 4.057, 35593               23-jan-16 22:23
+
+               Filename: H:\Eletronica\Microcontroladores Pic\Home Automation\Communication\Serial\TestSerial.lst
+
+               ROM used: 155 words (8%)
+                         Largest free fragment is 1893
+               RAM used: 8 (4%) at main() level
+                         12 (5%) worst case
+               Stack:    2 locations
+
+*
+0000:  MOVLW  00
+0001:  MOVWF  0A
+0002:  GOTO   077
+0003:  NOP
+.................... #include<16F628A.h> 
+.................... //////// Standard Header file for the PIC16F628A device //////////////// 
+.................... #device PIC16F628A 
+.................... #list 
+....................  
+.................... #fuses intrc_io, nowdt, protect, put, nomclr, nobrownout, nocpd, nolvp 
+.................... #use delay(clock=4000000) 
+.................... #use fast_io(a) 
+.................... #use fast_io(b) 
+.................... //xmit => TX ; rcv => RX 
+.................... //#use rs232(BAUD = 9600, parity= N, bits = 8, UART1) 
+.................... #use rs232(baud=9600, parity=N, bits = 8, xmit=PIN_B5, rcv=PIN_B4, bits=8) 
+*
+000E:  BCF    06.5
+000F:  MOVLW  08
+0010:  MOVWF  78
+0011:  GOTO   012
+0012:  NOP
+0013:  BSF    78.7
+0014:  GOTO   023
+0015:  BCF    78.7
+0016:  RRF    24,F
+0017:  BTFSC  03.0
+0018:  BSF    06.5
+0019:  BTFSS  03.0
+001A:  BCF    06.5
+001B:  BSF    78.6
+001C:  GOTO   023
+001D:  BCF    78.6
+001E:  DECFSZ 78,F
+001F:  GOTO   016
+0020:  GOTO   021
+0021:  NOP
+0022:  BSF    06.5
+0023:  MOVLW  1C
+0024:  MOVWF  04
+0025:  DECFSZ 04,F
+0026:  GOTO   025
+0027:  GOTO   028
+0028:  BTFSC  78.7
+0029:  GOTO   015
+002A:  BTFSC  78.6
+002B:  GOTO   01D
+002C:  RETLW  00
+.................... //#include<String.h> 
+.................... //#include<pic.h> 
+....................  
+.................... void main()  
+.................... {  
+*
+0077:  CLRF   04
+0078:  BCF    03.7
+0079:  MOVLW  1F
+007A:  ANDWF  03,F
+007B:  BSF    03.5
+007C:  BSF    0E.3
+007D:  BCF    03.5
+007E:  BSF    06.5
+007F:  MOVLW  07
+0080:  MOVWF  1F
+....................    unsigned int8 t; 
+....................  
+....................    //set_tris_a(0b00000000); 
+....................    set_tris_b(0b00010000); 
+0081:  MOVLW  10
+0082:  TRIS   6
+....................     
+....................    printf("foi: "); 
+0083:  CLRF   22
+0084:  MOVF   22,W
+0085:  CALL   004
+0086:  INCF   22,F
+0087:  MOVWF  77
+0088:  MOVWF  24
+0089:  CALL   00E
+008A:  MOVLW  05
+008B:  SUBWF  22,W
+008C:  BTFSS  03.2
+008D:  GOTO   084
+....................     
+....................    t = read_eeprom(0); 
+008E:  BSF    03.5
+008F:  CLRF   1B
+0090:  BCF    1C.7
+0091:  BSF    1C.0
+0092:  MOVF   1A,W
+0093:  BCF    03.5
+0094:  MOVWF  21
+....................    printf("%u", t); 
+0095:  MOVF   21,W
+0096:  MOVWF  22
+0097:  MOVLW  1B
+0098:  MOVWF  23
+0099:  GOTO   042
+....................  
+....................    //while(1) 
+....................    //{  
+.................... //      printf("rain");  
+.................... //   }  
+.................... } 
+009A:  SLEEP
+
+Configuration Fuses:
+   Word  1: 1F10   NOWDT PUT PROTECT NOBROWNOUT NOMCLR NOLVP INTRC_IO NOCPD

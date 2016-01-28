@@ -1,0 +1,11 @@
+읕TestSerial
+   읕main  0/36  Ram=2
+      쳐??0??
+      쳐@const52  0/10  Ram=0
+      쳐@PUTCHAR_1_  0/31  Ram=1
+      읕@PRINTF_U_42  0/53  Ram=2
+         쳐@DIV88  0/21  Ram=3
+         쳐@PUTCHAR_1_  0/31  Ram=1
+         쳐@DIV88  0/21  Ram=3
+         쳐@PUTCHAR_1_  0/31  Ram=1
+         읕@PUTCHAR_1_  0/31  Ram=1
