@@ -41,10 +41,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DeviceMode.cs" />
     <Compile Include="HidDevice.cs" />
     <Compile Include="HidDeviceAttributes.cs" />
     <Compile Include="HidDeviceCapabilities.cs" />
     <Compile Include="HidDeviceInfo.cs" />
+    <Compile Include="Response\ReadResponse.cs" />
     <Compile Include="UsbDeviceMonitor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

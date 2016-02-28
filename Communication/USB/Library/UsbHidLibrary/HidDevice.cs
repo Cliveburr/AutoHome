@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using NaFile = NativeNET.Kernel32.File;
 using NaDevice = NativeNET.SetupApi.Device;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace UsbHidLibrary
 {
@@ -16,12 +17,18 @@ namespace UsbHidLibrary
         public HidDeviceAttributes Attributes { get; private set; }
         public HidDeviceCapabilities Capabilities { get; private set; }
         public byte ReportID { get; set; }
+        public DeviceMode DeviceReadMode { get; private set; }
+        public DeviceMode DeviceWriteMode { get; private set; }
+        public int Timeout { get; set; }
 
-        public HidDevice(HidDeviceInfo info)
+        public HidDevice(HidDeviceInfo info, DeviceMode devideReadMode, DeviceMode deviceWriteMode)
         {
             Path = info.Path;
             Description = info.Description;
             ReportID = 0x0;
+            DeviceReadMode = devideReadMode;
+            DeviceWriteMode = deviceWriteMode;
+            Timeout = 30;
 
             try
             {
@@ -36,9 +43,16 @@ namespace UsbHidLibrary
             }
         }
 
+        public HidDevice(HidDeviceInfo info)
+            : this(info, DeviceMode.NonOverlapped, DeviceMode.NonOverlapped)
+        {
+        }
+
         private IntPtr OpenDeviceIO()
         {
-            NaFile.FlagsAndAttributes flags = 0; //TODO: pass from arguments NaFile.FlagsAndAttributes.FILE_FLAG_OVERLAPPED
+            NaFile.FlagsAndAttributes flags = DeviceReadMode == DeviceMode.Overlapped ?
+                NaFile.FlagsAndAttributes.FILE_FLAG_OVERLAPPED :
+                0;
 
             return NaFile.CreateFile.Run(
                 Path,
@@ -154,10 +168,45 @@ namespace UsbHidLibrary
             uint bytesWritten = 0;
 
             var overlapped = new NativeOverlapped();
-            if (!NaFile.WriteFile.Write(Handle, buffer, (uint)buffer.Length, out bytesWritten, ref overlapped))
+            if (!NaFile.IO.Write(Handle, buffer, (uint)buffer.Length, out bytesWritten, ref overlapped))
                 throw new Exception("WriteFile fail! Code: " + System.Runtime.InteropServices.Marshal.GetLastWin32Error().ToString());
             else
                 return bytesWritten;
+        }
+
+        public async Task<Response.ReadResponse> Read()
+        {
+            var input = Capabilities.InputReportByteLength;
+
+            return await Task.Run(() =>
+            {
+                var tr = new Response.ReadResponse();
+
+                try
+                {
+                    if (input <= 0)
+                        throw new Exception("Device capabilities has now report length!");
+
+                    var buffer = new byte[input];
+                    uint bytesRead = 0;
+
+                    var overlapped = new NativeOverlapped();
+                    if (!NaFile.IO.Read(Handle, buffer, (uint)buffer.Length, out bytesRead, ref overlapped))
+                        throw new Exception("Read fail! Code: " + System.Runtime.InteropServices.Marshal.GetLastWin32Error().ToString());
+
+                    tr.Data = new byte[bytesRead - 1];
+                    Array.Copy(buffer, 1, tr.Data, 0, bytesRead - 1);
+
+                    tr.Success = true;
+                }
+                catch (Exception err)
+                {
+                    tr.Success = false;
+                    tr.Error = err;
+                }
+
+                return tr;
+            });
         }
     }
 }

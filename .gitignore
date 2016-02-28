@@ -55,13 +55,14 @@ obj
 packages
 
 # Firmeware
-.bak
-.hex
-.cof
-.err
-.esym
-.lst
+*.bak
+*.hex
+*.cof
+*.err
+*.esym
+*.lst
 
-# Schematic
-.dbk
-.pwi
+# Isis files
+*.pwi
+*.dbk
+*.sdf
