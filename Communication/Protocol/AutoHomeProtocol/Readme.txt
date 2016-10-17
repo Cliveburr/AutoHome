@@ -1,4 +1,53 @@
 
+AutoHome Protocol
+
+
+
+1. Package
+
+	Configuration
+		UID - Define one unique identifier for this interface
+			UID = 0 means broadcast message
+		MaxPackageSize - Define the size of package to send
+		Timeout - Define the amout of time to waiting the OK message
+		
+	Header
+		HeaderSize - Return the size of head
+		byte[0] = low UID
+		byte[1] = high UID, 2 << 8
+		byte[2] = low UID
+		byte[3] = high UID, 2 << 8
+		byte[4] = message ID
+		byte[5] = configuration
+			byte[6] = fragment ID
+
+		Message ID
+			one ID to identify this message
+		
+
+2. Send process
+
+	Params
+		UID
+		Message
+		Callback
+	Process
+		check if this UID is busy
+		if yes
+			raise the callback with the code 01(Receiver not responding)
+		if no
+			request a new message ID
+			create all package
+				split the Message by (MaxPackageSize - HeaderSize)
+				for each fragment, create the header
+			push the packages to the send stack
+			push the callback waiting for the return
+			initilize the send stack if is not
+				
+				
+			
+		
+		
 Layers
 	01 - Physical
 		(Serial)

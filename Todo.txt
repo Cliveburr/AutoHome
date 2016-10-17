@@ -1,0 +1,48 @@
+
+- Protocol
+	- Define the format of the package
+		fragmented control
+		error probe
+		basic messages
+		especialized messages
+	- Create the drive for PIC
+	- Create the drive for Core .NET
+	
+- Wireless
+	- Define the job of the drive
+	- Create the drive for PIC
+	- Create the drive for Core .NET (Only for use directly with the Raspberry)
+
+- Module Ribbon Led RGB
+	- Define how its work
+	- Create the drive for PIC
+	- Create the power supply
+
+- Service Api
+	- Create the .NET service
+	- Create the database layer (SQL)
+	- Create the core area
+		account
+			register
+			login
+	- Create the module area
+		type
+			incandescent lamp
+			ribbon led rgb
+		module
+			register
+			synchronize the module with this control
+			edit basic info
+				edit type info
+	- Create the illumination area
+		standards
+			register
+			edit
+			delete
+	- Create the service area
+		region
+			create
+			edit
+				set modules
+			delete
+			

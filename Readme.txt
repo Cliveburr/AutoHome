@@ -1,27 +1,42 @@
 
-1. Central de comunicação
-	Interface de controle conectado a rede ou a um computador
-	Retransmite comandos e recebe informações
-	Version 01	{
-		Conexão via USB
-		Transmisão via serial
-	}
+1 - Layer Interface
+	- WebUI
+	- App
 
-2. Replicadores
-	Replica o sinal atravez do meio do qual pertence
-	Version 01 {
-		Serial
-		01 entrada NN saidas
-	}
-
-3. Modulos
-	Recebe o sinal e executa comandos
-
-- Led RGB Module
-	Version 01 {
-		Serial
+2 - Layer Control
+	- Service Api
+	{
+		- Software
+			Core .NET (Cross plataform)
+			SQL
+		- Hardware 1
+			Raspberry on Raspbian
+			Communication with USB to one PIC18
+			PIC18 communication with the next layer
+		- Hardware 2
+			Raspberry on Windows 10 IoT
+			Communication directly with the next layer
 	}
 	
+3 - Layer Communication
+	- Wireless
+	{
+		- HC-12
+			Communication UART
+	}
+
+4 - Layer Module
+	- Ribbon Led RGB
+	{
+		- PIC16
+			Communication UART
+			Power 5V for the PIC16
+			Power 18V high ampere
+	}
+
+
+	
+
 
 
 	
