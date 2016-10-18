@@ -19,10 +19,18 @@
 	}
 	
 3 - Layer Communication
+	- Protocol
 	- Wireless
 	{
 		- HC-12
 			Communication UART
+	}
+	- Serial
+	{
+		- RS232, RS485, RS422
+	}
+	- USB
+	{
 	}
 
 4 - Layer Module
@@ -40,5 +48,5 @@
 
 
 	
-Como usar gravação in-line
+Como usar gravaï¿½ï¿½o in-line
 http://electronics.stackexchange.com/questions/145266/pic18f4550-external-oscillator

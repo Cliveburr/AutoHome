@@ -1,22 +1,31 @@
 
 - Protocol
-	- Define the format of the package
-		fragmented control
-		error probe
-		basic messages
-		especialized messages
+	<done> - Define the format of the package
+		error probe (callback system if needed)
 	- Create the drive for PIC
+		- Simulate into Proteus
+			(One terminal, enter the raw message simulating the income message)
+			(One terminal, show the income message pased)
+			(One terminal, simulating sending message) 
 	- Create the drive for Core .NET
-	
-- Wireless
-	- Define the job of the drive
-	- Create the drive for PIC
-	- Create the drive for Core .NET (Only for use directly with the Raspberry)
+		- Create test project
+
+- Physical
+	- USB
+		- Define the protocol
+		- Create the drive for PIC
+	- Wireless
+		- Define the physical layers for the modules (nRF905 and HC-12)
+			fragmented control?
+		- Create the drive for PIC
+		- Create the drive for Core .NET (Only for use directly with the Raspberry)
 
 - Module Ribbon Led RGB
+	- Define the message format
 	- Define how its work
 	- Create the drive for PIC
 	- Create the power supply
+	- Simulate into Proteus
 
 - Service Api
 	- Create the .NET service
