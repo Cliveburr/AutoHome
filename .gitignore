@@ -53,6 +53,7 @@ _ReSharper.*
 bin
 obj
 packages
+.vs
 
 # Firmeware
 *.bak
