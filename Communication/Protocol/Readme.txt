@@ -38,19 +38,24 @@ This protocol defines the most top layer for the messages
 		MessageBody
 		Callback (optional)
 	Process
-		check if this UID is busy
-		if yes
+		request a new message ID
+		generate the proper configuration
+		create the package
+
+		if this UID is busy
 			push the message onto schedule sender for this UID 
-		if no
-			set this UID in busy mode
-			request a new message ID
-			create the package
-			push the package onto sender stack
-			if has callback so, its require confirmation
-				push the package with the callback waiting for the confirmation
-				if no message confirmation comes before Timeout
-					raise the callback with the cod "02 - Timeout"
-			initilize the sender stack if is not
+		else
+			if has callback, its require confirmation
+				set this UID in busy mode
+			else
+				request a new message ID
+				create the package
+				push the package onto sender stack
+				if has callback so, its require confirmation
+					push the package with the callback waiting for the confirmation
+					if no message confirmation comes before Timeout
+						raise the callback with the cod "02 - Timeout"
+				initilize the sender stack if is not
 
 3. Sender stack
 

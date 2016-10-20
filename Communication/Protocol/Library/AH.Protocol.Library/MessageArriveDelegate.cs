@@ -1,4 +1,11 @@
 ﻿namespace AH.Protocol.Library
 {
-    public delegate void MessageArriveDelegate();
+    public enum MessageArriveCode
+    {
+        Ok,
+        Timeout,
+        ConfirmationWithoutWaiting
+    }
+
+    public delegate void MessageArriveDelegate(MessageArriveCode code, MessagePackage package);
 }

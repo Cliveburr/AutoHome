@@ -14,7 +14,7 @@ namespace AH.Protocol.Library.Tests
                 SenderUID = 123,
                 ReceiverUID = 789,
                 MessageID = 6,
-                Configuration = MessageConfigurationEnum.IsConfimation,
+                Configuration = MessageConfigurationEnum.IsConfirmation,
                 MessageBody = System.Text.Encoding.ASCII.GetBytes("One test!!")
             };
 

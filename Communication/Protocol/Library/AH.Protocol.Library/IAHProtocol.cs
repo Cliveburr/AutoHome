@@ -5,10 +5,11 @@ using System.Threading.Tasks;
 
 namespace AH.Protocol.Library
 {
-    public class IAHProtocol
+    public interface IAHProtocol
     {
         int TimeOut { get; set; }
         ushort UID { get; }
-        MessageArriveDelegate MessageArrive { get; }
+        MessageArriveDelegate MessageArrive { get; set; }
+        void Send(ushort receiverUID, byte[] messageBody, MessageArriveDelegate callBack = null);
     }
 }

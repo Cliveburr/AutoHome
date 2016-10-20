@@ -8,7 +8,8 @@ namespace AH.Protocol.Library
     [Flags]
     public enum MessageConfigurationEnum : byte
     {
-        IsConfimation = 1,
-        NeedConfimation = 2
+        None = 0,
+        IsConfirmation = 1,
+        NeedConfirmation = 2
     }
 }
