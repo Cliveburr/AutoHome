@@ -56,12 +56,9 @@ packages
 .vs
 
 # Firmeware
-*.bak
-*.hex
-*.cof
-*.err
-*.esym
-*.lst
+**\build
+**\dist
+**\debug
 
 # Isis files
 *.pwi
