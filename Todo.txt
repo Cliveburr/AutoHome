@@ -7,8 +7,8 @@
 			(One terminal, enter the raw message simulating the income message)
 			(One terminal, show the income message pased)
 			(One terminal, simulating sending message) 
-	- Create the drive for Core .NET
-		- Create test project
+	<done> - Create the drive for Core .NET
+		<done> - Create test project
 
 - Physical
 	- USB

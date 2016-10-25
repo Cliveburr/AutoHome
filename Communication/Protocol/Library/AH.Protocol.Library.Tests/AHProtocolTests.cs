@@ -78,19 +78,19 @@ namespace AH.Protocol.Library.Test
         {
             _leftSide.MessageArrive = LeftSideMessageArrive_TestMultipleMsgCallback;
             _rightSide.MessageArrive = RightSideMessageArrive_TestMultipleMsgCallback;
-            _leftSide.TimeOut = 20000;
-            _rightSide.TimeOut = 20000;
+            _leftSide.TimeOut = 60000;
+            _rightSide.TimeOut = 60000;
 
             var taskList = new List<Task>();
             var rnd = new Random(DateTime.Now.Millisecond);
-            for (var ia = 0; ia < 10; ia++)
+            for (var ia = 0; ia < 100; ia++)
             {
-                var bodyLength = rnd.Next(0, 1024);
+                var bodyLength = rnd.Next(0, 20);
                 var body = new byte[bodyLength + 1];
                 body[0] = (byte)rnd.Next(0, 5);
                 for (var iu = 0; iu < bodyLength; iu++)
                 {
-                    body[iu + 1] = (byte)rnd.Next(0, 255);
+                    body[iu + 1] = (byte)rnd.Next(33, 122);
                 }
 
                 if (rnd.Next(0, 100) < 50)
@@ -99,11 +99,11 @@ namespace AH.Protocol.Library.Test
                     {
                         var event0 = new ManualResetEvent(false);
                         var mybody = body;
-                        System.Diagnostics.Debug.WriteLine(string.Format("Sending from 111 to 666, body: {0}", mybody.ToString()));
+                        System.Diagnostics.Debug.WriteLine(string.Format("Sending from 111 to 666, body: {0}", System.Text.Encoding.ASCII.GetString(mybody)));
                         _leftSide.Send(666, mybody,
                             (MessageArriveCode code, MessagePackage package) =>
                             {
-                                System.Diagnostics.Debug.WriteLine(string.Format("Receveid from 111 to 666, messageID: {0} - body: {1}", package.MessageID.ToString(), package.MessageBody.ToString()));
+                                System.Diagnostics.Debug.WriteLine(string.Format("Receveid from 111 to 666, messageID: {0} - body: {1}", package.MessageID.ToString(), System.Text.Encoding.ASCII.GetString(package.MessageBody)));
                                 Assert.True(code == MessageArriveCode.Ok);
                                 Assert.Equal(mybody, package.MessageBody);
                                 event0.Set();
@@ -118,11 +118,11 @@ namespace AH.Protocol.Library.Test
                     {
                         var event0 = new ManualResetEvent(false);
                         var mybody = body;
-                        System.Diagnostics.Debug.WriteLine(string.Format("Sending from 666 to 111, body: {0}", mybody.ToString()));
+                        System.Diagnostics.Debug.WriteLine(string.Format("Sending from 666 to 111, body: {0}", System.Text.Encoding.ASCII.GetString(mybody)));
                         _rightSide.Send(111, mybody,
                             (MessageArriveCode code, MessagePackage package) =>
                             {
-                                System.Diagnostics.Debug.WriteLine(string.Format("Receveid from 666 to 111, messageID: {0} - body: {1}", package.MessageID.ToString(), package.MessageBody.ToString()));
+                                System.Diagnostics.Debug.WriteLine(string.Format("Receveid from 666 to 111, messageID: {0} - body: {1}", package.MessageID.ToString(), System.Text.Encoding.ASCII.GetString(package.MessageBody)));
                                 Assert.True(code == MessageArriveCode.Ok);
                                 Assert.Equal(mybody, package.MessageBody);
                                 event0.Set();
@@ -140,13 +140,13 @@ namespace AH.Protocol.Library.Test
 
         private void LeftSideMessageArrive_TestMultipleMsgCallback(MessageArriveCode code, MessagePackage package)
         {
-            System.Diagnostics.Debug.WriteLine(string.Format("Arrived from 111 to 666, messageID: {0} - body: {1}", package.MessageID.ToString(), package.MessageBody.ToString()));
+            System.Diagnostics.Debug.WriteLine(string.Format("Arrived from 111 to 666, messageID: {0} - body: {1}", package.MessageID.ToString(), System.Text.Encoding.ASCII.GetString(package.MessageBody)));
             Assert.True(code == MessageArriveCode.Ok);
         }
 
         private void RightSideMessageArrive_TestMultipleMsgCallback(MessageArriveCode code, MessagePackage package)
         {
-            System.Diagnostics.Debug.WriteLine(string.Format("Arrived from 666 to 111, messageID: {0} - body: {1}", package.MessageID.ToString(), package.MessageBody.ToString()));
+            System.Diagnostics.Debug.WriteLine(string.Format("Arrived from 666 to 111, messageID: {0} - body: {1}", package.MessageID.ToString(), System.Text.Encoding.ASCII.GetString(package.MessageBody)));
             Assert.True(code == MessageArriveCode.Ok);
         }
     }
