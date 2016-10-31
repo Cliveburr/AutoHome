@@ -14,12 +14,13 @@ namespace AH.Protocol.Library
 
         private ushort _UID;
         private byte _messageID;
-        private IList<MessageStack> _messageStack;
-        private IList<MessageStack> _messageWaiting;
+        private IList<MessageStore> _messageStack;
+        private IList<MessageStore> _messageQueue;
+        private IList<MessageStore> _messageWaiting;
+        private object _messageskLock = new object();
         private IPhysicalProtocolCouple _physicalCouple;
-        private bool _senderStackQueue;
 
-        private class MessageStack
+        private class MessageStore
         {
             public MessagePackage Package;
             public MessageArriveDelegate Callback;
@@ -32,10 +33,12 @@ namespace AH.Protocol.Library
             TimeOut = timeOut;
             MessageArrive = messageArrive;
             _messageID = 0;
-            _messageStack = new List<MessageStack>();
-            _messageWaiting = new List<MessageStack>();
+            _messageStack = new List<MessageStore>();
+            _messageQueue = new List<MessageStore>();
+            _messageWaiting = new List<MessageStore>();
             _physicalCouple = physicalCouple;
             _physicalCouple.Receiver += Receiver;
+            Task.Run(new Action(RunSenderStack));
         }
 
         public ushort UID
@@ -56,94 +59,74 @@ namespace AH.Protocol.Library
 
             var package = new MessagePackage(_UID, receiverUID, messsageID, configuration, messageBody);
 
-            var messageStack = new MessageStack
+            var messageStore = new MessageStore
             {
                 Package = package,
                 Callback = callBack
             };
 
-            var time = new Timer(WaitingTimeoutCallback, messageStack, TimeOut, Timeout.Infinite);
-            messageStack.TimeoutTimer = time;
+            var time = new Timer(WaitingTimeoutCallback, messageStore, TimeOut, Timeout.Infinite);
+            messageStore.TimeoutTimer = time;
 
-            lock (_messageStack)
+            lock (_messageskLock)
             {
-                _messageStack.Add(messageStack);
-            }
+                var hasInStack = _messageStack
+                    .Where(ms => ms.Package.ReceiverUID == receiverUID);
 
-            CheckSenderStack();
-        }
-
-        private object _checkSenderStackLock = new object();
-
-        private void CheckSenderStack()
-        {
-            lock (_checkSenderStackLock)
-            {
-                if (_senderStackQueue)
-                    return;
-
-                if (_messageStack.Any())
+                if (hasInStack.Any())
                 {
-                    _senderStackQueue = true;
-                    Task.Run(() => RunSenderStack());
+                    _messageQueue.Add(messageStore);
                 }
+                else
+                {
+                    _messageStack.Add(messageStore);
+                }
+
+                Monitor.Pulse(_messageskLock);
             }
         }
 
         private void WaitingTimeoutCallback(object state)
         {
-            var message = (MessageStack)state;
+            var message = (MessageStore)state;
 
             message.TimeoutTimer?.Dispose();
             message.Callback?.Invoke(MessageArriveCode.Timeout, message.Package);
 
-            CheckSenderStack();
+            lock (_messageskLock)
+            {
+                Monitor.Pulse(_messageskLock);
+            }
         }
 
         private void RunSenderStack()
         {
-            System.Diagnostics.Debug.WriteLine("RunSenderStack in");
-            MessageStack message;
-            lock (_messageStack)
+            while (true)
             {
-                lock (_messageWaiting)
+                MessageStore message;
+                lock (_messageskLock)
                 {
-                    message = _messageStack
-                        .Where(s =>
-                        {
-                            if ((s.Package.Configuration & MessageConfigurationEnum.IsConfirmation) != 0)
-                                return true;
+                    if (!_messageStack.Any())
+                        Monitor.Wait(_messageskLock);
 
-                            var has = _messageWaiting
-                                .Where(mw => mw.Package.ReceiverUID == s.Package.ReceiverUID)
-                                .FirstOrDefault();
-                            return has == null;
-                        })
-                        .FirstOrDefault();
+                    message = _messageStack.FirstOrDefault();
+
+                    if (message == null)
+                        continue;
+
+                    _messageStack.Remove(message);
                 }
 
-                if (message == null)
-                    return;
-
-                _messageStack.Remove(message);
-            }
-
-            _physicalCouple.Send(message.Package);
-
-            if (message.Callback != null)
-            {
-                lock (_messageWaiting)
+                if (message.Callback != null)
                 {
-                    _messageWaiting.Add(message);
+                    lock (_messageWaiting)
+                    {
+                        _messageWaiting.Add(message);
+                    }
                 }
-            }
 
-            lock (_checkSenderStackLock)
-            {
-                _senderStackQueue = false;
+                _physicalCouple.Send(message.Package);
             }
-            CheckSenderStack();
-            System.Diagnostics.Debug.WriteLine("RunSenderStack out");
         }
 
         private void Receiver(MessagePackage package)
@@ -155,28 +138,26 @@ namespace AH.Protocol.Library
             {
                 var packageConfirmation = new MessagePackage(_UID, package.SenderUID, package.MessageID, MessageConfigurationEnum.IsConfirmation, new byte[0]);
 
-                var messageStack = new MessageStack
+                var messageStack = new MessageStore
                 {
                     Package = packageConfirmation
                 };
 
-                lock (_messageStack)
+                lock (_messageskLock)
                 {
                     _messageStack.Add(messageStack);
+                    Monitor.Pulse(_messageskLock);
                 }
             }
 
             if ((package.Configuration & MessageConfigurationEnum.IsConfirmation) != 0)
             {
-                MessageStack message;
+                MessageStore message;
                 lock (_messageWaiting)
                 {
                     message = _messageWaiting
                         .Where(s => s.Package.ReceiverUID == package.SenderUID && s.Package.MessageID == package.MessageID)
                         .FirstOrDefault();
-
-                    if (message != null)
-                        _messageWaiting.Remove(message);
                 }
 
                 if (message == null)
@@ -185,16 +166,34 @@ namespace AH.Protocol.Library
                 }
                 else
                 {
+                    lock (_messageWaiting)
+                    {
+                        _messageWaiting.Remove(message);
+                    }
                     message.TimeoutTimer?.Dispose();
                     message.Callback?.Invoke(MessageArriveCode.Ok, message.Package);
                 }
             }
             else
             {
+                var hasQueue = _messageQueue
+                    .Where(s => s.Package.ReceiverUID == package.SenderUID)
+                    .FirstOrDefault();
+
+                if (hasQueue != null)
+                {
+                    lock (_messageskLock)
+                    {
+                        _messageQueue.Remove(hasQueue);
+
+                        _messageStack.Add(hasQueue);
+
+                        Monitor.Pulse(_messageskLock);
+                    }
+                }
+
                 Task.Run(() => MessageArrive(MessageArriveCode.Ok, package));
             }
-
-            CheckSenderStack();
         }
     }
 }
