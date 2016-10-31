@@ -55,3 +55,36 @@
 				set modules
 			delete
 			
+
+- WebUI
+	- Home
+		start and news (future)
+	- Area
+		place to acess the areas registred and the modules per area
+	- Data
+		register all data
+		- Module
+		- RGB Standards
+		- Area
+
+
+	- Create the view controller
+		- list all areas
+			expand to modules in one area
+				expand to the configurations for this module
+	- Create the module controller
+		- list
+		- add
+		- edit
+		- remove
+	- Create the configuration controller
+		- Create the area RBG Standards
+			- list
+			- add
+			- edit
+			- remove
+	- Create the area controller
+		- list
+		- add
+		- edit
+		- remove

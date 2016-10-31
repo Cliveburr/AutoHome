@@ -64,3 +64,10 @@ packages
 *.pwi
 *.dbk
 *.sdf
+
+
+
+# Interface - WebUI
+Interface/WebUI/node_modules
+Interface/WebUI/src/**/*.js
+Interface/WebUI/src/**/*.js.map

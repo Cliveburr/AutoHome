@@ -1,0 +1,40 @@
+{
+  "name": "ah.interface.webui",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build-tsc": "tsc",
+    "build": "npm run build-tsc",
+    "serve": "http-server . -p 5556"
+  },
+  "keywords": [],
+  "author": "Adilson MANZOLI",
+  "license": "ISC",
+  "dependencies": {
+    "@angular/common": "^2.1.2",
+    "@angular/compiler": "^2.1.2",
+    "@angular/compiler-cli": "^2.1.2",
+    "@angular/core": "^2.1.2",
+    "@angular/platform-browser": "^2.1.2",
+    "@angular/platform-browser-dynamic": "^2.1.2",
+    "@angular/router": "^3.1.2",
+    "@angular/forms": "^2.1.2",
+    "@angular/http": "^2.1.2",
+    "@ng-bootstrap/ng-bootstrap": "^1.0.0-alpha.10",
+    "reflect-metadata": "^0.1.8",
+    "rxjs": "^5.0.0-rc.1",
+    "rxjs-es": "^5.0.0-beta.12",
+    "zone.js": "^0.6.26"
+  },
+  "devDependencies": {
+    "@types/node": "^6.0.46",
+    "http-server": "^0.9.0",
+    "typescript": "^2.0.6",
+    "uglifyjs": "^2.4.10",
+    "rollup": "^0.36.3",
+    "rollup-plugin-node-resolve": "^2.0.0",
+    "systemjs": "^0.19.40"
+  }
+}
