@@ -1,12 +1,14 @@
-import { Inject } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Http } from '@angular/http';
 import 'rxjs/add/operator/toPromise';
 import { ConfigService } from './configService';
 
+@Injectable()
 export class BaseService<T> {
 
+    public path: string;
+
     public constructor(
-        private path: string,
         private http: Http,
         private configService: ConfigService
     ) {

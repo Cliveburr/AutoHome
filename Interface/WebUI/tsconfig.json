@@ -15,20 +15,21 @@
     "noImplicitReturns": true,
     "noImplicitUseStrict": false,
     "noFallthroughCasesInSwitch": true,
-    "rootDir": "./src",
+    "rootDir": "./app",
     "watch": true,
     "typeRoots": [
       "./node_modules/@types"
     ],
     "types": [
-       "node"
+        "node",
+        "hammerjs"
     ]
   },
   "compileOnSave": false,
   "files": [
-    "src/app.ts",
-    "src/view/home/home.module.ts",
-    "src/view/area/area.module.ts",
-    "src/view/data/data.module.ts"
+    "app/main.ts",
+    "app/view/home/home.module.ts",
+    "app/view/area/area.module.ts",
+    "app/view/data/data.module.ts"
   ]
 }

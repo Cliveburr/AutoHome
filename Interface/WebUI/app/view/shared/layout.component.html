@@ -1,0 +1,18 @@
+<style>
+    .example-fill-remaining-space {
+        flex: 1 1 auto;
+    }
+</style>
+<md-toolbar color="primary">
+    <span>Auto Home</span>
+    <span class="example-fill-remaining-space"></span>
+    <button md-button [routerLink]="['/home']">Home</button>
+    <button md-button [routerLink]="['/area']">Area</button>
+    <button md-button [mdMenuTriggerFor]="menu">Menu</button>
+    <md-menu #menu="mdMenu">
+        <button md-menu-item [routerLink]="['/data/module']">Module</button>
+        <button md-menu-item [routerLink]="['/data/rgbstandards']">RGB Standards</button>
+        <button md-menu-item [routerLink]="['/data/area']">Area</button>
+    </md-menu>
+</md-toolbar>
+<router-outlet></router-outlet>
