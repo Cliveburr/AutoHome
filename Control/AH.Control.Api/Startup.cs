@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using AH.Control.Api.Entities;
 
 namespace AH.Control.Api
 {
@@ -19,6 +20,7 @@ namespace AH.Control.Api
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
                 .AddEnvironmentVariables();
+
             Configuration = builder.Build();
         }
 
@@ -29,6 +31,8 @@ namespace AH.Control.Api
         {
             // Add framework services.
             services.AddMvc();
+
+            services.AddSingleton(new AutoHomeDatabase(new Database.Connection("127.0.0.1", 28015)));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
