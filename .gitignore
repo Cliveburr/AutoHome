@@ -69,5 +69,11 @@ packages
 
 # Interface - WebUI
 Interface/WebUI/node_modules
-Interface/WebUI/src/**/*.js
-Interface/WebUI/src/**/*.js.map
+Interface/WebUI/app/**/*.js
+Interface/WebUI/app/**/*.js.map
+
+
+
+
+# Control - Api
+Control/**/*.exe
