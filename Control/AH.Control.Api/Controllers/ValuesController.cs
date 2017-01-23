@@ -58,7 +58,7 @@ namespace AH.Control.Api.Controllers
 
             var find = has.Where(name => name.ToString() == "test");
 
-            var aaa = _db.Module.Get();
+            //var aaa = _db.Module.Get();
 
             return "value";
         }

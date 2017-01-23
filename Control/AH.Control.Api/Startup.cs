@@ -8,6 +8,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using AH.Control.Api.Entities;
+using AH.Control.Api.Database;
+using AH.Control.Api.Business;
 
 namespace AH.Control.Api
 {
@@ -32,14 +34,21 @@ namespace AH.Control.Api
             // Add framework services.
             services.AddMvc();
 
-            services.AddSingleton(new AutoHomeDatabase(new Database.Connection("127.0.0.1", 28015)));
+            services.Configure<ConnectionOptions>(Configuration.GetSection("AutoHomeConnection"));
+            services.AddSingleton<IConnection, Connection>();
+            services.AddSingleton<AutoHomeDatabase>();
+
+            services.AddScoped<ModuleComponent>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, AutoHomeDatabase autoHomeDb)
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
+
+            autoHomeDb.Conection.Check();
+            autoHomeDb.Initialize();
 
             app.UseMvc();
         }

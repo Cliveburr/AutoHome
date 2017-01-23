@@ -1,4 +1,5 @@
-﻿using RethinkDb.Driver;
+﻿using Microsoft.Extensions.Options;
+using RethinkDb.Driver;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,16 +7,21 @@ using System.Threading.Tasks;
 
 namespace AH.Control.Api.Database
 {
-    public class Connection
+    public interface IConnection
+    {
+        RethinkDb.Driver.Net.Connection Conn { get; }
+        ConnectionOptions Options { get; }
+        void Check();
+    }
+
+    public class Connection : IConnection
     {
         public RethinkDb.Driver.Net.Connection Conn { get; private set; }
-        public string Hostname { get; private set; }
-        public int Port { get; private set; }
+        public ConnectionOptions Options { get; private set; }
 
-        public Connection(string hostname, int port)
+        public Connection(IOptions<ConnectionOptions> options)
         {
-            Hostname = hostname;
-            Port = port;
+            Options = options.Value;
         }
 
         public void Check()
@@ -23,18 +29,25 @@ namespace AH.Control.Api.Database
             if (Conn == null)
             {
                 Conn = RethinkDB.R.Connection()
-                    .Hostname(Hostname)
-                    .Port(Port)
-                    .Timeout(60)
+                    .Hostname(Options.Host)
+                    .Port(Options.Port)
+                    .Timeout(Options.Timeout)
                     .Connect();
             }
             else
             {
-                if (Conn.HasError)
+                if (Conn.HasError || !Conn.Open)
                     Conn.Reconnect();
-
-                Conn.CheckOpen();
             }
+
+            Conn.CheckOpen();
         }
+    }
+
+    public class ConnectionOptions
+    {
+        public string Host { get; set; }
+        public int Port { get; set; }
+        public int Timeout { get; set; }
     }
 }

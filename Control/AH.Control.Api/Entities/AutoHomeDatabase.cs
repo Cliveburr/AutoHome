@@ -10,9 +10,15 @@ namespace AH.Control.Api.Entities
     {
         public Table<ModuleEntity> Module { get; private set; }
 
-        public AutoHomeDatabase(Connection conn)
+        public AutoHomeDatabase(IConnection conn)
             : base("AutoHome", conn)
         {
+            Module = new Table<ModuleEntity>("Module", this);
+        }
+
+        public override void InitializeTables()
+        {
+            Module.Initialize();
         }
     }
 }

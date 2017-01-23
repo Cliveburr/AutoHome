@@ -6,44 +6,39 @@ using System.Threading.Tasks;
 
 namespace AH.Control.Api.Database
 {
-    public class Database
+    public interface IDatabase
     {
-        public Connection Conn { get; private set; }
-        public string Name { get; private set; }
-        public RethinkDb.Driver.Ast.Db Db { get; private set; }
+        IConnection Conection { get; }
+        string Name { get; }
+        bool Exist();
+        void Create();
+    }
 
-        public Database(string name, Connection conn)
+    public abstract class Database : IDatabase
+    {
+        public IConnection Conection { get; private set; }
+        public string Name { get; private set; }
+
+        public Database(string name, IConnection conn)
         {
             Name = name;
-            Conn = conn;
+            Conection = conn;
         }
 
-        public void Check()
+        public void Initialize()
         {
-            try
-            {
-                Conn.Check();
-            }
-            catch
-            {
-                Db = null;
-                throw;
-            }
+            if (!Exist())
+                Create();
 
-            if (Db == null)
-            {
-                if (!Exist())
-                    Create();
-
-                Db = RethinkDB.R.Db(Name)
-                    .Run(Conn.Conn);
-            }
+            InitializeTables();
         }
+
+        public abstract void InitializeTables();
 
         public bool Exist()
         {
             var has = (RethinkDB.R.DbList()
-                .Run(Conn.Conn) as Newtonsoft.Json.Linq.JArray)
+                .Run(Conection.Conn) as Newtonsoft.Json.Linq.JArray)
                 .Where(name => name.ToString() == Name)
                 .FirstOrDefault();
             return has != null;
@@ -52,7 +47,7 @@ namespace AH.Control.Api.Database
         public void Create()
         {
             RethinkDB.R.DbCreate(Name)
-                .Run(Conn.Conn);
+                .Run(Conection.Conn);
         }
     }
 }

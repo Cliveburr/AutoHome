@@ -8,42 +8,33 @@ namespace AH.Control.Api.Database
 {
     public class Table<T>
     {
-        public RethinkDb.Driver.Ast.Table Tbl { get; private set; }
         public string Name { get; private set; }
-        public Database Db { get; private set; }
+        public IDatabase Database { get; private set; }
 
         public Table(string name, Database db)
         {
             Name = name;
-            Db = db;
+            Database = db;
         }
 
-        public void Check()
+        public void Initialize()
         {
-            try
-            {
-                Db.Check();
-            }
-            catch
-            {
-                Tbl = null;
-                throw;
-            }
+            if (!Exist())
+                Create();
+        }
 
-            if (Tbl == null)
+        private RethinkDb.Driver.Ast.Db Db
+        {
+            get
             {
-                if (!Exist())
-                    Create();
-
-                Tbl = Db.Db.Table(Name)
-                    .Run(Db.Conn.Conn);
+                return RethinkDB.R.Db(Database.Name);
             }
         }
 
         public bool Exist()
         {
-            var has = (Db.Db.TableList()
-                .Run(Db.Conn.Conn) as Newtonsoft.Json.Linq.JArray)
+            var has = (Db.TableList()
+                .Run(Database.Conection.Conn) as Newtonsoft.Json.Linq.JArray)
                 .Where(name => name.ToString() == Name)
                 .FirstOrDefault();
             return has != null;
@@ -51,16 +42,60 @@ namespace AH.Control.Api.Database
 
         public void Create()
         {
-            Db.Db.TableCreate(Name)
-                .Run(Db.Conn.Conn);
+            Db.TableCreate(Name)
+                .Run(Database.Conection.Conn);
         }
 
-        public object Get()
+        public T Get(string id)
         {
-            Check();
-            return null;
+            return Db.Table(Name)
+                .Get(id)
+                .Run<T>(Database.Conection.Conn);
         }
 
+        public IEnumerable<T> GetAll()
+        {
+            var a = Db.Table(Name)
+                .RunCursor<T>(Database.Conection.Conn);
+            return a;
+        }
 
+        public string Create(T entity)
+        {
+            var ret = Db.Table(Name)
+                .Insert(entity)
+                .RunResult(Database.Conection.Conn);
+
+            if (ret.Inserted > 0)
+                return ret.GeneratedKeys.First().ToString();
+            else
+                return string.Empty;
+        }
+
+        public string Update(string id, T entity)
+        {
+            var ret = Db.Table(Name)
+                .Get(id)
+                .Update(entity)
+                .RunResult(Database.Conection.Conn);
+
+            if (ret.Replaced > 0)
+                return id;
+            else
+                return string.Empty;
+        }
+
+        public string Delete(string id)
+        {
+            var ret = Db.Table(Name)
+                .Get(id)
+                .Delete()
+                .RunResult(Database.Conection.Conn);
+
+            if (ret.Deleted > 0)
+                return id;
+            else
+                return string.Empty;
+        }
     }
 }
