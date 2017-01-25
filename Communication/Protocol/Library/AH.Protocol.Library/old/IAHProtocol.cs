@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace AH.Protocol.Library
 {
-    public interface IAHProtocol
+    public interface IAHProtocol_old
     {
         int TimeOut { get; set; }
         ushort UID { get; }

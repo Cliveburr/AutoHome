@@ -8,8 +8,13 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AH.Module.Simulation
+namespace AH.Protocol.WLan.Tests
 {
+    public enum Stage
+    {
+        Initial = 0
+    }
+
     public class Program
     {
         public static AhProtocol AutoHome { get; set; }
@@ -17,21 +22,22 @@ namespace AH.Module.Simulation
 
         public static void Main(string[] args)
         {
-            Console.WriteLine("Starting AH.Module.Simulation...");
+            Console.WriteLine("Starting AH.Protocol.Lan.Test...");
 
-            Lan = new LanProtocol(15556, 15555);
-            AutoHome = new AhProtocol(2, Lan);
+            Lan = new LanProtocol(15555, 15556);
+            AutoHome = new AhProtocol(1, Lan);
             AutoHome.Receiver += AutoHome_Receiver;
 
             ConsoleKey key;
             do
             {
-                key = Console.ReadKey().Key;
+                
+                key = Console.ReadKey(true).Key;
                 switch (key)
                 {
                     case ConsoleKey.A:
                         {
-                            var msg0 = new LanMessage(1, IPAddress.Broadcast, LanMessageType.Nop, new byte[0]);
+                            var msg0 = new LanMessage(2, IPAddress.Broadcast, LanMessageType.Nop, new byte[] { 1, 3, 2 });
                             AutoHome.Send(msg0);
                             break;
                         }
@@ -45,16 +51,10 @@ namespace AH.Module.Simulation
             Console.WriteLine("New message receiver...");
             Console.WriteLine(message.ToString());
         }
-    }
 
-    public class Sender
-    {
-        public async void Send()
+        private static string StageInitialHead()
         {
-            var client = new UdpClient();
-            var ip = new IPEndPoint(IPAddress.Broadcast, 16000);
-            byte[] bytes = Encoding.ASCII.GetBytes("Foo 2");
-            await client.SendAsync(bytes, bytes.Length, ip);
+            yield return "";
         }
     }
 }

@@ -5,11 +5,11 @@ using System.Threading.Tasks;
 
 namespace AH.Protocol.Library
 {
-    public delegate void ReceiverDelegate(MessagePackage package);
+    public delegate void ReceiverDelegate(MessageBase message);
 
-    public interface IPhysicalProtocolCouple
+    public interface IPhysicalProtocol
     {
-        void Send(MessagePackage package);
+        void Send(MessageBase message);
         event ReceiverDelegate Receiver;
     }
 }

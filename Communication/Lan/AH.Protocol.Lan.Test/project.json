@@ -5,8 +5,8 @@
   },
 
   "dependencies": {
+    "AH.Protocol.Lan": "1.0.0-*",
     "AH.Protocol.Library": "1.0.0-*",
-    "AH.Protocol.WLan": "1.0.0-*",
     "Microsoft.NETCore.App": {
       "type": "platform",
       "version": "1.0.1"
