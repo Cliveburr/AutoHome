@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using AH.Control.Api.Entities;
 using AH.Control.Api.Database;
 using AH.Control.Api.Business;
+using AH.Control.Api.Protocol;
 
 namespace AH.Control.Api
 {
@@ -39,16 +40,19 @@ namespace AH.Control.Api
             services.AddSingleton<AutoHomeDatabase>();
 
             services.AddScoped<ModuleComponent>();
+
+            services.Configure<AutoHomeOptions>(Configuration.GetSection("AutoHomeProtocol"));
+            services.AddSingleton<AutoHomeProtocol>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, AutoHomeDatabase autoHomeDb)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory,
+            AutoHomeDatabase autoHomeDb, AutoHomeProtocol protocol)
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
-            autoHomeDb.Conection.Check();
-            autoHomeDb.Initialize();
+            app.UseConnectionCheck();
 
             app.UseMvc();
         }

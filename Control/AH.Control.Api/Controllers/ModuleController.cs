@@ -1,5 +1,6 @@
 ﻿using AH.Control.Api.Business;
 using AH.Control.Api.Entities;
+using AH.Control.Api.Protocol;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -12,10 +13,12 @@ namespace AH.Control.Api.Controllers
     public class ModuleController : Controller
     {
         private ModuleComponent _module;
+        private AutoHomeProtocol _autoHome;
 
-        public ModuleController(ModuleComponent module)
+        public ModuleController(ModuleComponent module, AutoHomeProtocol autoHome)
         {
             _module = module;
+            _autoHome = autoHome;
         }
 
         [HttpGet]
@@ -40,6 +43,12 @@ namespace AH.Control.Api.Controllers
         public string Delete(string id)
         {
             return _module.Delete(id);
+        }
+
+        [HttpGet("broadcastinforequest")]
+        public void BroadcastInfoRequest()
+        {
+            _autoHome.BroadcastInfoRequest();
         }
     }
 }

@@ -5,6 +5,23 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "AH.Control.Api", "..\AH.Control.Api\AH.Control.Api.xproj", "{D8234127-A5D6-4BA9-96EC-39D19E5ED4D2}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "01 - Api", "01 - Api", "{E3678D81-15D9-43B1-9DC6-4BC25790FA9B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "02 - Protocol", "02 - Protocol", "{165B3D26-5D40-4389-8A7F-A2F578261473}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "01 - AutoHome", "01 - AutoHome", "{D2A3DD9C-5694-4FC5-80E4-07454C62A534}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "02 - Lan", "02 - Lan", "{F07893A0-3979-41A2-BCF9-7485D6CC3920}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "AH.Protocol.Library", "..\..\Communication\Protocol\Library\AH.Protocol.Library\AH.Protocol.Library.xproj", "{AD4BB28D-3E06-4EEE-9151-5805965A595C}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "AH.Protocol.Lan", "..\..\Communication\Lan\AH.Protocol.Lan\AH.Protocol.Lan.xproj", "{B421A53B-1A5F-4BDE-90CF-61534A8F71E6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{998E6F88-A914-4964-A3DE-A5B218B6C646}"
+	ProjectSection(SolutionItems) = preProject
+		..\global.json = ..\global.json
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,8 +32,23 @@ Global
 		{D8234127-A5D6-4BA9-96EC-39D19E5ED4D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D8234127-A5D6-4BA9-96EC-39D19E5ED4D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D8234127-A5D6-4BA9-96EC-39D19E5ED4D2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AD4BB28D-3E06-4EEE-9151-5805965A595C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD4BB28D-3E06-4EEE-9151-5805965A595C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD4BB28D-3E06-4EEE-9151-5805965A595C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD4BB28D-3E06-4EEE-9151-5805965A595C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B421A53B-1A5F-4BDE-90CF-61534A8F71E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B421A53B-1A5F-4BDE-90CF-61534A8F71E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B421A53B-1A5F-4BDE-90CF-61534A8F71E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B421A53B-1A5F-4BDE-90CF-61534A8F71E6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{D8234127-A5D6-4BA9-96EC-39D19E5ED4D2} = {E3678D81-15D9-43B1-9DC6-4BC25790FA9B}
+		{D2A3DD9C-5694-4FC5-80E4-07454C62A534} = {165B3D26-5D40-4389-8A7F-A2F578261473}
+		{F07893A0-3979-41A2-BCF9-7485D6CC3920} = {165B3D26-5D40-4389-8A7F-A2F578261473}
+		{AD4BB28D-3E06-4EEE-9151-5805965A595C} = {D2A3DD9C-5694-4FC5-80E4-07454C62A534}
+		{B421A53B-1A5F-4BDE-90CF-61534A8F71E6} = {F07893A0-3979-41A2-BCF9-7485D6CC3920}
 	EndGlobalSection
 EndGlobal

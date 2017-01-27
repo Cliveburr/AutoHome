@@ -5,7 +5,7 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "01 - Protocol", "01 - Protocol", "{C31A9B75-1DAA-4062-A175-5AC6E4D0EED4}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "02 - Tests", "02 - Tests", "{6A27180E-67C3-4FD9-BFAD-8DBF67589A4B}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "02 - Test", "02 - Test", "{6A27180E-67C3-4FD9-BFAD-8DBF67589A4B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "01 - AutoHome", "01 - AutoHome", "{947846D2-9F5E-493E-A4E9-F3BD3E6B2CEC}"
 EndProject
@@ -20,7 +20,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "00 - Solution Items", "00 -
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "AH.Protocol.Lan", "..\AH.Protocol.Lan\AH.Protocol.Lan.xproj", "{B421A53B-1A5F-4BDE-90CF-61534A8F71E6}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "AH.Protocol.Lan.Test", "..\AH.Protocol.Lan.Tests\AH.Protocol.Lan.Test.xproj", "{4A92B5A6-884D-4A8A-A051-5A5690D5E7FF}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "AH.Protocol.Lan.Test", "..\AH.Protocol.Lan.Test\AH.Protocol.Lan.Test.xproj", "{4A92B5A6-884D-4A8A-A051-5A5690D5E7FF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

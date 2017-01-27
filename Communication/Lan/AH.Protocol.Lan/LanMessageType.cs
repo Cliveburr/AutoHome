@@ -8,7 +8,7 @@ namespace AH.Protocol.Lan
     public enum LanMessageType : byte
     {
         Nop = 0,
-        RequestInfo = 1,
+        InfoRequest = 1,
         InfoResponse = 2,
         ModuleMessage = 50
     }

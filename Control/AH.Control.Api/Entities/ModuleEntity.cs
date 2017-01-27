@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using AH.Protocol.Library.Module;
+using AH.Protocol.Library.Module.LedRibbonRGB;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +12,10 @@ namespace AH.Control.Api.Entities
     {
         [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
         public string ModuleId { get; set; }
+        public ushort UID { get; set; }
         public string Alias { get; set; }
+        public byte[] Address { get; set; }
+        public ModuleType Type { get; set; }
+        public LedRibbonRGBState LedRibbonRGBState { get; set; }
     }
 }

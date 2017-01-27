@@ -27,7 +27,7 @@ namespace AH.Protocol.Library
 
         private void _physicalCouple_Receiver(MessageBase message)
         {
-            if (message.ReceiverUID != UID)
+            if (!(message.ReceiverUID == 0 || message.ReceiverUID == UID))
                 return;
 
             Receiver?.Invoke(message);

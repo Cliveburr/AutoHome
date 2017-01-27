@@ -66,7 +66,7 @@ namespace AH.Protocol.Lan
     SenderIPAddress = {SenderIPAddress.ToString()}
     ReceiverIPAddress = {ReceiverIPAddress.ToString()}
     Type = {Type.ToString()}
-    MessageBody = {MessageBody.ToString()}
+    MessageBody = {{{string.Join(", ", MessageBody)}}}
 }}";
         }
     }

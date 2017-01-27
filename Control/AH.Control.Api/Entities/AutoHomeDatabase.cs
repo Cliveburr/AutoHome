@@ -14,6 +14,8 @@ namespace AH.Control.Api.Entities
             : base("AutoHome", conn)
         {
             Module = new Table<ModuleEntity>("Module", this);
+            conn.Check();
+            Initialize();
         }
 
         public override void InitializeTables()

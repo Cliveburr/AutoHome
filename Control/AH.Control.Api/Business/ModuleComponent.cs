@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AH.Control.Api.Entities;
+using System.Net;
+using AH.Protocol.Lan;
 
 namespace AH.Control.Api.Business
 {
@@ -18,6 +20,13 @@ namespace AH.Control.Api.Business
             return Db.Module.GetAll();
         }
 
+        public ModuleEntity GetByUID(ushort uid)
+        {
+            return Db.Module
+                .Filter(new { UID = uid })
+                .FirstOrDefault();
+        }
+
         public string Create(ModuleEntity entity)
         {
             return Db.Module.Create(entity);
@@ -31,6 +40,30 @@ namespace AH.Control.Api.Business
         public string Delete(string id)
         {
             return Db.Module.Delete(id);
+        }
+
+        public void UpdateAddressForUID(ushort uid, IPAddress address, InfoMessage info)
+        {
+            var entity = Db.Module
+                .Filter(new { UID = uid })
+                .FirstOrDefault();
+
+            if (entity == null)
+            {
+                entity = new ModuleEntity
+                {
+                    UID = uid,
+                    Address = address.GetAddressBytes(),
+                    Type = info.ModuleType
+                };
+                Db.Module.Create(entity);
+            }
+            else
+            {
+                entity.Address = address.GetAddressBytes();
+                entity.Type = info.ModuleType;
+                Db.Module.Update(entity.ModuleId, entity);
+            }
         }
     }
 }

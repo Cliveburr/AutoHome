@@ -7,43 +7,124 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
+using System.IO;
+using AH.Module.Simulation.Mode;
 
 namespace AH.Module.Simulation
 {
+    public delegate void StageAction(StageContext context);
+
+    public class StageContext
+    {
+        public StageAction Current;
+        public bool IsHeader;
+        public bool Finish;
+        public IList<ConsoleKeyInfo> Keys;
+        public ModeBase Mode;
+    }
+
     public class Program
     {
-        public static AhProtocol AutoHome { get; set; }
-        public static LanProtocol Lan { get; set; }
+        public static IConfigurationRoot Configuration { get; set; }
 
         public static void Main(string[] args)
         {
-            Console.WriteLine("Starting AH.Module.Simulation...");
+            Configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("config.json")
+                .Build();
 
-            Lan = new LanProtocol(15556, 15555);
-            AutoHome = new AhProtocol(2, Lan);
-            AutoHome.Receiver += AutoHome_Receiver;
+            Console.WriteLine("Program AH.Module.Simulation...");
+            Console.WriteLine();
 
-            ConsoleKey key;
-            do
+            var context = new StageContext
             {
-                key = Console.ReadKey().Key;
-                switch (key)
-                {
-                    case ConsoleKey.A:
-                        {
-                            var msg0 = new LanMessage(1, IPAddress.Broadcast, LanMessageType.Nop, new byte[0]);
-                            AutoHome.Send(msg0);
-                            break;
-                        }
-                }
+                Current = ChooseSimulation,
+                IsHeader = true,
+                Finish = false,
+                Keys = new List<ConsoleKeyInfo>()
+            };
 
-            } while (key != ConsoleKey.Escape);
+            while (!context.Finish)
+            {
+                context.Current(context);
+
+                if (context.IsHeader)
+                {
+                    context.Keys.Clear();
+                }
+                else
+                {
+                    context.Keys.Add(Console.ReadKey(false));
+                }
+            };
+
+            Console.WriteLine("Closing...");
         }
 
-        private static void AutoHome_Receiver(MessageBase message)
+        private static void ChooseSimulation(StageContext context)
         {
-            Console.WriteLine("New message receiver...");
-            Console.WriteLine(message.ToString());
+            if (context.IsHeader)
+            {
+                Console.WriteLine("Choose the simulation you wish to run:");
+                Console.WriteLine("1 - LedRibbonRGB");
+                context.IsHeader = false;
+            }
+            else
+            {
+                if (context.Keys.Any())
+                {
+                    switch (context.Keys.Last().Key)
+                    {
+                        case ConsoleKey.D1:
+                            context.Current = LedRibbonRGBSimulation;
+                            context.IsHeader = true;
+                            break;
+                        case ConsoleKey.Escape:
+                            context.Finish = true;
+                            break;
+                        default:
+                            Console.WriteLine("Invalid!");
+                            break;
+                    }
+                }
+            }
+        }
+
+        private static void LedRibbonRGBSimulation(StageContext context)
+        {
+            if (context.IsHeader)
+            {
+                Console.WriteLine();
+                Console.WriteLine("Simulation an LedRibbonRGB module");
+                Console.WriteLine("UID: " + Configuration["UID"]);
+                Console.WriteLine("SendPort: " + Configuration["SendPort"]);
+                Console.WriteLine("ReceivePort: " + Configuration["ReceivePort"]);
+
+                context.Mode = new LedRibbonRGBMode();
+                context.Mode.Context = context;
+
+                Console.WriteLine("Simulation starting...");
+                context.Mode.Start();
+
+                context.IsHeader = false;
+            }
+            else
+            {
+                if (context.Keys.Any())
+                {
+                    switch (context.Keys.Last().Key)
+                    {
+                        case ConsoleKey.Escape:
+                            context.Finish = true;
+                            break;
+                        default:
+                            Console.WriteLine("Invalid!");
+                            break;
+                    }
+                }
+            }
         }
     }
 

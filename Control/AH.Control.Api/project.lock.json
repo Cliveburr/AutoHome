@@ -3450,6 +3450,34 @@
         "runtime": {
           "lib/netstandard1.3/System.Xml.XPath.XDocument.dll": {}
         }
+      },
+      "AH.Protocol.Lan/1.0.0": {
+        "type": "project",
+        "framework": ".NETStandard,Version=v1.6",
+        "dependencies": {
+          "AH.Protocol.Library": "1.0.0",
+          "NETStandard.Library": "1.6.0",
+          "System.Net.NameResolution": "4.0.0"
+        },
+        "compile": {
+          "netstandard1.6/AH.Protocol.Lan.dll": {}
+        },
+        "runtime": {
+          "netstandard1.6/AH.Protocol.Lan.dll": {}
+        }
+      },
+      "AH.Protocol.Library/1.0.0": {
+        "type": "project",
+        "framework": ".NETStandard,Version=v1.6",
+        "dependencies": {
+          "NETStandard.Library": "1.6.0"
+        },
+        "compile": {
+          "netstandard1.6/AH.Protocol.Library.dll": {}
+        },
+        "runtime": {
+          "netstandard1.6/AH.Protocol.Library.dll": {}
+        }
       }
     }
   },
@@ -9249,10 +9277,22 @@
         "ref/xamarintvos10/_._",
         "ref/xamarinwatchos10/_._"
       ]
+    },
+    "AH.Protocol.Lan/1.0.0": {
+      "type": "project",
+      "path": "../../Communication/Lan/AH.Protocol.Lan/project.json",
+      "msbuildProject": "../../Communication/Lan/AH.Protocol.Lan/AH.Protocol.Lan.xproj"
+    },
+    "AH.Protocol.Library/1.0.0": {
+      "type": "project",
+      "path": "../../Communication/Protocol/Library/AH.Protocol.Library/project.json",
+      "msbuildProject": "../../Communication/Protocol/Library/AH.Protocol.Library/AH.Protocol.Library.xproj"
     }
   },
   "projectFileDependencyGroups": {
     "": [
+      "AH.Protocol.Lan >= 1.0.0-*",
+      "AH.Protocol.Library >= 1.0.0-*",
       "Microsoft.AspNetCore.Mvc >= 1.0.1",
       "Microsoft.AspNetCore.Routing >= 1.0.1",
       "Microsoft.AspNetCore.Server.IISIntegration >= 1.0.0",

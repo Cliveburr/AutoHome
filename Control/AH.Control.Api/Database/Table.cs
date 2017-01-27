@@ -60,6 +60,13 @@ namespace AH.Control.Api.Database
             return a;
         }
 
+        public IEnumerable<T> Filter(object expre)
+        {
+            return Db.Table(Name)
+                .Filter(expre)
+                .RunCursor<T>(Database.Conection.Conn);
+        }
+
         public string Create(T entity)
         {
             var ret = Db.Table(Name)
