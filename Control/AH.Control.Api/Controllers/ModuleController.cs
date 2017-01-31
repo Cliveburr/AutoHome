@@ -27,16 +27,22 @@ namespace AH.Control.Api.Controllers
             return _module.Get();
         }
 
+        [HttpGet("{uid}")]
+        public ModuleEntity GetByUID(ushort uid)
+        {
+            return _module.GetByUID(uid);
+        }
+
         [HttpPut]
         public string Put([FromBody] ModuleEntity entity)
         {
             return _module.Create(entity);
         }
 
-        [HttpPost("{id}")]
-        public string Post(string id, [FromBody] ModuleEntity entity)
+        [HttpPost("{uid}")]
+        public void Post(string uid, [FromBody] ModuleEntity entity)
         {
-            return _module.Update(id, entity);
+            _module.UpdateForUID(ushort.Parse(uid), entity);
         }
 
         [HttpDelete("{id}")]

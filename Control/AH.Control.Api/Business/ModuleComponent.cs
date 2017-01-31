@@ -65,5 +65,19 @@ namespace AH.Control.Api.Business
                 Db.Module.Update(entity.ModuleId, entity);
             }
         }
+
+        public void UpdateForUID(ushort uid, ModuleEntity entity)
+        {
+            var model = Db.Module
+                .Filter(new { UID = uid })
+                .FirstOrDefault();
+
+            if (model == null)
+                throw new Exception();
+
+            model.Alias = entity.Alias;
+
+            Db.Module.Update(model.ModuleId, model);
+        }
     }
 }

@@ -17,9 +17,7 @@
       '@angular/http': 'npm:@angular/http/bundles/http.umd.js',
       '@angular/router': 'npm:@angular/router/bundles/router.umd.js',
       '@angular/forms': 'npm:@angular/forms/bundles/forms.umd.js',
-      '@angular/material': 'npm:@angular/material/bundles/material.umd.js',
       'rxjs': 'npm:rxjs',
-      'hammerjs': 'npm:hammerjs/hammer.min.js',
       // Bootstrap
       '@ng-bootstrap/ng-bootstrap': 'node_modules/@ng-bootstrap/ng-bootstrap/bundles/ng-bootstrap.js'
     },

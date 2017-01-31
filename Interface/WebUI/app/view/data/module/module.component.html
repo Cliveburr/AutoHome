@@ -1,17 +1,22 @@
 
-<h3>Modules</h3>
+<h1>Modules</h1>
 
-<table>
+<button type="button" class="btn btn-primary" (click)="onRefresh()"><i class="fa fa-refresh" aria-hidden="true"></i></button>
+<button type="button" class="btn btn-primary" (click)="onDiscovery()">Discovery</button>
+
+<table class="table table-striped">
     <thead>
-        <td>Module Id</td>
+        <td>UID</td>
         <td>Alias</td>
         <td>Type</td>
+        <td></td>
     </thead>
     <tbody>
         <tr *ngFor="let module of modules">
-            <td>{{module.moduleId}}</td>
+            <td>{{module.uid}}</td>
             <td>{{module.alias}}</td>
             <td>{{module.type}}</td>
+            <td><button type="button" class="btn btn-outline-primary btn-sm" [routerLink]="['/data/module/' + module.uid]">Edit</button></td>
         </tr>
     </tbody>
 </table>

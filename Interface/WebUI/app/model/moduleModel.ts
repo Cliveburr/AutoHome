@@ -5,7 +5,8 @@ export enum ModuleType {
 }
 
 export class ModuleModel {
-    public moduleId: number;
+    public id: string;
+    public uid: number;
     public alias: string;
     public type: ModuleType;
 }

@@ -1,11 +1,10 @@
 import './rxjs-extensions';
-import 'hammerjs';
 
 import { NgModule }       from '@angular/core';
 import { BrowserModule }  from '@angular/platform-browser';
 import { FormsModule }    from '@angular/forms';
 import { HttpModule }     from '@angular/http';
-import { MaterialModule } from '@angular/material';
+import { NgbModule }      from '@ng-bootstrap/ng-bootstrap';
 
 import { AppRoutingModule }     from './app-routing.module';
 import { LayoutComponent }   from './view/shared/layout.component';
@@ -13,14 +12,16 @@ import { LayoutComponent }   from './view/shared/layout.component';
 import { ConfigService } from './service/configService';
 
 @NgModule({
-  imports: [ BrowserModule, AppRoutingModule, FormsModule, HttpModule, MaterialModule.forRoot() ],
+  imports: [ BrowserModule, AppRoutingModule, FormsModule, HttpModule, NgbModule.forRoot() ],
   declarations: [ LayoutComponent ],
   bootstrap: [ LayoutComponent ],
   providers: [ ConfigService ],
-  exports: [  ]
+  exports: [ ]
 })
 export class AppModule {
 
-  public constructor() {
+  public constructor(
+    private configService: ConfigService
+  ) {
   }
 }

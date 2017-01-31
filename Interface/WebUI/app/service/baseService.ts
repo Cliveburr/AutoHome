@@ -18,26 +18,37 @@ export class BaseService<T> {
         return `${this.configService.envConfig.apiUrl}${this.path}`
     }
 
-    public get(): Promise<T[]> {
-        // return this.http
-        //     .get(this.basePath)
-        //     .toPromise()
-        //     .then(response => response.json().data as T[])
-        //     .catch(this.handleError);
-
-        console.log(this.http, this.configService);
-
-                return new Promise((e, r) => {
-            e([ 
-                { 'moduleId': 1, 'alias': 'vai2', 'type': 3 },
-                { 'moduleId': 1, 'alias': 'vai2', 'type': 3 },
-                { 'moduleId': 1, 'alias': 'vai2', 'type': 3 },
-                { 'moduleId': 1, 'alias': 'vai2', 'type': 3 }
-            ]);
-        })
-    }
-
     private handleError(error: any): Promise<any> {
         return Promise.reject(error.message || error);
+    }
+
+    public get(): Promise<T[]> {
+        return this.http
+            .get(this.basePath)
+            .toPromise()
+            .then(response => response.json() as T[])
+            .catch(this.handleError);
+    }
+    
+    public getUrl<T>(url: string): Promise<T> {
+        return this.http
+            .get(this.basePath + '/' + url)
+            .toPromise()
+            .then(response => response.json() as T)
+            .catch(this.handleError);
+    }
+
+    public ugetUrl(url: string): Promise<null> {
+        return this.http
+            .get(this.basePath + '/' + url)
+            .toPromise()
+            .catch(this.handleError);
+    }
+
+    public post(url: string, model: T): Promise<null> {
+        return this.http
+            .post(this.basePath + '/' + url, model)
+            .toPromise()
+            .catch(this.handleError);
     }
 }

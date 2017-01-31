@@ -16,8 +16,17 @@ export class ModuleComponent implements OnInit {
     }
 
     public ngOnInit(): void {
+        this.onRefresh();
+    }
+
+    public onRefresh(): void {
         this.moduleService
             .get()
             .then((data) => this.modules = data);
+    }
+
+    public onDiscovery(): void {
+        this.moduleService
+            .discovery();
     }
 }
