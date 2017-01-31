@@ -10,7 +10,7 @@ export class ModuleService {
     constructor(
         private base: BaseService<ModuleModel>
     ) {
-        base.path = 'api/module';
+        base.path = 'module';
     }
 
     public get(): Promise<ModuleModel[]> {
@@ -26,6 +26,6 @@ export class ModuleService {
     }
 
     public update(module: ModuleModel): Promise<null> {
-        return this.base.post(module.uid.toString(), module);
+        return this.base.post(module, module.uid.toString());
     }
 }

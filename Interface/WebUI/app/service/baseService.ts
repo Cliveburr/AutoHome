@@ -45,9 +45,27 @@ export class BaseService<T> {
             .catch(this.handleError);
     }
 
-    public post(url: string, model: T): Promise<null> {
+    public post(model: T, url?: string): Promise<null> {
+        let wurl = url ?
+            this.basePath + '/' + url :
+            this.basePath;
+
         return this.http
-            .post(this.basePath + '/' + url, model)
+            .post(wurl, model)
+            .toPromise()
+            .catch(this.handleError);
+    }
+
+    public put(model: T): Promise<null> {
+        return this.http
+            .put(this.basePath, model)
+            .toPromise()
+            .catch(this.handleError);
+    }
+
+    public delete(url: string): Promise<null> {
+        return this.http
+            .delete(this.basePath + '/' + url)
             .toPromise()
             .catch(this.handleError);
     }

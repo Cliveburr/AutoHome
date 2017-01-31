@@ -50,3 +50,22 @@
 	
 Como usar grava��o in-line
 http://electronics.stackexchange.com/questions/145266/pic18f4550-external-oscillator
+
+
+Color Picker
+https://github.com/DavidDurman/FlexiColorPicker
+
+
+WebUI
+{
+	Home
+	Area
+	Data
+		Module
+		Standards
+			RBGLight
+		Area
+		
+	
+	
+}
