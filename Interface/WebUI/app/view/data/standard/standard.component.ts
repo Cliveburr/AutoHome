@@ -1,19 +1,20 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { Router } from '@angular/router';
+import { BaseView } from '../../shared/baseView';
 import { StandardModel, StandardType } from '../../../model/standardModel';
 import { StandardService } from '../../../service/standardService';
 
 @Component({
   moduleId: module.id,
   templateUrl: 'standard.component.html',
-  styleUrls: [  ]
+  styleUrls: [  ],
+  providers: [ BaseView ]
 })
 export class StandardComponent implements OnInit {
     public standards: StandardModel[];
 
     public constructor(
-        private standardService: StandardService,
-        private router: Router
+        private base: BaseView,
+        private standardService: StandardService
     ) {
     }
 
@@ -28,13 +29,17 @@ export class StandardComponent implements OnInit {
     }
 
     public onCreate(): void {
-        this.router.navigate(['/data/standard', 'create']);
+        this.base.router.navigate(['/data/standard', 'create']);
     }
 
     public onDelete(standard: StandardModel): void {
         this.standardService
             .delete(standard.id)
             .then(() => this.onRefresh());
+    }
+
+    public onBack(): void {
+        this.base.location.back();
     }
 }
 

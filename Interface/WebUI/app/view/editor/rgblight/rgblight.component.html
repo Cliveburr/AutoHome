@@ -1,0 +1,31 @@
+
+<h1>Editor Rbg Light</h1>
+
+<h4>{{header}}</h4>
+
+<button type="button" class="btn btn-primary" (click)="onBack()"><i class="fa fa-arrow-left" aria-hidden="true"></i></button>
+<button type="button" class="btn btn-primary" (click)="onApply()"><i class="fa fa-floppy-o" aria-hidden="true"></i> Apply</button>
+
+<div *ngIf="isStandard">
+
+    <div class="row">
+        <div class="col-6">
+            <div class="form-group row">
+                <label class="col-2 col-form-label" for="red">Red</label>
+                <input class="col-5 form-control" type="text" id="red" placeholder="Red" [value]="standard.value.red">
+            </div>
+            <div class="form-group row">
+                <label class="col-2 col-form-label" for="green">Green</label>
+                <input class="col-5 form-control" type="text" id="green" placeholder="Green" [value]="standard.value.green">
+            </div>
+            <div class="form-group row">
+                <label class="col-2 col-form-label" for="blue">Blue</label>
+                <input class="col-5 form-control" type="text" id="blue" placeholder="Blue" [value]="standard.value.blue">
+            </div>
+        </div>
+        <div class="col-6">
+            <colorpicker></colorpicker>
+        </div>
+    </div>
+
+</div>

@@ -1,6 +1,7 @@
 
 <h1>Standards</h1>
 
+<button type="button" class="btn btn-primary" (click)="onBack()"><i class="fa fa-arrow-left" aria-hidden="true"></i></button>
 <button type="button" class="btn btn-primary" (click)="onRefresh()"><i class="fa fa-refresh" aria-hidden="true"></i></button>
 <button type="button" class="btn btn-primary" (click)="onCreate()">Create</button>
 
@@ -9,11 +10,15 @@
         <td>Name</td>
         <td>Type</td>
         <td></td>
+        <td></td>
     </thead>
     <tbody>
         <tr *ngFor="let standard of standards">
             <td>{{standard.name}}</td>
             <td><standardtype [value]="standard.type"></standardtype></td>
+            <td [ngSwitch]="standard.type">
+                <button type="button" class="btn btn-outline-primary btn-sm" *ngSwitchCase="0" [routerLink]="['/editor/rgblight/standard/' + standard.id]">Light</button>    
+            </td>
             <td>
                 <button type="button" class="btn btn-outline-primary btn-sm" [routerLink]="['/data/standard/' + standard.id]">Edit</button>
                 <button type="button" class="btn btn-outline-primary btn-sm" (click)="onDelete(standard)">Delete</button>

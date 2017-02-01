@@ -29,6 +29,7 @@
     "app/main.ts",
     "app/view/home/home.module.ts",
     "app/view/area/area.module.ts",
-    "app/view/data/data.module.ts"
+    "app/view/data/data.module.ts",
+    "app/view/editor/editor.module.ts"
   ]
 }

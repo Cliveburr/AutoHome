@@ -63,9 +63,14 @@ WebUI
 	Data
 		Module
 		Standards
-			RBGLight
+			RgbLight
 		Area
 		
-	
+	Editor
+		RgbLight
 	
 }
+
+Standard
+	Manual
+	Picker

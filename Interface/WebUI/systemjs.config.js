@@ -19,7 +19,9 @@
       '@angular/forms': 'npm:@angular/forms/bundles/forms.umd.js',
       'rxjs': 'npm:rxjs',
       // Bootstrap
-      '@ng-bootstrap/ng-bootstrap': 'node_modules/@ng-bootstrap/ng-bootstrap/bundles/ng-bootstrap.js'
+      '@ng-bootstrap/ng-bootstrap': 'npm:@ng-bootstrap/ng-bootstrap/bundles/ng-bootstrap.js',
+      // Vendor
+      'colorpicker': 'vendor/colorpicker.min.js'
     },
     // packages tells the System loader how to load when no filename and/or no extension
     packages: {
