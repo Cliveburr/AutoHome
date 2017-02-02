@@ -30,6 +30,12 @@ namespace AH.Control.Api.Controllers
             return _standard.GetByID(id);
         }
 
+        [HttpGet("listByType/{type}")]
+        public IEnumerable<StandardList> GetListByType(StandardType type)
+        {
+            return _standard.GetListByType(type);
+        }
+
         [HttpPut]
         public string Put([FromBody] StandardEntity entity)
         {
@@ -40,6 +46,12 @@ namespace AH.Control.Api.Controllers
         public void Post([FromBody] StandardEntity entity)
         {
             _standard.Update(entity);
+        }
+
+        [HttpPost("value")]
+        public void PostValue([FromBody] StandardEntity entity)
+        {
+            _standard.UpdateValue(entity);
         }
 
         [HttpDelete("{id}")]

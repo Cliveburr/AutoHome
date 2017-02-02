@@ -5,6 +5,10 @@ using System.Threading.Tasks;
 using AH.Control.Api.Entities;
 using System.Net;
 using AH.Protocol.Lan;
+using AH.Protocol.Library.Module;
+using AH.Protocol.Library.Value;
+using AH.Protocol.Library.Module.LedRibbonRGB;
+using AH.Control.Api.Entities.State;
 
 namespace AH.Control.Api.Business
 {
@@ -18,6 +22,12 @@ namespace AH.Control.Api.Business
         public IEnumerable<ModuleEntity> Get()
         {
             return Db.Module.GetAll();
+        }
+
+        public ModuleEntity GetByID(string id)
+        {
+            return Db.Module
+                .Get(id);
         }
 
         public ModuleEntity GetByUID(ushort uid)
@@ -64,6 +74,34 @@ namespace AH.Control.Api.Business
                 entity.Type = info.ModuleType;
                 Db.Module.Update(entity.ModuleId, entity);
             }
+        }
+
+        internal void UpdateState(ModuleEntity entity)
+        {
+            var model = GetByID(entity.ModuleId);
+
+            switch (entity.Type)
+            {
+                case ModuleType.LedRibbonRgb: UpdateLedRibbonRgbState(model, entity.LedRibbonRgbState); break;
+            }
+        }
+
+        private void UpdateLedRibbonRgbState(ModuleEntity model, LedRibbonRgbState state)
+        {
+            if (state.IsStandard)
+            {
+                var standard = Db.Standard.Get(state.StandardId);
+                if (standard == null)
+                    return; //TODO: throw error
+
+                state.Value = standard.Value;
+
+            }
+
+            //send state.Value
+
+            model.LedRibbonRgbState = state;
+            Db.Module.Update(model.ModuleId, model);
         }
 
         public void UpdateForUID(ushort uid, ModuleEntity entity)

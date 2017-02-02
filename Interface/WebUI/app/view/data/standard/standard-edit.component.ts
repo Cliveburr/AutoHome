@@ -52,6 +52,6 @@ export class StandardEditComponent implements OnInit {
     }
 
     public onBack(): void {
-        this.base.location.back();
+        this.base.back();
     }
 }

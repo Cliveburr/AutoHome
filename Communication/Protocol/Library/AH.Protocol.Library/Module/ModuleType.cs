@@ -8,6 +8,7 @@ namespace AH.Protocol.Library.Module
     public enum ModuleType : byte
     {
         Invalid = 0,
-        LedRibbonRGB = 1
+        LedRibbonRgb = 1,
+        IncandescentLamp = 2
     }
 }

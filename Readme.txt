@@ -55,6 +55,9 @@ http://electronics.stackexchange.com/questions/145266/pic18f4550-external-oscill
 Color Picker
 https://github.com/DavidDurman/FlexiColorPicker
 
+Angular 2 Color Picker Component
+https://github.com/Alberplz/angular2-color-picker
+
 
 WebUI
 {

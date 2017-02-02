@@ -1,5 +1,5 @@
-﻿using AH.Protocol.Library.Module;
-using AH.Protocol.Library.Module.LedRibbonRGB;
+﻿using AH.Control.Api.Entities.State;
+using AH.Protocol.Library.Module;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -16,6 +16,6 @@ namespace AH.Control.Api.Entities
         public string Alias { get; set; }
         public byte[] Address { get; set; }
         public ModuleType Type { get; set; }
-        public LedRibbonRGBState LedRibbonRGBState { get; set; }
+        public LedRibbonRgbState LedRibbonRgbState { get; set; }
     }
 }

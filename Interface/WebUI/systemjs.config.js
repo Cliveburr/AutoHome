@@ -21,7 +21,7 @@
       // Bootstrap
       '@ng-bootstrap/ng-bootstrap': 'npm:@ng-bootstrap/ng-bootstrap/bundles/ng-bootstrap.js',
       // Vendor
-      'colorpicker': 'vendor/colorpicker.min.js'
+      'angular2-color-picker': 'npm:angular2-color-picker'
     },
     // packages tells the System loader how to load when no filename and/or no extension
     packages: {
@@ -30,6 +30,10 @@
         defaultExtension: 'js'
       },
       rxjs: {
+        defaultExtension: 'js'
+      },
+      'angular2-color-picker': {
+        main:'index.js',
         defaultExtension: 'js'
       }
     }

@@ -5,10 +5,10 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule }    from '@angular/forms';
 
 import { RgbLightComponent } from './rgblight/rgblight.component';
-import { ColorPickerComponent } from '../../component/colorPicker';
+import { ColorPickerModule } from 'angular2-color-picker';
 
-import { BaseService } from '../../service/baseService';
 import { StandardService } from '../../service/standardService';
+import { ModuleService } from '../../service/moduleService';
 
 const routes: Routes = [
     { path: '', redirectTo: '/home', pathMatch: 'full' },
@@ -16,10 +16,10 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [ CommonModule, RouterModule.forChild(routes), NgbModule, FormsModule ],
-  declarations: [ RgbLightComponent, ColorPickerComponent ],
+  imports: [ CommonModule, RouterModule.forChild(routes), NgbModule, FormsModule, ColorPickerModule ],
+  declarations: [ RgbLightComponent ],
   exports: [ RouterModule ],
-  providers: [ BaseService, StandardService ]
+  providers: [ StandardService, ModuleService ]
 })
 export default class EditorModule {
 

@@ -1,10 +1,8 @@
-import { Injectable } from '@angular/core';
-import { Http } from '@angular/http';
 import 'rxjs/add/operator/toPromise';
+import { Http } from '@angular/http';
 import { ConfigService } from './configService';
 
-@Injectable()
-export class BaseService<T> {
+export abstract class BaseService<T> {
 
     public path: string;
 

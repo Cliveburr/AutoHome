@@ -15,9 +15,9 @@
     <tbody>
         <tr *ngFor="let standard of standards">
             <td>{{standard.name}}</td>
-            <td><standardtype [value]="standard.type"></standardtype></td>
+            <td><enumtext [enum]="standardType" [value]="standard.type"></enumtext></td>
             <td [ngSwitch]="standard.type">
-                <button type="button" class="btn btn-outline-primary btn-sm" *ngSwitchCase="0" [routerLink]="['/editor/rgblight/standard/' + standard.id]">Light</button>    
+                <button type="button" class="btn btn-outline-primary btn-sm" *ngSwitchCase="0" [routerLink]="['/editor/rgblight/standard/' + standard.id]">Vaue</button>    
             </td>
             <td>
                 <button type="button" class="btn btn-outline-primary btn-sm" [routerLink]="['/data/standard/' + standard.id]">Edit</button>

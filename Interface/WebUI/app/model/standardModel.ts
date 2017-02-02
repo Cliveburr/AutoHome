@@ -11,3 +11,8 @@ export class StandardModel {
     public type: StandardType;
     public value: RgbLightModel;
 }
+
+export class StandardListModel {
+    public standardId: string;
+    public name: string;
+}

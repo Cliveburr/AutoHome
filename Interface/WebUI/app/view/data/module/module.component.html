@@ -1,6 +1,7 @@
 
 <h1>Modules</h1>
 
+<button type="button" class="btn btn-primary" (click)="onBack()"><i class="fa fa-arrow-left" aria-hidden="true"></i></button>
 <button type="button" class="btn btn-primary" (click)="onRefresh()"><i class="fa fa-refresh" aria-hidden="true"></i></button>
 <button type="button" class="btn btn-primary" (click)="onDiscovery()">Discovery</button>
 
@@ -15,8 +16,14 @@
         <tr *ngFor="let module of modules">
             <td>{{module.uid}}</td>
             <td>{{module.alias}}</td>
-            <td>{{module.type}}</td>
-            <td><button type="button" class="btn btn-outline-primary btn-sm" [routerLink]="['/data/module/' + module.uid]">Edit</button></td>
+            <td><enumtext [enum]="moduleType" [value]="module.type"></enumtext></td>
+            <td [ngSwitch]="module.type">
+                <button type="button" class="btn btn-outline-primary btn-sm" *ngSwitchCase="1" [routerLink]="['/editor/rgblight/module/' + module.id]">Vaue</button>    
+            </td>
+            <td>
+                <button type="button" class="btn btn-outline-primary btn-sm" [routerLink]="['/data/module/' + module.id]">Edit</button>
+                <button type="button" class="btn btn-outline-primary btn-sm" (click)="onDelete(module)">Delete</button>
+            </td>
         </tr>
     </tbody>
 </table>

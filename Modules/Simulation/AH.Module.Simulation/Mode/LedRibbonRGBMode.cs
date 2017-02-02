@@ -7,16 +7,17 @@ using AH.Protocol.Lan;
 using System.Net;
 using AH.Protocol.Library.Module.LedRibbonRGB;
 using AH.Protocol.Library.Module;
+using AH.Protocol.Library.Value;
 
 namespace AH.Module.Simulation.Mode
 {
     public class LedRibbonRGBMode : ModeBase
     {
-        public LedRibbonRGBState State { get; set; }
+        public RgbLightValue State { get; set; }
 
         public LedRibbonRGBMode()
         {
-            State = new LedRibbonRGBState
+            State = new RgbLightValue
             {
                 Red = 0,
                 Green = 0,
@@ -55,14 +56,14 @@ namespace AH.Module.Simulation.Mode
 
         private void SendBroadcastInfoResponse()
         {
-            var info = new InfoMessage(ModuleType.LedRibbonRGB);
+            var info = new InfoMessage(ModuleType.LedRibbonRgb);
             var response = new LanMessage(0, IPAddress.Broadcast, LanMessageType.InfoResponse, info.GetBytes());
             AutoHome.Send(response);
         }
 
         private void SendInfoRequest(LanMessage message)
         {
-            var info = new InfoMessage(ModuleType.LedRibbonRGB);
+            var info = new InfoMessage(ModuleType.LedRibbonRgb);
             var response = new LanMessage(message.SenderUID, message.SenderIPAddress, LanMessageType.InfoResponse, info.GetBytes());
             AutoHome.Send(response);
         }

@@ -1,38 +1,45 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { BaseView } from '../../shared/baseView';
 import { ModuleModel } from '../../../model/moduleModel';
 import { ModuleService } from '../../../service/moduleService';
 
 @Component({
   moduleId: module.id,
   templateUrl: 'module-edit.component.html',
-  styleUrls: [  ]
+  styleUrls: [  ],
+  providers: [ BaseView ]
 })
 export class ModuleEditComponent implements OnInit {
     public module: ModuleModel;
-    public uid: number;
+    public id: string;
 
     public constructor(
-        private moduleService: ModuleService,
-        private route: ActivatedRoute,
-        private router: Router
+        private base: BaseView,
+        private moduleService: ModuleService
     ) {
     }
 
     public ngOnInit(): void {
-        this.route.params.subscribe(params => this.uid = params['uid']);
-        this.onRefresh();
+        this.base.route.params.subscribe(params => {
+            this.id = params['id'];
+            this.onRefresh();
+        });
     }
 
     public onRefresh(): void {
         this.moduleService
-            .getByUID(this.uid)
-            .then((data) => this.module = data);
+            .getByID(this.id)
+            .then((data) =>
+                this.module = data);
     }
 
     public onSave(): void {
         this.moduleService
             .update(this.module)
-            .then(() => this.router.navigateByUrl('/data/module'));
+            .then(() => this.base.router.navigateByUrl('/data/module'));
     }
+
+    public onBack(): void {
+        this.base.back();
+    }  
 }

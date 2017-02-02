@@ -27,7 +27,13 @@ namespace AH.Control.Api.Controllers
             return _module.Get();
         }
 
-        [HttpGet("{uid}")]
+        [HttpGet("{id}")]
+        public ModuleEntity GetByID(string id)
+        {
+            return _module.GetByID(id);
+        }
+
+        [HttpGet("uid/{uid}")]
         public ModuleEntity GetByUID(ushort uid)
         {
             return _module.GetByUID(uid);
@@ -43,6 +49,12 @@ namespace AH.Control.Api.Controllers
         public void Post(string uid, [FromBody] ModuleEntity entity)
         {
             _module.UpdateForUID(ushort.Parse(uid), entity);
+        }
+
+        [HttpPost("state")]
+        public void PostValue([FromBody] ModuleEntity entity)
+        {
+            _module.UpdateState(entity);
         }
 
         [HttpDelete("{id}")]

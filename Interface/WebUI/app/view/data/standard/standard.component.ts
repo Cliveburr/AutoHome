@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { BaseView } from '../../shared/baseView';
 import { StandardModel, StandardType } from '../../../model/standardModel';
 import { StandardService } from '../../../service/standardService';
@@ -11,6 +11,7 @@ import { StandardService } from '../../../service/standardService';
 })
 export class StandardComponent implements OnInit {
     public standards: StandardModel[];
+    public standardType = StandardType;
 
     public constructor(
         private base: BaseView,
@@ -39,23 +40,6 @@ export class StandardComponent implements OnInit {
     }
 
     public onBack(): void {
-        this.base.location.back();
-    }
-}
-
-
-@Component({
-    selector: 'standardtype',
-    template: `{{text}}`
-})
-export class StandardTypeComponent implements OnInit {
-
-    public text: string;
-
-    @Input()
-    public value: number;
-
-    public ngOnInit(): void {
-        this.text = StandardType[this.value];
+        this.base.back();
     }
 }

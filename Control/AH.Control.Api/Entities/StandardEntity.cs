@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using AH.Protocol.Library.Value;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,5 +13,12 @@ namespace AH.Control.Api.Entities
         public string StandardId { get; set; }
         public string Name { get; set; }
         public StandardType Type { get; set; }
+        public RgbLightValue Value { get; set; }
+    }
+
+    public class StandardList
+    {
+        public string StandardId { get; set; }
+        public string Name { get; set; }
     }
 }

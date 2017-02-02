@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AH.Protocol.Library.Value;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace AH.Protocol.Library.Module.LedRibbonRGB
     public class LedribbonRGBMessage
     {
         public LedribbonRGBMessageType Type { get; private set; }
-        public LedRibbonRGBState State { get; private set; }
+        public RgbLightValue State { get; private set; }
 
         private LedribbonRGBMessage()
         {
@@ -23,7 +24,7 @@ namespace AH.Protocol.Library.Module.LedRibbonRGB
             };
         }
 
-        public static LedribbonRGBMessage CreateStateResponse(LedRibbonRGBState state)
+        public static LedribbonRGBMessage CreateStateResponse(RgbLightValue state)
         {
             return new LedribbonRGBMessage
             {
@@ -32,7 +33,7 @@ namespace AH.Protocol.Library.Module.LedRibbonRGB
             };
         }
 
-        public static LedribbonRGBMessage CreateStateChange(LedRibbonRGBState state)
+        public static LedribbonRGBMessage CreateStateChange(RgbLightValue state)
         {
             return new LedribbonRGBMessage
             {
@@ -77,7 +78,7 @@ namespace AH.Protocol.Library.Module.LedRibbonRGB
                     return new LedribbonRGBMessage
                     {
                         Type = type,
-                        State = new LedRibbonRGBState
+                        State = new RgbLightValue
                         {
                             Red = stateBytes[0],
                             Green = stateBytes[1],

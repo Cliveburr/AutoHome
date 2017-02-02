@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace AH.Protocol.Library.Module.LedRibbonRGB
+namespace AH.Protocol.Library.Value
 {
-    public class LedRibbonRGBState
+    public class RgbLightValue
     {
         public byte Red { get; set; }
         public byte Green { get; set; }
@@ -13,12 +13,7 @@ namespace AH.Protocol.Library.Module.LedRibbonRGB
 
         public override string ToString()
         {
-            return $@"LedribbonRGBState
-{{
-    Red = {Red}
-    Green = {Green}
-    Blue = {Blue}
-}}";
+            return $@"RgbLightValue {{ Red = {Red}, Green = {Green}, Blue = {Blue} }}";
         }
     }
 }

@@ -47,7 +47,7 @@ namespace AH.Control.Api.Protocol
 
         private void ProcessResponseState(ModuleEntity entity, LedribbonRGBMessage moduleMsg)
         {
-            entity.LedRibbonRGBState = moduleMsg.State;
+            entity.LedRibbonRgbState = moduleMsg.State;
             ModuleComponent.Update(entity.ModuleId, entity);
         }
     }

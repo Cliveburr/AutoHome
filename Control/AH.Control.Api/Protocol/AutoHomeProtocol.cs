@@ -18,14 +18,14 @@ namespace AH.Control.Api.Protocol
         public ModuleComponent ModuleComponent { get; set; }
         public AhProtocol AutoHome { get; set; }
         public LanProtocol Lan { get; set; }
-        public LedRibbonRGBCenter LedRibbonRGB { get; set; }
+        public LedRibbonRGBCenter LedRibbonRgb { get; set; }
 
         public AutoHomeProtocol(IOptions<AutoHomeOptions> options, ModuleComponent moduleComponent)
         {
             Options = options.Value;
             ModuleComponent = moduleComponent;
 
-            LedRibbonRGB = new LedRibbonRGBCenter(this, moduleComponent);
+            LedRibbonRgb = new LedRibbonRGBCenter(this, moduleComponent);
 
             Lan = new LanProtocol(Options.ReceivePort, Options.SendPort);
             AutoHome = new AhProtocol(Options.UID, Lan);
@@ -69,7 +69,7 @@ namespace AH.Control.Api.Protocol
 
             switch (entity.Type)
             {
-                case AH.Protocol.Library.Module.ModuleType.LedRibbonRGB: LedRibbonRGB.ProcessMessage(entity, message); break;
+                case AH.Protocol.Library.Module.ModuleType.LedRibbonRgb: LedRibbonRgb.ProcessMessage(entity, message); break;
             }
         }
     }
