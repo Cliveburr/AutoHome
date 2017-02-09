@@ -2,7 +2,7 @@ import 'rxjs/add/operator/toPromise';
 import { Http } from '@angular/http';
 import { ConfigService } from './configService';
 
-export abstract class BaseService<T> {
+export abstract class BaseService {
 
     public path: string;
 
@@ -20,30 +20,30 @@ export abstract class BaseService<T> {
         return Promise.reject(error.message || error);
     }
 
-    public get(): Promise<T[]> {
+    protected get(): Promise<any> {
         return this.http
             .get(this.basePath)
             .toPromise()
-            .then(response => response.json() as T[])
+            .then(response => response.json())
             .catch(this.handleError);
     }
     
-    public getUrl<T>(url: string): Promise<T> {
+    protected getUrl(url: string): Promise<any> {
         return this.http
             .get(this.basePath + '/' + url)
             .toPromise()
-            .then(response => response.json() as T)
+            .then(response => response.json())
             .catch(this.handleError);
     }
 
-    public ugetUrl(url: string): Promise<null> {
+    protected ugetUrl(url: string): Promise<null> {
         return this.http
             .get(this.basePath + '/' + url)
             .toPromise()
             .catch(this.handleError);
     }
 
-    public post(model: T, url?: string): Promise<null> {
+    protected post(model: any, url?: string): Promise<null> {
         let wurl = url ?
             this.basePath + '/' + url :
             this.basePath;
@@ -54,14 +54,14 @@ export abstract class BaseService<T> {
             .catch(this.handleError);
     }
 
-    public put(model: T): Promise<null> {
+    protected put<T>(model: T): Promise<null> {
         return this.http
             .put(this.basePath, model)
             .toPromise()
             .catch(this.handleError);
     }
 
-    public delete(url: string): Promise<null> {
+    protected delete(url: string): Promise<null> {
         return this.http
             .delete(this.basePath + '/' + url)
             .toPromise()

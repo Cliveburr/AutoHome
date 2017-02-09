@@ -1,5 +1,6 @@
 ﻿using AH.Control.Api.Business;
 using AH.Control.Api.Entities;
+using AH.Control.Api.Models.Standard;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -31,7 +32,7 @@ namespace AH.Control.Api.Controllers
         }
 
         [HttpGet("listByType/{type}")]
-        public IEnumerable<StandardList> GetListByType(StandardType type)
+        public IEnumerable<StandardListViewModel> GetListByType(StandardType type)
         {
             return _standard.GetListByType(type);
         }

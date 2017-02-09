@@ -17,7 +17,7 @@ namespace AH.Control.Api.Protocol
 
         public LedRibbonRGBCenter(AutoHomeProtocol protocol, ModuleComponent moduleComponent)
         {
-            Protocol = Protocol;
+            Protocol = protocol;
             ModuleComponent = moduleComponent;
         }
 
@@ -41,14 +41,21 @@ namespace AH.Control.Api.Protocol
             var moduleMsg = LedribbonRGBMessage.Parse(message.MessageBody);
             switch (moduleMsg.Type)
             {
-                case LedribbonRGBMessageType.StateResponse: ProcessResponseState(entity, moduleMsg); break;
+                case LedribbonRGBMessageType.StateResponse: ProcessResponseState(entity.ModuleId, moduleMsg); break;
             }
         }
 
-        private void ProcessResponseState(ModuleEntity entity, LedribbonRGBMessage moduleMsg)
+        private void ProcessResponseState(string moduleId, LedribbonRGBMessage moduleMsg)
         {
-            entity.LedRibbonRgbState = moduleMsg.State;
-            ModuleComponent.Update(entity.ModuleId, entity);
+            ModuleComponent.UpdateLedRibbonRgbValue(moduleId, moduleMsg.State);
+        }
+
+        public void SendValue(ModuleEntity entity)
+        {
+            var moduleMsg = LedribbonRGBMessage.CreateStateChange(entity.LedRibbonRgbState.Value);
+            var address = new IPAddress(entity.Address);
+            var msg0 = new LanMessage(entity.UID, address, LanMessageType.ModuleMessage, moduleMsg.GetBytes());
+            Protocol.AutoHome.Send(msg0);
         }
     }
 }

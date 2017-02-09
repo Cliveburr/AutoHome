@@ -1,22 +1,19 @@
 ﻿using AH.Control.Api.Entities.State;
+using AH.Control.Api.Models.Standard;
 using AH.Protocol.Library.Module;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace AH.Control.Api.Entities
+namespace AH.Control.Api.Models.Module
 {
-    public class ModuleEntity
+    public class EditorViewModel
     {
-        [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
         public string ModuleId { get; set; }
-        public ushort UID { get; set; }
         public string Alias { get; set; }
-        public byte[] Address { get; set; }
         public ModuleType Type { get; set; }
         public LedRibbonRgbState LedRibbonRgbState { get; set; }
-        public string AreaBelong { get; set; }
+        public StandardListViewModel[] StandardList { get; set; }
     }
 }

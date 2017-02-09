@@ -1,0 +1,38 @@
+
+<h2>Editor Rbg Light</h2>
+
+<button type="button" class="btn btn-primary" (click)="onBack()"><i class="fa fa-arrow-left" aria-hidden="true"></i></button>
+<button type="button" class="btn btn-primary" (click)="onApply()"><i class="fa fa-floppy-o" aria-hidden="true"></i> Apply</button>
+<hr class="my-2">
+
+<div class="form-group row">
+    <label class="col-2 col-form-label" for="alias">Module Alias</label>
+    <input class="col-6 form-control" disabled type="text" id="alias" placeholder="Alias" [value]="model?.alias">
+</div>
+<ngb-tabset [activeId]="moduleTab" (tabChange)="onModuleTabChange($event)">
+    <ngb-tab title="Manual" id="byManual">
+        <template ngbTabContent>
+            <div class="form-group row pt-2">
+                <label class="col-2 col-form-label" for="value">Value</label>
+                <div class="col-6">
+                    <input class="form-control" type="text" id="value" placeholder="Value" [value]="color"
+                        [style.background]="color" 
+                        [(colorPicker)]="color"
+                        [cpAlphaChannel]="'disabled'"
+                        [cpOutputFormat]="'rgba'"
+                        [cpPosition]="'bottom'">
+                </div>
+            </div>
+        </template>
+    </ngb-tab>
+    <ngb-tab title="Standard" id="byStandard">
+        <template ngbTabContent>
+            <div class="form-group row pt-2">
+                <label class="col-2 col-form-label" for="modValueStan">Standard</label>
+                <select class="custom-select col-sm-6" [(ngModel)]="standardSel" name="sel">
+                    <option *ngFor="let stan of model?.standardList" [value]="stan.standardId" [label]="stan.name"></option>
+                </select>
+            </div>
+        </template>
+    </ngb-tab>
+</ngb-tabset>

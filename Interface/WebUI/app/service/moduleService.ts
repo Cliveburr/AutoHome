@@ -3,11 +3,11 @@ import { Http } from '@angular/http';
 import { ConfigService } from './configService';
 
 import { BaseService } from './baseService';
-import { ModuleModel, ModuleType } from '../model/moduleModel';
+import { IndexViewModel, EditViewModel, EditorViewModel, ModuleType } from '../model/moduleModel';
 import { StandardType } from '../model/standardModel';
 
 @Injectable()
-export class ModuleService extends BaseService<ModuleModel> {
+export class ModuleService extends BaseService {
 
     constructor(
         http: Http,
@@ -17,32 +17,32 @@ export class ModuleService extends BaseService<ModuleModel> {
         super.path = 'module';
     }
 
-    public get(): Promise<ModuleModel[]> {
-        return this.get();
+    public getIndex(): Promise<IndexViewModel> {
+        return super.get();
     }
 
-    public getByID(id: string): Promise<ModuleModel> {
-        return this.getUrl(id);
+    public discovery(): Promise<null> {
+        return this.ugetUrl('broadcastinforequest');
     }
 
-    public getByUID(uid: number): Promise<ModuleModel> {
-        return this.getUrl('uid/' + uid.toString());
+    public delete(id: string): Promise<null> {
+        return super.delete(id);
     }
 
-    public discovery(): void {
-        this.ugetUrl('broadcastinforequest');
+    public getEdit(id: string): Promise<EditViewModel> {
+        return super.getUrl('edit/' + id);
     }
 
-    public update(module: ModuleModel): Promise<null> {
-        return this.post(module, module.uid.toString());
+    public postEdit(model: EditViewModel): Promise<null> {
+        return super.post(model, 'edit');
     }
 
-    public updateState(module: ModuleModel): Promise<null> {
-        return this.post(module, module.uid.toString());
+    public getEditor(id: string): Promise<EditorViewModel> {
+        return super.getUrl('editor/' + id);
     }
 
-    public delete(id: string): Promise<ModuleModel> {
-        return this.delete(id);
+    public postEditor(model: EditorViewModel): Promise<null> {
+        return super.post(model, 'editor');
     }
 
     public getStandardType(type: ModuleType): StandardType {

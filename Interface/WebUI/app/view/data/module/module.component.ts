@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { BaseView } from '../../shared/baseView';
-import { ModuleModel, ModuleType } from '../../../model/moduleModel';
+import { IndexViewModel, IndexModule, ModuleType } from '../../../model/moduleModel';
 import { ModuleService } from '../../../service/moduleService';
 
 @Component({
@@ -10,7 +10,7 @@ import { ModuleService } from '../../../service/moduleService';
   providers: [ BaseView ]
 })
 export class ModuleComponent implements OnInit {
-    public modules: ModuleModel[];
+    public model: IndexViewModel;
     public moduleType = ModuleType;
 
     public constructor(
@@ -25,8 +25,8 @@ export class ModuleComponent implements OnInit {
 
     public onRefresh(): void {
         this.moduleService
-            .get()
-            .then((data) => this.modules = data);
+            .getIndex()
+            .then((data) => this.model = data);
     }
 
     public onDiscovery(): void {
@@ -34,9 +34,9 @@ export class ModuleComponent implements OnInit {
             .discovery();
     }
 
-    public onDelete(module: ModuleModel): void {
+    public onDelete(module: IndexModule): void {
         this.moduleService
-            .delete(module.id)
+            .delete(module.moduleId)
             .then(() => this.onRefresh());
     }
 

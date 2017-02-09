@@ -1,4 +1,4 @@
-﻿using AH.Protocol.Library.Value;
+﻿using AH.Control.Api.Database;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -7,12 +7,11 @@ using System.Threading.Tasks;
 
 namespace AH.Control.Api.Entities
 {
-    public class StandardEntity
+    public class AreaEntity
     {
         [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
-        public string StandardId { get; set; }
+        public string AreaId { get; set; }
         public string Name { get; set; }
-        public StandardType Type { get; set; }
-        public RgbLightValue Value { get; set; }
+        public List<string> ModuleContent { get; set; } = new List<string>();
     }
 }

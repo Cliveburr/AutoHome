@@ -2,6 +2,7 @@
 using AH.Control.Api.Entities;
 using AH.Protocol.Lan;
 using AH.Protocol.Library;
+using AH.Protocol.Library.Module;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using System;
@@ -69,7 +70,15 @@ namespace AH.Control.Api.Protocol
 
             switch (entity.Type)
             {
-                case AH.Protocol.Library.Module.ModuleType.LedRibbonRgb: LedRibbonRgb.ProcessMessage(entity, message); break;
+                case ModuleType.LedRibbonRgb: LedRibbonRgb.ProcessMessage(entity, message); break;
+            }
+        }
+
+        public void SendValue(ModuleEntity entity)
+        {
+            switch (entity.Type)
+            {
+                case ModuleType.LedRibbonRgb: LedRibbonRgb.SendValue(entity); break;
             }
         }
     }

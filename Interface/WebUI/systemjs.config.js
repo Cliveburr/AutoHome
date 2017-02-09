@@ -21,7 +21,8 @@
       // Bootstrap
       '@ng-bootstrap/ng-bootstrap': 'npm:@ng-bootstrap/ng-bootstrap/bundles/ng-bootstrap.js',
       // Vendor
-      'angular2-color-picker': 'npm:angular2-color-picker'
+      'angular2-color-picker': 'npm:angular2-color-picker',
+      'ng2-drag-drop': 'npm:ng2-drag-drop'
     },
     // packages tells the System loader how to load when no filename and/or no extension
     packages: {
@@ -35,7 +36,8 @@
       'angular2-color-picker': {
         main:'index.js',
         defaultExtension: 'js'
-      }
+      },
+      'ng2-drag-drop': { main: 'index.js',  defaultExtension: 'js' }
     }
   });
 })(this);

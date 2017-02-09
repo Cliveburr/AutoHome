@@ -1,0 +1,21 @@
+
+.no-padding {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.drag-over-border {
+    border: #ff525b dashed 2px;
+}
+
+.drag-target-border {
+    border: #00bfff dashed 2px;
+}
+
+.drag-target-border-green {
+    border: #3c763d dashed 2px;
+}
+
+.drag-handle {
+    cursor: move;
+}

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { BaseView } from '../../shared/baseView';
-import { ModuleModel } from '../../../model/moduleModel';
+import { EditViewModel } from '../../../model/moduleModel';
 import { ModuleService } from '../../../service/moduleService';
 
 @Component({
@@ -10,7 +10,7 @@ import { ModuleService } from '../../../service/moduleService';
   providers: [ BaseView ]
 })
 export class ModuleEditComponent implements OnInit {
-    public module: ModuleModel;
+    public model: EditViewModel;
     public id: string;
 
     public constructor(
@@ -28,14 +28,13 @@ export class ModuleEditComponent implements OnInit {
 
     public onRefresh(): void {
         this.moduleService
-            .getByID(this.id)
-            .then((data) =>
-                this.module = data);
+            .getEdit(this.id)
+            .then((data) => this.model = data);
     }
 
     public onSave(): void {
         this.moduleService
-            .update(this.module)
+            .postEdit(this.model)
             .then(() => this.base.router.navigateByUrl('/data/module'));
     }
 

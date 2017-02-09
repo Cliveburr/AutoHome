@@ -9,6 +9,7 @@ using AH.Protocol.Library.Module;
 using AH.Protocol.Library.Value;
 using AH.Protocol.Library.Module.LedRibbonRGB;
 using AH.Control.Api.Entities.State;
+using AH.Control.Api.Protocol;
 
 namespace AH.Control.Api.Business
 {
@@ -21,10 +22,10 @@ namespace AH.Control.Api.Business
 
         public IEnumerable<ModuleEntity> Get()
         {
-            return Db.Module.GetAll();
+            return Db.Module.Get();
         }
 
-        public ModuleEntity GetByID(string id)
+        public ModuleEntity Get(string id)
         {
             return Db.Module
                 .Get(id);
@@ -33,18 +34,7 @@ namespace AH.Control.Api.Business
         public ModuleEntity GetByUID(ushort uid)
         {
             return Db.Module
-                .Filter(new { UID = uid })
-                .FirstOrDefault();
-        }
-
-        public string Create(ModuleEntity entity)
-        {
-            return Db.Module.Create(entity);
-        }
-
-        public string Update(string id, ModuleEntity entity)
-        {
-            return Db.Module.Update(id, entity);
+                .FilterFirst(new { UID = uid });
         }
 
         public string Delete(string id)
@@ -55,8 +45,7 @@ namespace AH.Control.Api.Business
         public void UpdateAddressForUID(ushort uid, IPAddress address, InfoMessage info)
         {
             var entity = Db.Module
-                .Filter(new { UID = uid })
-                .FirstOrDefault();
+                .FilterFirst(new { UID = uid });
 
             if (entity == null)
             {
@@ -76,44 +65,57 @@ namespace AH.Control.Api.Business
             }
         }
 
-        internal void UpdateState(ModuleEntity entity)
+        public void UpdateLedRibbonRgbValue(string moduleId, RgbLightValue value)
         {
-            var model = GetByID(entity.ModuleId);
+            var entity = Get(moduleId);
+            if (entity == null)
+                return;
 
-            switch (entity.Type)
+            if (entity.LedRibbonRgbState == null)
             {
-                case ModuleType.LedRibbonRgb: UpdateLedRibbonRgbState(model, entity.LedRibbonRgbState); break;
+                entity.LedRibbonRgbState = new LedRibbonRgbState
+                {
+                    IsStandard = false,
+                    StandardId = null,
+                    Value = value
+                };
             }
+            else
+            {
+                entity.LedRibbonRgbState.Value = value;
+            }
+
+            Db.Module.Update(entity.ModuleId, entity);
         }
 
-        private void UpdateLedRibbonRgbState(ModuleEntity model, LedRibbonRgbState state)
+        public ModuleEntity UpdateLedRibbonRgbState(string moduleId, LedRibbonRgbState state)
         {
+            var entity = Get(moduleId);
+            if (entity == null)
+                return null;
+
             if (state.IsStandard)
             {
                 var standard = Db.Standard.Get(state.StandardId);
                 if (standard == null)
-                    return; //TODO: throw error
+                    throw new Exception();
 
                 state.Value = standard.Value;
-
             }
 
-            //send state.Value
+            entity.LedRibbonRgbState = state;
+            Db.Module.Update(entity.ModuleId, entity);
 
-            model.LedRibbonRgbState = state;
-            Db.Module.Update(model.ModuleId, model);
+            return entity;
         }
 
-        public void UpdateForUID(ushort uid, ModuleEntity entity)
+        public void Update(string moduleId, string alias)
         {
-            var model = Db.Module
-                .Filter(new { UID = uid })
-                .FirstOrDefault();
-
+            var model = Db.Module.Get(moduleId);
             if (model == null)
                 throw new Exception();
 
-            model.Alias = entity.Alias;
+            model.Alias = alias;
 
             Db.Module.Update(model.ModuleId, model);
         }

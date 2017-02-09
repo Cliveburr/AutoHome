@@ -1,4 +1,5 @@
 ﻿using RethinkDb.Driver;
+using RethinkDb.Driver.Net;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -53,18 +54,25 @@ namespace AH.Control.Api.Database
                 .Run<T>(Database.Conection.Conn);
         }
 
-        public IEnumerable<T> GetAll()
+        public Cursor<T> Get()
         {
-            var a = Db.Table(Name)
+            return Db.Table(Name)
                 .RunCursor<T>(Database.Conection.Conn);
-            return a;
         }
 
-        public IEnumerable<T> Filter(object expre)
+        public Cursor<T> Filter(object expre)
         {
             return Db.Table(Name)
                 .Filter(expre)
                 .RunCursor<T>(Database.Conection.Conn);
+        }
+
+        public T FilterFirst(object expre)
+        {
+            return Db.Table(Name)
+                .Filter(expre)
+                .RunCursor<T>(Database.Conection.Conn)
+                .FirstOrDefault();
         }
 
         public string Create(T entity)

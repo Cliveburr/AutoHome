@@ -1,14 +1,11 @@
 
-<h1>Standard Edit</h1>
+<h2>Standard Edit</h2>
 
 <button type="button" class="btn btn-primary" (click)="onBack()"><i class="fa fa-arrow-left" aria-hidden="true"></i></button>
 <button type="button" class="btn btn-primary" (click)="onSave()"><i class="fa fa-floppy-o" aria-hidden="true"></i> Save</button>
+<hr class="my-2">
 
 <form *ngIf="standard">
-    <div class="form-group row">
-        <label class="col-2 col-form-label" for="id">ID</label>
-        <input class="col-5 form-control" disabled type="text" id="id" placeholder="ID" [value]="standard.id">
-    </div>
     <div class="form-group row">
         <label class="col-2 col-form-label" for="name">Name</label>
         <input class="col-5 form-control" type="text" id="name" placeholder="Name" [(ngModel)]="standard.name" name="name">

@@ -1,6 +1,8 @@
 ﻿using AH.Control.Api.Business;
 using AH.Control.Api.Entities;
+using AH.Control.Api.Models.Module;
 using AH.Control.Api.Protocol;
+using AH.Protocol.Library.Module;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -13,60 +15,112 @@ namespace AH.Control.Api.Controllers
     public class ModuleController : Controller
     {
         private ModuleComponent _module;
+        private AreaComponent _area;
+        private StandardComponent _standard;
         private AutoHomeProtocol _autoHome;
 
-        public ModuleController(ModuleComponent module, AutoHomeProtocol autoHome)
+        public ModuleController(ModuleComponent module, AreaComponent area, StandardComponent standard, AutoHomeProtocol autoHome)
         {
             _module = module;
+            _area = area;
+            _standard = standard;
             _autoHome = autoHome;
         }
 
         [HttpGet]
-        public IEnumerable<ModuleEntity> Get()
+        public IndexViewModel Index()
         {
-            return _module.Get();
-        }
-
-        [HttpGet("{id}")]
-        public ModuleEntity GetByID(string id)
-        {
-            return _module.GetByID(id);
-        }
-
-        [HttpGet("uid/{uid}")]
-        public ModuleEntity GetByUID(ushort uid)
-        {
-            return _module.GetByUID(uid);
-        }
-
-        [HttpPut]
-        public string Put([FromBody] ModuleEntity entity)
-        {
-            return _module.Create(entity);
-        }
-
-        [HttpPost("{uid}")]
-        public void Post(string uid, [FromBody] ModuleEntity entity)
-        {
-            _module.UpdateForUID(ushort.Parse(uid), entity);
-        }
-
-        [HttpPost("state")]
-        public void PostValue([FromBody] ModuleEntity entity)
-        {
-            _module.UpdateState(entity);
-        }
-
-        [HttpDelete("{id}")]
-        public string Delete(string id)
-        {
-            return _module.Delete(id);
+            var modules = _module.Get();
+            return new IndexViewModel
+            {
+                List = modules.Select(m => new IndexModule
+                {
+                    ModuleId = m.ModuleId,
+                    UID = m.UID,
+                    Alias = m.Alias,
+                    Type = m.Type,
+                    AreaBelong = string.IsNullOrEmpty(m.AreaBelong) ? "" : _area.Get(m.AreaBelong)?.Name
+                }).ToArray()
+            };
         }
 
         [HttpGet("broadcastinforequest")]
         public void BroadcastInfoRequest()
         {
             _autoHome.BroadcastInfoRequest();
+        }
+
+        [HttpDelete("{id}")]
+        public void Delete(string id)
+        {
+            _module.Delete(id);
+        }
+
+        [HttpGet("edit/{id}")]
+        public EditViewModel GetEdit(string id)
+        {
+            var module = _module.Get(id);
+            return new EditViewModel
+            {
+                ModuleId = module.ModuleId,
+                UID = module.UID,
+                Alias = module.Alias
+            };
+        }
+
+        [HttpPost("edit")]
+        public void PostEdit([FromBody] EditViewModel model)
+        {
+            _module.Update(model.ModuleId, model.Alias);
+        }
+
+        [HttpGet("editor/{id}")]
+        public EditorViewModel GetEditor(string id)
+        {
+            var module = _module.Get(id);
+            return new EditorViewModel
+            {
+                ModuleId = module.ModuleId,
+                Alias = module.Alias,
+                Type = module.Type,
+                LedRibbonRgbState = module.LedRibbonRgbState,
+                StandardList = GetStandardList(module.Type)
+            };
+        }
+
+        [HttpPost("editor")]
+        public void PostEditor([FromBody] EditorViewModel model)
+        {
+            switch (model.Type)
+            {
+                case ModuleType.LedRibbonRgb:
+                    {
+                        var module = _module.UpdateLedRibbonRgbState(model.ModuleId, model.LedRibbonRgbState);
+                        _autoHome.SendValue(module);
+                        break;
+                    }
+                default:
+                    throw new Exception();
+            }
+        }
+
+        private Models.Standard.StandardListViewModel[] GetStandardList(ModuleType type)
+        {
+            var standardType = StandardType.RbgLight;
+            switch (type)
+            {
+                case ModuleType.LedRibbonRgb: standardType = StandardType.RbgLight; break;
+                case ModuleType.IncandescentLamp: standardType = StandardType.BlackWhiteLight; break;
+                default:
+                    throw new Exception("Invalid ModuleType! Type: " + type.ToString());
+            }
+
+            return _standard.GetListByType(standardType)
+                .Select(s => new Models.Standard.StandardListViewModel
+                {
+                    StandardId = s.StandardId,
+                    Name = s.Name
+                }).ToArray();
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using AH.Control.Api.Entities;
+using AH.Control.Api.Models.Standard;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +16,7 @@ namespace AH.Control.Api.Business
 
         public IEnumerable<StandardEntity> Get()
         {
-            return Db.Standard.GetAll();
+            return Db.Standard.Get();
         }
 
         public StandardEntity GetByID(string id)
@@ -24,11 +25,11 @@ namespace AH.Control.Api.Business
                 .Get(id);
         }
 
-        public IEnumerable<StandardList> GetListByType(StandardType type)
+        public IEnumerable<StandardListViewModel> GetListByType(StandardType type)
         {
             return Db.Standard
                 .Filter(new { Type = type })
-                .Select(s => new StandardList
+                .Select(s => new StandardListViewModel
                 {
                     StandardId = s.StandardId,
                     Name = s.Name
