@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AH.Protocol.Library.Value;
 
 namespace AH.Control.Api.Business
 {
@@ -19,7 +20,7 @@ namespace AH.Control.Api.Business
             return Db.Standard.Get();
         }
 
-        public StandardEntity GetByID(string id)
+        public StandardEntity Get(string id)
         {
             return Db.Standard
                 .Get(id);
@@ -36,27 +37,39 @@ namespace AH.Control.Api.Business
                 });
         }
 
+        public string Delete(string id)
+        {
+            return Db.Standard.Delete(id);
+        }
+
         public string Create(StandardEntity entity)
         {
             entity.StandardId = null;
             return Db.Standard.Create(entity);
         }
 
-        public string Update(StandardEntity entity)
+        public string Update(string standardId, string name, StandardType type)
         {
+            var entity = Get(standardId);
+            if (entity == null)
+                throw new Exception();
+
+            entity.Name = name;
+            entity.Type = type;
+
             return Db.Standard.Update(entity.StandardId, entity);
         }
 
-        public string UpdateValue(StandardEntity entity)
+        public StandardEntity UpdateRbgLightValue(string standardId, RgbLightValue rgbLightValue)
         {
-            var model = GetByID(entity.StandardId);
-            model.Value = entity.Value;
-            return Update(entity);
-        }
+            var entity = Get(standardId);
+            if (entity == null)
+                throw new Exception();
 
-        public string Delete(string id)
-        {
-            return Db.Standard.Delete(id);
+            entity.RgbLightValue = rgbLightValue;
+
+            Db.Standard.Update(entity.StandardId, entity);
+            return entity;
         }
     }
 }

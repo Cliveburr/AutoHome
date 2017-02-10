@@ -3,7 +3,7 @@ import { Http } from '@angular/http';
 import { ConfigService } from './configService';
 
 import { BaseService } from './baseService';
-import { StandardModel, StandardListModel, StandardType } from '../model/standardModel';
+import { IndexViewModel, EditViewModel, EditorViewModel } from '../model/standardModel';
 
 @Injectable()
 export class StandardService extends BaseService {
@@ -16,35 +16,27 @@ export class StandardService extends BaseService {
         this.path = 'standard';
     }
 
-    public get(): Promise<StandardModel[]> {
+    public getIndex(): Promise<IndexViewModel> {
         return super.get();
     }
 
-    public getByID(id: string): Promise<StandardModel> {
-        return super.getUrl(id);
-    }
-
-    public getListByType(type: StandardType): Promise<StandardListModel[]> {
-        return super.getUrl('listByType/' + type.toString());
-    }
-
-    public discovery(): void {
-        super.ugetUrl('broadcastinforequest');
-    }
-
-    public create(standard: StandardModel): Promise<null> {
-        return super.put(standard);
-    }
-
-    public update(standard: StandardModel): Promise<null> {
-        return super.post(standard);
-    }
-
-    public updateValue(standard: StandardModel): Promise<null> {
-        return super.post(standard, 'value');
-    }
-
-    public delete(id: string): Promise<StandardModel> {
+    public delete(id: string): Promise<null> {
         return super.delete(id);
-    }    
+    }
+
+    public getEdit(id: string): Promise<EditViewModel> {
+        return super.getUrl('edit/' + id);
+    }
+
+    public postEdit(model: EditViewModel): Promise<null> {
+        return super.post(model, 'edit');
+    }
+
+    public getEditor(id: string): Promise<EditorViewModel> {
+        return super.getUrl('editor/' + id);
+    }
+
+    public postEditor(model: EditorViewModel): Promise<null> {
+        return super.post(model, 'editor');
+    }
 }

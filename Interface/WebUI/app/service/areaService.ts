@@ -3,7 +3,7 @@ import { Http } from '@angular/http';
 import { ConfigService } from './configService';
 
 import { BaseService } from './baseService';
-import { IndexViewModel, EditViewModel } from '../model/areaModel';
+import { IndexViewModel, EditViewModel, AreaViewModel } from '../model/areaModel';
 
 @Injectable()
 export class AreaService extends BaseService {
@@ -30,5 +30,9 @@ export class AreaService extends BaseService {
 
     public postEdit(model: EditViewModel): Promise<null> {
         return super.post(model, 'edit');
+    }
+
+    public getArea(): Promise<AreaViewModel> {
+        return super.getUrl('area');
     }
 }

@@ -20,45 +20,98 @@ namespace AH.Control.Api.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<StandardEntity> Get()
+        public IndexViewModel Index()
         {
-            return _standard.Get();
-        }
-
-        [HttpGet("{id}")]
-        public StandardEntity GetByUID(string id)
-        {
-            return _standard.GetByID(id);
-        }
-
-        [HttpGet("listByType/{type}")]
-        public IEnumerable<StandardListViewModel> GetListByType(StandardType type)
-        {
-            return _standard.GetListByType(type);
-        }
-
-        [HttpPut]
-        public string Put([FromBody] StandardEntity entity)
-        {
-            return _standard.Create(entity);
-        }
-
-        [HttpPost]
-        public void Post([FromBody] StandardEntity entity)
-        {
-            _standard.Update(entity);
-        }
-
-        [HttpPost("value")]
-        public void PostValue([FromBody] StandardEntity entity)
-        {
-            _standard.UpdateValue(entity);
+            var standard = _standard.Get();
+            return new IndexViewModel
+            {
+                List = standard.Select(s => new IndexStandard
+                {
+                    StandardId = s.StandardId,
+                    Name = s.Name,
+                    Type = s.Type,
+                    ModuleCount = s.ModuleUse.Count
+                }).ToArray()
+            };
         }
 
         [HttpDelete("{id}")]
         public string Delete(string id)
         {
             return _standard.Delete(id);
+        }
+
+        [HttpGet("edit/{id}")]
+        public EditViewModel GetEdit(string id)
+        {
+            if (id == "create")
+            {
+                return new EditViewModel
+                {
+                    StandardId = id,
+                    Name = "",
+                    Type = StandardType.BlackWhiteLight
+                };
+            }
+            else
+            {
+                var standard = _standard.Get(id);
+
+                return new EditViewModel
+                {
+                    StandardId = standard.StandardId,
+                    Name = standard.Name,
+                    Type = standard.Type
+                };
+            }
+        }
+
+        [HttpPost("edit")]
+        public void PostEdit([FromBody] EditViewModel model)
+        {
+            if (model.StandardId == "create")
+            {
+                var area = new StandardEntity
+                {
+                    StandardId = model.StandardId,
+                    Name = model.Name,
+                    Type = model.Type
+                };
+                _standard.Create(area);
+            }
+            else
+            {
+                _standard.Update(model.StandardId, model.Name, model.Type);
+            }
+        }
+
+        [HttpGet("editor/{id}")]
+        public EditorViewModel GetEditor(string id)
+        {
+            var standard = _standard.Get(id);
+            return new EditorViewModel
+            {
+                StandardId = standard.StandardId,
+                Name = standard.Name,
+                Type = standard.Type,
+                RgbLightValue = standard.RgbLightValue
+            };
+        }
+
+        [HttpPost("editor")]
+        public void PostEditor([FromBody] EditorViewModel model)
+        {
+            switch (model.Type)
+            {
+                case StandardType.RbgLight:
+                    {
+                        var standard = _standard.UpdateRbgLightValue(model.StandardId, model.RgbLightValue);
+                        //_autoHome.SendValue(module);
+                        break;
+                    }
+                default:
+                    throw new Exception();
+            }
         }
     }
 }

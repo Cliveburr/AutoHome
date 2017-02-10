@@ -1,2 +1,16 @@
 
-<h3>Area</h3>
+<h2>Area</h2>
+
+<button type="button" class="btn btn-primary" (click)="onBack()"><i class="fa fa-arrow-left" aria-hidden="true"></i></button>
+<hr class="my-2">
+
+<div class="card w-50" *ngFor="let area of model?.list">
+    <div class="card-header">{{area.name}}</div>
+    <div class="card-block">
+        <div class="card w-50" *ngFor="let module of area.modules">
+            <div class="card-block">
+                <button type="button" class="btn btn-secondary btn-block" (click)="onEdit(module)">{{module.alias}}</button>
+            </div>
+        </div>
+    </div>
+</div>

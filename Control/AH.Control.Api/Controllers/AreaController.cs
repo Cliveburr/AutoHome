@@ -60,7 +60,7 @@ namespace AH.Control.Api.Controllers
             else
             {
                 var area = _area.Get(id);
-                var belong = _area.LoadModuleContent(area.ModuleContent);
+                var belong = _area.LoadModule(area.ModuleContent);
 
                 return new EditViewModel
                 {
@@ -90,6 +90,25 @@ namespace AH.Control.Api.Controllers
             {
                 _area.Update(area);
             }
+        }
+
+        [HttpGet("area")]
+        public AreaViewModel GetArea()
+        {
+            var areas = _area.Get();
+            return new AreaViewModel
+            {
+                List = areas.Select(a => new AreaItem
+                {
+                    Name = a.Name,
+                    Modules = _area.LoadModule(a.ModuleContent).Select(m => new ModuleItem
+                    {
+                        ModuleId = m.ModuleId,
+                        Alias = m.Alias,
+                        Type = m.Type
+                    }).ToArray()
+                }).ToArray()
+            };
         }
     }
 }

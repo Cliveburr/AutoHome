@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { BaseView } from '../../shared/baseView';
-import { StandardModel, StandardType } from '../../../model/standardModel';
+import { IndexViewModel, IndexStandard, StandardType } from '../../../model/standardModel';
 import { StandardService } from '../../../service/standardService';
 
 @Component({
@@ -10,7 +10,7 @@ import { StandardService } from '../../../service/standardService';
   providers: [ BaseView ]
 })
 export class StandardComponent implements OnInit {
-    public standards: StandardModel[];
+    public model: IndexViewModel;
     public standardType = StandardType;
 
     public constructor(
@@ -25,17 +25,17 @@ export class StandardComponent implements OnInit {
 
     public onRefresh(): void {
         this.standardService
-            .get()
-            .then((data) => this.standards = data);
+            .getIndex()
+            .then((data) => this.model = data);
     }
 
     public onCreate(): void {
         this.base.router.navigate(['/data/standard', 'create']);
     }
 
-    public onDelete(standard: StandardModel): void {
+    public onDelete(standard: IndexStandard): void {
         this.standardService
-            .delete(standard.id)
+            .delete(standard.standardId)
             .then(() => this.onRefresh());
     }
 

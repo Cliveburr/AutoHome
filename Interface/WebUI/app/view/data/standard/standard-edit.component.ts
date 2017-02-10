@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { BaseView } from '../../shared/baseView';
-import { StandardModel, StandardType } from '../../../model/standardModel';
+import { EditViewModel, StandardType } from '../../../model/standardModel';
 import { StandardService } from '../../../service/standardService';
 
 @Component({
@@ -10,7 +10,7 @@ import { StandardService } from '../../../service/standardService';
   providers: [ BaseView ]
 })
 export class StandardEditComponent implements OnInit {
-    public standard: StandardModel;
+    public model: EditViewModel;
     public id: string;
     public types = StandardType;
 
@@ -28,27 +28,15 @@ export class StandardEditComponent implements OnInit {
     }
 
     public onRefresh(): void {
-        if (this.id == 'create') {
-            this.standard = {
-                id: '<new>',
-                name: '',
-                type: 0,
-                value: null
-            };
-        }
-        else {
-            this.standardService
-                .getByID(this.id)
-                .then((data) => this.standard = data);
-        }
+        this.standardService
+            .getEdit(this.id)
+            .then((data) => this.model = data);
     }
 
     public onSave(): void {
-        let promise = this.id == 'create' ?
-            this.standardService.create(this.standard) :
-            this.standardService.update(this.standard);
-
-        promise.then(() => this.base.router.navigateByUrl('/data/standard'));
+        this.standardService
+            .postEdit(this.model)
+            .then(() => this.base.router.navigateByUrl('/data/standard'));
     }
 
     public onBack(): void {

@@ -10,18 +10,20 @@
     <thead>
         <td>Name</td>
         <td>Type</td>
+        <td>Module Count</td>
         <td></td>
         <td></td>
     </thead>
     <tbody>
-        <tr *ngFor="let standard of standards">
+        <tr *ngFor="let standard of model?.list">
             <td>{{standard.name}}</td>
             <td><enumtext [enum]="standardType" [value]="standard.type"></enumtext></td>
+            <td>{{standard.moduleCount}}</td>
             <td [ngSwitch]="standard.type">
-                <button type="button" class="btn btn-outline-primary btn-sm" *ngSwitchCase="0" [routerLink]="['/editor/rgblight/standard/' + standard.id]">Vaue</button>    
+                <button type="button" class="btn btn-outline-primary btn-sm" *ngSwitchCase="0" [routerLink]="['/editor/rgblight/standard/' + standard.standardId]">Vaue</button>    
             </td>
             <td>
-                <button type="button" class="btn btn-outline-primary btn-sm" [routerLink]="['/data/standard/' + standard.id]">Edit</button>
+                <button type="button" class="btn btn-outline-primary btn-sm" [routerLink]="['/data/standard/' + standard.standardId]">Edit</button>
                 <button type="button" class="btn btn-outline-primary btn-sm" (click)="onDelete(standard)">Delete</button>
             </td>
         </tr>

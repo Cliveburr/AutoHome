@@ -1,6 +1,6 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { BaseView } from '../../shared/baseView';
-import { StandardModel, StandardListModel } from '../../../model/standardModel';
+import { EditorViewModel, StandardListModel } from '../../../model/standardModel';
 import { StandardService } from '../../../service/standardService';
 import { ColorPickerService } from 'angular2-color-picker';
 import { RgbLightModel } from '../../../model/rgbLightModel';
@@ -14,7 +14,7 @@ import { RgbLightModel } from '../../../model/rgbLightModel';
 export class RgbLightStandardComponent implements OnInit {
     
     public id: string;
-    public standard: StandardModel;
+    public model: EditorViewModel;
     public color: string = "#FFFFFF";
     public moduleTab: string;
     public standardList: StandardListModel[];
@@ -35,14 +35,14 @@ export class RgbLightStandardComponent implements OnInit {
 
     public onRefresh(): void {
         this.standardService
-            .getByID(this.id)
-            .then((data) => this.setData(data));
+            .getEditor(this.id)
+            .then((data) => this.setModel(data));
     }
 
-    private setData(data: StandardModel): void {
-        this.standard = data;
-        if (this.standard.value) {
-            this.setColor(this.standard.value);
+    private setModel(data: EditorViewModel): void {
+        this.model = data;
+        if (this.model.rgbLightValue) {
+            this.setColor(this.model.rgbLightValue);
         }
     }
 
@@ -64,8 +64,8 @@ export class RgbLightStandardComponent implements OnInit {
             blue: rgb.b
         };
 
-        this.standard.value = value;
+        this.model.rgbLightValue = value;
         this.standardService
-            .updateValue(this.standard);
+            .postEditor(this.model);
     }
 }

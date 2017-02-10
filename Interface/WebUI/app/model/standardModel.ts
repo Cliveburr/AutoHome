@@ -5,14 +5,31 @@ export enum StandardType {
     blackWhiteLight
 }
 
-export class StandardModel {
-    public id: string;
-    public name: string;
-    public type: StandardType;
-    public value: RgbLightModel;
-}
-
 export class StandardListModel {
     public standardId: string;
     public name: string;
+}
+
+export class IndexViewModel {
+    public list: IndexStandard[];
+}
+
+export class IndexStandard {
+    public standardId: string;
+    public name: string;
+    public type: StandardType;
+    public moduleCount: number;
+}
+
+export class EditViewModel {
+    public standardId: string;
+    public name: string;
+    public type: StandardType;
+}
+
+export class EditorViewModel {
+    public standardId: string;
+    public name: string;
+    public type: StandardType;
+    public rgbLightValue: RgbLightModel;
 }

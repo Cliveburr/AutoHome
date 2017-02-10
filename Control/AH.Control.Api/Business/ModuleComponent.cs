@@ -37,9 +37,32 @@ namespace AH.Control.Api.Business
                 .FilterFirst(new { UID = uid });
         }
 
-        public string Delete(string id)
+        public string Delete(string moduleId)
         {
-            return Db.Module.Delete(id);
+            var entity = Get(moduleId);
+            if (entity == null)
+                return string.Empty;
+
+            AdjustAreaRelationShip(entity.ModuleId, entity.AreaBelong);
+
+            return Db.Module.Delete(entity.ModuleId);
+        }
+
+        private void AdjustAreaRelationShip(string id, string parentId)
+        {
+            if (string.IsNullOrEmpty(parentId))
+                return;
+
+            var parent = Db.Area.Get(parentId);
+            if (parent == null)
+                return;
+
+            if (!parent.ModuleContent.Contains(id))
+                return;
+
+            parent.ModuleContent.Remove(id);
+
+            Db.Area.Update(parent.AreaId, parent);
         }
 
         public void UpdateAddressForUID(ushort uid, IPAddress address, InfoMessage info)
@@ -100,7 +123,7 @@ namespace AH.Control.Api.Business
                 if (standard == null)
                     throw new Exception();
 
-                state.Value = standard.Value;
+                state.Value = standard.RgbLightValue;
             }
 
             entity.LedRibbonRgbState = state;

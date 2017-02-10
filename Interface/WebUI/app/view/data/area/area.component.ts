@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { BaseView } from '../../shared/baseView';
 import { IndexViewModel, IndexArea } from '../../../model/areaModel';
 import { AreaService } from '../../../service/areaService';
@@ -9,7 +9,7 @@ import { AreaService } from '../../../service/areaService';
   styleUrls: [  ],
   providers: [ BaseView ]
 })
-export class AreaComponent {
+export class AreaComponent implements OnInit {
     public model: IndexViewModel;
 
     public constructor(

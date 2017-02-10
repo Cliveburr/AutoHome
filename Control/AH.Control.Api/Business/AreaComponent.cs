@@ -87,7 +87,7 @@ namespace AH.Control.Api.Business
             }
         }
 
-        public ModuleEntity[] LoadModuleContent(List<string> moduleIds)
+        public ModuleEntity[] LoadModule(List<string> moduleIds)
         {
             return moduleIds
                 .Select(id => Db.Module.Get(id))
