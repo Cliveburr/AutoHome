@@ -53,6 +53,7 @@ namespace AH.Control.Api.Protocol
             {
                 case LanMessageType.InfoResponse: ProcessInfoResponse(lanMsg); break;
                 case LanMessageType.ModuleMessage: ProcessModuleMessage(lanMsg); break;
+                case LanMessageType.ApiPing: SendPong(lanMsg); break;
             }
         }
 
@@ -72,6 +73,13 @@ namespace AH.Control.Api.Protocol
             {
                 case ModuleType.LedRibbonRgb: LedRibbonRgb.ProcessMessage(entity, message); break;
             }
+        }
+
+        private void SendPong(LanMessage message)
+        {
+            var bytes = BitConverter.GetBytes(Options.ApiPort);
+            var msg0 = new LanMessage(message.SenderUID, message.SenderIPAddress, LanMessageType.ApiPong, bytes);
+            AutoHome.Send(msg0);
         }
 
         public void SendValue(ModuleEntity entity)

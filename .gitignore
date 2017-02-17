@@ -73,7 +73,8 @@ Interface/WebUI/app/**/*.js
 Interface/WebUI/app/**/*.js.map
 
 
-
+**/project.lock.json
+**/Solutions/Components
 
 # Control - Api
 Control/**/*.exe

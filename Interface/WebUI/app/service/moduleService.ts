@@ -14,7 +14,7 @@ export class ModuleService extends BaseService {
         configService: ConfigService
     ) {
         super(http, configService);
-        super.path = 'module';
+        this.path = 'module';
     }
 
     public getIndex(): Promise<IndexViewModel> {

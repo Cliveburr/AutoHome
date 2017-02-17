@@ -20,7 +20,7 @@ const routes: Routes = [
 @NgModule({
   imports: [ CommonModule, RouterModule.forChild(routes), NgbModule, FormsModule, ColorPickerModule ],
   declarations: [ RgbLightStandardComponent, RgbLightModuleComponent ],
-  exports: [ RouterModule ],
+  exports: [ RouterModule, ColorPickerModule ],
   providers: [ StandardService, ModuleService ]
 })
 export default class EditorModule {

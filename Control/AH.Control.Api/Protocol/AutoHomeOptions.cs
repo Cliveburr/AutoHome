@@ -10,5 +10,6 @@ namespace AH.Control.Api.Protocol
         public ushort UID { get; set; }
         public int SendPort { get; set; }
         public int ReceivePort { get; set; }
+        public int ApiPort { get; set; }
     }
 }
