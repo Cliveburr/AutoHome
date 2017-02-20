@@ -37,6 +37,19 @@ namespace AH.Control.Api.Business
                 .FilterFirst(new { UID = uid });
         }
 
+        public IEnumerable<ModuleEntity> GetByArea(string areaId)
+        {
+            var area = Db.Area.Get(areaId);
+            if (area == null)
+                return null;
+
+            if (area.ModuleContent == null)
+                return null;
+
+            return area.ModuleContent
+                .Select(m => Db.Module.Get(m));
+        }
+
         public string Delete(string moduleId)
         {
             var entity = Get(moduleId);

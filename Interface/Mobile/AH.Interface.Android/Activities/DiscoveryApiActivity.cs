@@ -52,6 +52,7 @@ namespace AH.Interface.Android.Activities
             _protocol = new AutoHomeProtocol(15556, 15555);
             _protocol.ReceivePong += _protocol_ReceivePong;
             _protocol.SendPing();
+            _protocol.StartListening();
         }
 
         private void _protocol_ReceivePong(string address, Exception err)

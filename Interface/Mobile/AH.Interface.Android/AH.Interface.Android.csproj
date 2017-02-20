@@ -57,13 +57,17 @@
   <ItemGroup>
     <Compile Include="Activities\AreaActivity.cs" />
     <Compile Include="Activities\DiscoveryApiActivity.cs" />
+    <Compile Include="Activities\Editors\RbgLightEditorActivity.cs" />
+    <Compile Include="Activities\ModuleActivity.cs" />
     <Compile Include="Api\AreaApi.cs" />
     <Compile Include="Api\BaseApi.cs" />
+    <Compile Include="Api\ModuleApi.cs" />
     <Compile Include="App.cs" />
     <Compile Include="MainActivity.cs" />
     <Compile Include="Protocol\AutoHomeProtocol.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SafeException.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -73,6 +77,12 @@
       <SubType>Designer</SubType>
     </AndroidResource>
     <AndroidResource Include="Resources\layout\Area.axml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
+    <AndroidResource Include="Resources\layout\Module.axml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
+    <AndroidResource Include="Resources\layout\RgbLightEditor.axml">
       <SubType>Designer</SubType>
     </AndroidResource>
   </ItemGroup>
@@ -96,6 +106,13 @@
       <Version>7.0.1</Version>
     </XamarinComponentReference>
   </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\AreaItems.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\ModuleItems.xml" />
+  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
      Other similar extension points exist, see Microsoft.Common.targets.

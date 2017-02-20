@@ -35,8 +35,6 @@ namespace AH.Interface.Android.Protocol
 
             _receiver = new UdpClient(receivePort);
             _sender = new UdpClient();
-
-            _receiverTask = Task.Run(new Action(Receive));
         }
 
         private async void Receive()
@@ -82,10 +80,23 @@ namespace AH.Interface.Android.Protocol
                 _pingTimeout.Elapsed += PingTimeout_Elapsed;
                 _pingTimeout.Start();
             }
+            catch (SocketException err)
+            {
+                switch (err.ErrorCode)
+                {
+                    case 10051: ReceivePong?.Invoke(null, new SafeException("Without connection! Please connect to the ethernet!")); break;
+                    default: ReceivePong?.Invoke(null, err); break;
+                }
+            }
             catch (Exception err)
             {
                 ReceivePong?.Invoke(null, err);
             }
+        }
+
+        public void StartListening()
+        {
+            _receiverTask = Task.Run(new Action(Receive));
         }
 
         private void PingTimeout_Elapsed(object sender, ElapsedEventArgs e)
@@ -98,7 +109,8 @@ namespace AH.Interface.Android.Protocol
         {
             _pingTimeout = null;
             _receiver.Close();
-            _receiverTask.Dispose();
+            if (_receiverTask != null)
+                _receiverTask.Dispose();
             _sender.Close();
         }
     }

@@ -16,7 +16,7 @@ namespace AH.Interface.Android.Api
     {
         protected override string GetApiName()
         {
-            return "Area";
+            return "area";
         }
 
         public IndexViewModel Get()

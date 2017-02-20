@@ -11,6 +11,8 @@ using Android.Views;
 using Android.Widget;
 using System.Net;
 using AH.Interface.Android.Activities;
+using AH.Interface.Android.Api;
+using AH.Interface.Android.Activities.Editors;
 
 namespace AH.Interface.Android
 {
@@ -35,6 +37,20 @@ namespace AH.Interface.Android
             var intent = new Intent(activity, typeof(DiscoveryApiActivity));
             //intent.PutExtra("callBack", callBack);
             DiscoveryCallbak = callBack;
+            activity.StartActivity(intent);
+        }
+
+        public static void ShowModule(Activity activity, IndexArea area)
+        {
+            var intent = new Intent(activity, typeof(ModuleActivity));
+            intent.PutExtra("AreaId", area.AreaId);
+            activity.StartActivity(intent);
+        }
+
+        public static void ShowRgbLightEditor(Activity activity, ByAreaViewModel module)
+        {
+            var intent = new Intent(activity, typeof(RbgLightEditorActivity));
+            intent.PutExtra("ModuleId", module.ModuleId);
             activity.StartActivity(intent);
         }
     }

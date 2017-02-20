@@ -104,6 +104,56 @@ namespace AH.Control.Api.Controllers
             }
         }
 
+        [HttpGet("byarea/{areaId}")]
+        public ByAreaViewModel[] GetModuleByArea(string areaId)
+        {
+            var modules = _module.GetByArea(areaId);
+            return modules.Select(m => new ByAreaViewModel
+            {
+                ModuleId = m.ModuleId,
+                Alias = m.Alias,
+                Type = m.Type
+            }).ToArray();
+        }
+
+        [HttpGet("mobileeditor/{id}")]
+        public MobileEditorViewModel GetMobileEditor(string id)
+        {
+            var module = _module.Get(id);
+            if (module == null)
+                return null;
+
+            var area = _area.Get(module.AreaBelong);
+            if (area == null)
+                return null;
+
+            return new MobileEditorViewModel
+            {
+                ModuleId = module.ModuleId,
+                Alias = module.Alias,
+                Type = module.Type,
+                Area = area.Name,
+                LedRibbonRgbState = module.LedRibbonRgbState,
+                StandardList = GetStandardList(module.Type)
+            };
+        }
+
+        [HttpPost("mobileeditor")]
+        public void PostMobileEditor([FromBody] MobileEditorViewModel model)
+        {
+            switch (model.Type)
+            {
+                case ModuleType.LedRibbonRgb:
+                    {
+                        var module = _module.UpdateLedRibbonRgbState(model.ModuleId, model.LedRibbonRgbState);
+                        _autoHome.SendValue(module);
+                        break;
+                    }
+                default:
+                    throw new Exception();
+            }
+        }
+
         private Models.Standard.StandardListViewModel[] GetStandardList(ModuleType type)
         {
             var standardType = StandardType.RbgLight;
