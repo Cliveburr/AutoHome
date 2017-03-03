@@ -42,15 +42,16 @@ namespace AH.Interface.Android.Activities.Editors
             rgbeSeekR = FindViewById<SeekBar>(Resource.Id.rgbeSeekR);
             rgbeSeekG = FindViewById<SeekBar>(Resource.Id.rgbeSeekG);
             rgbeSeekB = FindViewById<SeekBar>(Resource.Id.rgbeSeekB);
+            rgbeHeader = FindViewById<TextView>(Resource.Id.rgbeHeader);
             rgbePanel = FindViewById<TextView>(Resource.Id.rgbePanel);
             rgbeStandardList = FindViewById<ListView>(Resource.Id.rgbeStandardList);
             rgbeStandardList.ItemClick += RgbeStandardList_ItemClick;
             tabHost = FindViewById<TabHost>(Resource.Id.tabHost1);
-            tabHost.TabChanged += TabHost_TabChanged;
 
             Model = ModuleApi.Instance.GetMobileEditor(ModuleId);
 
             tabHost.Setup();
+            rgbeHeader.Text = $"{Model.Area} - {Model.Alias}";
 
             tabManual = tabHost.NewTabSpec("manual");
             tabManual.SetContent(Resource.Id.rgbeManualLayout);
@@ -62,21 +63,16 @@ namespace AH.Interface.Android.Activities.Editors
 
             tabHost.AddTab(tabManual);
             tabHost.AddTab(tabStandard);
+            tabHost.TabChanged += TabHost_TabChanged;
 
             rgbeSeekR.Max = 255;
-            rgbeSeekR.SetProgress(Model.LedRibbonRgbState.Value.Red, true);
-            rgbeSeekR.SetBackgroundColor(new Color(rgbeSeekR.Progress, 0, 0));
             rgbeSeekR.ProgressChanged += RgbeSeek_ProgressChanged;
             rgbeSeekG.Max = 255;
-            rgbeSeekG.SetProgress(Model.LedRibbonRgbState.Value.Green, true);
-            rgbeSeekG.SetBackgroundColor(new Color(0, rgbeSeekG.Progress, 0));
             rgbeSeekG.ProgressChanged += RgbeSeek_ProgressChanged;
             rgbeSeekB.Max = 255;
-            rgbeSeekB.SetProgress(Model.LedRibbonRgbState.Value.Blue, true);
-            rgbeSeekB.SetBackgroundColor(new Color(0, 0, rgbeSeekB.Progress));
             rgbeSeekB.ProgressChanged += RgbeSeek_ProgressChanged;
 
-            rgbePanel.SetBackgroundColor(new Color(rgbeSeekR.Progress, rgbeSeekG.Progress, rgbeSeekB.Progress));
+            RefreshValue();
 
             tabHost.SetCurrentTabByTag(Model.LedRibbonRgbState.IsStandard ?
                 "standard" : "manual");
@@ -85,11 +81,24 @@ namespace AH.Interface.Android.Activities.Editors
             rgbeStandardList.Adapter = rgbLightAdapter;
         }
 
+        private void RefreshValue()
+        {
+            rgbeSeekR.SetProgress(Model.LedRibbonRgbState.Value.Red, true);
+            rgbeSeekR.SetBackgroundColor(new Color(rgbeSeekR.Progress, 0, 0));
+            rgbeSeekG.SetProgress(Model.LedRibbonRgbState.Value.Green, true);
+            rgbeSeekG.SetBackgroundColor(new Color(0, rgbeSeekG.Progress, 0));
+            rgbeSeekB.SetProgress(Model.LedRibbonRgbState.Value.Blue, true);
+            rgbeSeekB.SetBackgroundColor(new Color(0, 0, rgbeSeekB.Progress));
+            rgbePanel.SetBackgroundColor(new Color(rgbeSeekR.Progress, rgbeSeekG.Progress, rgbeSeekB.Progress));
+        }
+
         private void RgbeStandardList_ItemClick(object sender, AdapterView.ItemClickEventArgs e)
         {
             var item = rgbLightAdapter.Standard[e.Position];
             Model.LedRibbonRgbState.StandardId = item.StandardId;
+            Model.LedRibbonRgbState.Value = item.RgbLightValue;
             ModuleApi.Instance.PostMobileEditor(Model);
+            RefreshValue();
         }
 
         private void TabHost_TabChanged(object sender, TabHost.TabChangeEventArgs e)

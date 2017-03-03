@@ -134,7 +134,7 @@ namespace AH.Control.Api.Controllers
                 Type = module.Type,
                 Area = area.Name,
                 LedRibbonRgbState = module.LedRibbonRgbState,
-                StandardList = GetStandardList(module.Type)
+                StandardList = GetStandardList(module.Type, true)
             };
         }
 
@@ -154,23 +154,25 @@ namespace AH.Control.Api.Controllers
             }
         }
 
-        private Models.Standard.StandardListViewModel[] GetStandardList(ModuleType type)
+        private Models.Standard.StandardListViewModel[] GetStandardList(ModuleType type, bool withValue = false)
         {
-            var standardType = StandardType.RbgLight;
             switch (type)
             {
-                case ModuleType.LedRibbonRgb: standardType = StandardType.RbgLight; break;
-                case ModuleType.IncandescentLamp: standardType = StandardType.BlackWhiteLight; break;
+                case ModuleType.LedRibbonRgb:
+                    {
+                        return _standard.GetListByType(StandardType.RbgLight)
+                            .Select(s => new Models.Standard.StandardListViewModel
+                            {
+                                StandardId = s.StandardId,
+                                Name = s.Name,
+                                RgbLightValue = withValue ? s.RgbLightValue : null
+                            }).ToArray();
+
+                    }
+                //case ModuleType.IncandescentLamp: standardType = StandardType.BlackWhiteLight; break;
                 default:
                     throw new Exception("Invalid ModuleType! Type: " + type.ToString());
             }
-
-            return _standard.GetListByType(standardType)
-                .Select(s => new Models.Standard.StandardListViewModel
-                {
-                    StandardId = s.StandardId,
-                    Name = s.Name
-                }).ToArray();
         }
     }
 }

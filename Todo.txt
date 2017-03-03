@@ -60,7 +60,7 @@
 	- Home
 		start and news (future)
 	- Area
-		place to acess the areas registred and the modules per area
+		place to access the areas registred and the modules per area
 	- Data
 		register all data
 		- Module

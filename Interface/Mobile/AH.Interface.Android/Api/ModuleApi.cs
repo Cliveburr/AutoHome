@@ -77,5 +77,6 @@ namespace AH.Interface.Android.Api
     {
         public string StandardId { get; set; }
         public string Name { get; set; }
+        public RgbLightValue RgbLightValue { get; set; }
     }
 }

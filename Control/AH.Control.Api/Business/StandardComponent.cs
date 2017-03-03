@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AH.Protocol.Library.Value;
+using RethinkDb.Driver.Net;
 
 namespace AH.Control.Api.Business
 {
@@ -26,15 +27,10 @@ namespace AH.Control.Api.Business
                 .Get(id);
         }
 
-        public IEnumerable<StandardListViewModel> GetListByType(StandardType type)
+        public Cursor<StandardEntity> GetListByType(StandardType type)
         {
             return Db.Standard
-                .Filter(new { Type = type })
-                .Select(s => new StandardListViewModel
-                {
-                    StandardId = s.StandardId,
-                    Name = s.Name
-                });
+                .Filter(new { Type = type });
         }
 
         public string Delete(string id)

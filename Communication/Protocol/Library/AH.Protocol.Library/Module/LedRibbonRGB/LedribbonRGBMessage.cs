@@ -52,7 +52,9 @@ namespace AH.Protocol.Library.Module.LedRibbonRGB
 
                 if (hasState)
                 {
-                    var state = new byte[] { State.Red, State.Green, State.Blue };
+                    var state = State == null ?
+                        new byte[] { 0, 0, 0 } :
+                        new byte[] { State.Red, State.Green, State.Blue };
                     mem.Write(state, 0, state.Length);
                 }
 
