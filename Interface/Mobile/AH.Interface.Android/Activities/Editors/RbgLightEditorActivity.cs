@@ -64,15 +64,18 @@ namespace AH.Interface.Android.Activities.Editors
             tabHost.AddTab(tabStandard);
 
             rgbeSeekR.Max = 255;
-            rgbeSeekR.SetProgress(Model.LedRibbonRgbState.Value.Red, true);
+            //rgbeSeekR.SetProgress(Model.LedRibbonRgbState.Value.Red, true);
+            rgbeSeekR.Progress = Model.LedRibbonRgbState.Value.Red;
             rgbeSeekR.SetBackgroundColor(new Color(rgbeSeekR.Progress, 0, 0));
             rgbeSeekR.ProgressChanged += RgbeSeek_ProgressChanged;
             rgbeSeekG.Max = 255;
-            rgbeSeekG.SetProgress(Model.LedRibbonRgbState.Value.Green, true);
+            //rgbeSeekG.SetProgress(Model.LedRibbonRgbState.Value.Green, true);
+            rgbeSeekG.Progress = Model.LedRibbonRgbState.Value.Green;
             rgbeSeekG.SetBackgroundColor(new Color(0, rgbeSeekG.Progress, 0));
             rgbeSeekG.ProgressChanged += RgbeSeek_ProgressChanged;
             rgbeSeekB.Max = 255;
-            rgbeSeekB.SetProgress(Model.LedRibbonRgbState.Value.Blue, true);
+            //rgbeSeekB.SetProgress(Model.LedRibbonRgbState.Value.Blue, true);
+            rgbeSeekB.Progress = Model.LedRibbonRgbState.Value.Blue;
             rgbeSeekB.SetBackgroundColor(new Color(0, 0, rgbeSeekB.Progress));
             rgbeSeekB.ProgressChanged += RgbeSeek_ProgressChanged;
 

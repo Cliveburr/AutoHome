@@ -1,9 +1,6 @@
 ﻿using AH.Protocol.Lan;
 using AH.Protocol.Library;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using AH.Protocol.Library.Message;
 
 namespace AH.Module.Simulation.Mode
 {

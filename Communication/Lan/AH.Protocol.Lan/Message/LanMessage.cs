@@ -1,73 +1,42 @@
-﻿using AH.Protocol.Library;
-using System;
-using System.Collections.Generic;
+﻿using AH.Protocol.Library.Message;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Threading.Tasks;
 
-namespace AH.Protocol.Lan
+namespace AH.Protocol.Lan.Message
 {
-    public class LanMessage : MessageBase
+    public class LanMessage : Library.Message.MessageBase
     {
         public IPAddress SenderIPAddress { get; set; }
         public IPAddress ReceiverIPAddress { get; set; }
-        public LanMessageType Type { get; set; }
 
-        public LanMessage(ushort receiverUID, IPAddress receiverIPAddress, LanMessageType type, byte[] messageBody)
-            : base(receiverUID, messageBody)
+        public LanMessage(BinaryReader stream)
+            : base(stream)
+        {
+        }
+
+        public LanMessage(ushort receiverUID, IPAddress receiverIPAddress, MessageType type, IContentMessage content = null)
+            : base(receiverUID, type, content)
         {
             ReceiverIPAddress = receiverIPAddress;
-            Type = type;
         }
 
-        public LanMessage(byte[] bytes)
-            : base(bytes)
+        public override void GetStream(BinaryWriter stream)
         {
+            // Data from MessageBase
+            base.GetStream(stream);
+
+            // Data from LanMessage
+
+            // Data from content
+            Content?.GetStream(stream);
         }
 
-        protected override byte[] GetPhysicalBytes()
+        public override void Parse()
         {
-            using (var mem = new MemoryStream())
-            {
-                //var senderBytes = SenderIPAddress.GetAddressBytes();
-                //mem.Write(senderBytes, 0, senderBytes.Length);
+            // Data from MessageBase
+            base.Parse();
 
-                //var receiverBytes = ReceiverIPAddress.GetAddressBytes();
-                //mem.Write(receiverBytes, 0, receiverBytes.Length);
-
-                mem.WriteByte((byte)Type);
-
-                return mem.ToArray();
-            }
-        }
-
-        protected override void ParseBytes(MemoryStream mem)
-        {
-            //var senderIPAddressBytes = new byte[4];
-            //mem.Read(senderIPAddressBytes, 0, 4);
-            //SenderIPAddress = new IPAddress(senderIPAddressBytes);
-
-            //var receiverIPAddressBytes = new byte[4];
-            //mem.Read(receiverIPAddressBytes, 0, 4);
-            //SenderIPAddress = new IPAddress(receiverIPAddressBytes);
-
-            var typeBytes = new byte[1];
-            mem.Read(typeBytes, 0, 1);
-            Type = (LanMessageType)typeBytes[0];
-        }
-
-        public override string ToString()
-        {
-            return $@"LanMessage
-{{
-    SenderUID = {SenderUID.ToString()}
-    ReceiverUID = {ReceiverUID.ToString()}
-    SenderIPAddress = {SenderIPAddress.ToString()}
-    ReceiverIPAddress = {ReceiverIPAddress.ToString()}
-    Type = {Type.ToString()}
-    MessageBody = {{{string.Join(", ", MessageBody)}}}
-}}";
+            // Data from LanMessage
         }
     }
 }

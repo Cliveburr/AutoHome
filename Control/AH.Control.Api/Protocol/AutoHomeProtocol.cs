@@ -1,7 +1,9 @@
 ﻿using AH.Control.Api.Business;
 using AH.Control.Api.Entities;
 using AH.Protocol.Lan;
+using AH.Protocol.Lan.Message;
 using AH.Protocol.Library;
+using AH.Protocol.Library.Message;
 using AH.Protocol.Library.Module;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
@@ -35,15 +37,15 @@ namespace AH.Control.Api.Protocol
 
         public void BroadcastInfoRequest()
         {
-            var msg0 = new LanMessage(0, IPAddress.Broadcast, LanMessageType.InfoRequest, new byte[] { });
-            AutoHome.Send(msg0);
+            var msg = new LanMessage(0, IPAddress.Broadcast, MessageType.InfoRequest);
+            AutoHome.Send(msg);
         }
 
         public void InfoRequest(ModuleEntity entity)
         {
             var address = new IPAddress(entity.Address);
-            var msg0 = new LanMessage(entity.UID, address, LanMessageType.InfoRequest, new byte[] { });
-            AutoHome.Send(msg0);
+            var msg = new LanMessage(entity.UID, address, MessageType.InfoRequest);
+            AutoHome.Send(msg);
         }
 
         private void AutoHome_Receiver(MessageBase message)
@@ -51,16 +53,18 @@ namespace AH.Control.Api.Protocol
             var lanMsg = message as LanMessage;
             switch (lanMsg.Type)
             {
-                case LanMessageType.InfoResponse: ProcessInfoResponse(lanMsg); break;
-                case LanMessageType.ModuleMessage: ProcessModuleMessage(lanMsg); break;
-                case LanMessageType.ApiPing: SendPong(lanMsg); break;
+                case MessageType.InfoResponse: ProcessInfoResponse(lanMsg); break;
+                case MessageType.ModuleMessage: ProcessModuleMessage(lanMsg); break;
+                case MessageType.ApiPing: SendPong(lanMsg); break;
             }
         }
 
         private void ProcessInfoResponse(LanMessage message)
         {
-            var info = InfoMessage.Parse(message.MessageBody);
-            ModuleComponent.UpdateAddressForUID(message.SenderUID, message.SenderIPAddress, info);
+            var content = new InfoContent();
+            message.ParseContent(content);
+
+            ModuleComponent.UpdateAddressForUID(message.SenderUID, message.SenderIPAddress, content);
         }
 
         private void ProcessModuleMessage(LanMessage message)
@@ -77,9 +81,9 @@ namespace AH.Control.Api.Protocol
 
         private void SendPong(LanMessage message)
         {
-            var bytes = BitConverter.GetBytes(Options.ApiPort);
-            var msg0 = new LanMessage(message.SenderUID, message.SenderIPAddress, LanMessageType.ApiPong, bytes);
-            AutoHome.Send(msg0);
+            var content = new PongContent(Options.ApiPort);
+            var msg = new LanMessage(message.SenderUID, message.SenderIPAddress, MessageType.ApiPong, content);
+            AutoHome.Send(msg);
         }
 
         public void SendValue(ModuleEntity entity)

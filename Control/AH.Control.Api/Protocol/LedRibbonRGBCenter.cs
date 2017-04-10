@@ -1,6 +1,8 @@
 ﻿using AH.Control.Api.Business;
 using AH.Control.Api.Entities;
 using AH.Protocol.Lan;
+using AH.Protocol.Lan.Message;
+using AH.Protocol.Library.Message;
 using AH.Protocol.Library.Module.LedRibbonRGB;
 using System;
 using System.Collections.Generic;
@@ -23,39 +25,46 @@ namespace AH.Control.Api.Protocol
 
         public void StateRequest(ModuleEntity entity)
         {
-            var moduleMsg = LedribbonRGBMessage.CreateStateRequest();
+            var content = new LedribbonRGBContent(LedribbonRGBContentType.StateRequest);
             var address = new IPAddress(entity.Address);
-            var msg0 = new LanMessage(entity.UID, address, LanMessageType.ModuleMessage, moduleMsg.GetBytes());
-            Protocol.AutoHome.Send(msg0);
+            var msg = new LanMessage(entity.UID, address, MessageType.ModuleMessage, content);
+            Protocol.AutoHome.Send(msg);
         }
 
         public void BroadcastStateRequest()
         {
-            var moduleMsg = LedribbonRGBMessage.CreateStateRequest();
-            var msg0 = new LanMessage(0, IPAddress.Broadcast, LanMessageType.ModuleMessage, moduleMsg.GetBytes());
-            Protocol.AutoHome.Send(msg0);
+            var content = new LedribbonRGBContent(LedribbonRGBContentType.StateRequest);
+            var msg = new LanMessage(0, IPAddress.Broadcast, MessageType.ModuleMessage, content);
+            Protocol.AutoHome.Send(msg);
         }
 
         public void ProcessMessage(ModuleEntity entity, LanMessage message)
         {
-            var moduleMsg = LedribbonRGBMessage.Parse(message.MessageBody);
-            switch (moduleMsg.Type)
+            var content = new LedribbonRGBContent();
+            message.ParseContent(content);
+
+            switch (content.Type)
             {
-                case LedribbonRGBMessageType.StateResponse: ProcessResponseState(entity.ModuleId, moduleMsg); break;
+                case LedribbonRGBContentType.StateResponse: ProcessStateResponse(entity.ModuleId, message, content); break;
             }
         }
 
-        private void ProcessResponseState(string moduleId, LedribbonRGBMessage moduleMsg)
+        private void ProcessStateResponse(string moduleId, LanMessage message, LedribbonRGBContent content)
         {
-            ModuleComponent.UpdateLedRibbonRgbValue(moduleId, moduleMsg.State);
+            var stateContent = new LedribbonRGBStateContent();
+            message.ParseContent(stateContent);
+
+            ModuleComponent.UpdateLedRibbonRgbValue(moduleId, stateContent.State);
         }
 
         public void SendValue(ModuleEntity entity)
         {
-            var moduleMsg = LedribbonRGBMessage.CreateStateChange(entity.LedRibbonRgbState.Value);
+            var content = new LedribbonRGBContent(LedribbonRGBContentType.StateChange,
+                new LedribbonRGBStateContent(entity.LedRibbonRgbState.Value));
+
             var address = new IPAddress(entity.Address);
-            var msg0 = new LanMessage(entity.UID, address, LanMessageType.ModuleMessage, moduleMsg.GetBytes());
-            Protocol.AutoHome.Send(msg0);
+            var msg = new LanMessage(entity.UID, address, MessageType.ModuleMessage, content);
+            Protocol.AutoHome.Send(msg);
         }
     }
 }

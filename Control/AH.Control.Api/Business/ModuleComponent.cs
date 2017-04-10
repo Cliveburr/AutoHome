@@ -78,7 +78,7 @@ namespace AH.Control.Api.Business
             Db.Area.Update(parent.AreaId, parent);
         }
 
-        public void UpdateAddressForUID(ushort uid, IPAddress address, InfoMessage info)
+        public void UpdateAddressForUID(ushort uid, IPAddress address, InfoContent info)
         {
             var entity = Db.Module
                 .FilterFirst(new { UID = uid });

@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using AH.Protocol.Library;
 using AH.Protocol.Lan;
 using System.Net;
 using AH.Protocol.Library.Module.LedRibbonRGB;
 using AH.Protocol.Library.Module;
 using AH.Protocol.Library.Value;
+using AH.Protocol.Library.Message;
+using AH.Protocol.Lan.Message;
 
 namespace AH.Module.Simulation.Mode
 {
@@ -32,20 +30,22 @@ namespace AH.Module.Simulation.Mode
 
             var lanMsg = message as LanMessage;
 
-            switch (lanMsg.Type)
+            switch (message.Type)
             {
-                case LanMessageType.InfoRequest: SendInfoRequest(lanMsg); break;
-                case LanMessageType.ModuleMessage: ProcessModuleMessage(lanMsg); break;
+                case MessageType.InfoRequest: SendInfoResponse(lanMsg); break;
+                case MessageType.ModuleMessage: ProcessModuleMessage(lanMsg); break;
             }
         }
 
         private void ProcessModuleMessage(LanMessage message)
         {
-            var moduleMsg = LedribbonRGBMessage.Parse(message.MessageBody);
-            switch (moduleMsg.Type)
+            var content = new LedribbonRGBContent();
+            message.ParseContent(content);
+
+            switch (content.Type)
             {
-                case LedribbonRGBMessageType.StateRequest: SendResponseState(message); break;
-                case LedribbonRGBMessageType.StateChange: ProcessChangeState(message, moduleMsg); break;
+                case LedribbonRGBContentType.StateRequest: SendResponseState(message); break;
+                case LedribbonRGBContentType.StateChange: ProcessChangeState(message, content); break;
             }
         }
 
@@ -56,28 +56,33 @@ namespace AH.Module.Simulation.Mode
 
         private void SendBroadcastInfoResponse()
         {
-            var info = new InfoMessage(ModuleType.LedRibbonRgb);
-            var response = new LanMessage(0, IPAddress.Broadcast, LanMessageType.InfoResponse, info.GetBytes());
+            var content = new InfoContent(ModuleType.LedRibbonRgb);
+            var response = new LanMessage(0, IPAddress.Broadcast, MessageType.InfoResponse, content);
             AutoHome.Send(response);
         }
 
-        private void SendInfoRequest(LanMessage message)
+        private void SendInfoResponse(LanMessage message)
         {
-            var info = new InfoMessage(ModuleType.LedRibbonRgb);
-            var response = new LanMessage(message.SenderUID, message.SenderIPAddress, LanMessageType.InfoResponse, info.GetBytes());
+            var content = new InfoContent(ModuleType.LedRibbonRgb);
+            var response = new LanMessage(message.SenderUID, message.SenderIPAddress, MessageType.InfoResponse, content);
             AutoHome.Send(response);
         }
 
         private void SendResponseState(LanMessage message)
         {
-            var moduleMsg = LedribbonRGBMessage.CreateStateResponse(State);
-            var response = new LanMessage(message.SenderUID, message.SenderIPAddress, LanMessageType.ModuleMessage, moduleMsg.GetBytes());
+            var content = new LedribbonRGBContent(LedribbonRGBContentType.StateResponse,
+                new LedribbonRGBStateContent(State));
+
+            var response = new LanMessage(message.SenderUID, message.SenderIPAddress, MessageType.ModuleMessage, content);
             AutoHome.Send(response);
         }
 
-        private void ProcessChangeState(LanMessage message, LedribbonRGBMessage moduleMsg)
+        private void ProcessChangeState(LanMessage message, LedribbonRGBContent moduleMsg)
         {
-            State = moduleMsg.State;
+            var content = new LedribbonRGBStateContent();
+            message.ParseContent(content);
+
+            State = content.State;
             Console.WriteLine("State changed");
             Console.WriteLine(State.ToString());
         }

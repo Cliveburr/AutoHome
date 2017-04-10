@@ -6,10 +6,11 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using System.IO;
 using AH.Module.Simulation.Mode;
+using AH.Protocol.Library.Message;
+using AH.Protocol.Lan.Message;
 
 namespace AH.Module.Simulation
 {
@@ -69,6 +70,7 @@ namespace AH.Module.Simulation
             {
                 Console.WriteLine("Choose the simulation you wish to run:");
                 Console.WriteLine("1 - LedRibbonRGB");
+                Console.WriteLine("2 - Custom");
                 context.IsHeader = false;
             }
             else
@@ -80,6 +82,9 @@ namespace AH.Module.Simulation
                         case ConsoleKey.D1:
                             context.Current = LedRibbonRGBSimulation;
                             context.IsHeader = true;
+                            break;
+                        case ConsoleKey.D2:
+                            context.Current = CustomSimluation;
                             break;
                         case ConsoleKey.Escape:
                             context.Finish = true;
@@ -125,6 +130,24 @@ namespace AH.Module.Simulation
                     }
                 }
             }
+        }
+
+        private static void CustomSimluation(StageContext context)
+        {
+            var uid = ushort.Parse(Program.Configuration["UID"]);
+            var sendPort = int.Parse(Program.Configuration["SendPort"]);
+            var receivePort = int.Parse(Program.Configuration["ReceivePort"]);
+
+            var lan = new LanProtocol(15555, 15555);
+            var autoHome = new AhProtocol(0, lan);
+            autoHome.Receiver += new ReceiverDelegate((MessageBase message) =>
+            {
+                var a = 1;
+            });
+
+            var address = IPAddress.Parse("");
+            var msg = new LanMessage(uid, address, MessageType.InfoRequest);
+            autoHome.Send(msg);
         }
     }
 

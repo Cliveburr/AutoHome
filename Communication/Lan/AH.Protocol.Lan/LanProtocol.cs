@@ -1,6 +1,9 @@
-﻿using AH.Protocol.Library;
+﻿using AH.Protocol.Lan.Message;
+using AH.Protocol.Library;
+using AH.Protocol.Library.Message;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -33,13 +36,20 @@ namespace AH.Protocol.Lan
         public async void Send(MessageBase message)
         {
             var msg = message as LanMessage;
+            if (msg == null)
+                throw new Exception("Invalid message!");
 
             msg.SenderIPAddress = LocalIPAddress();
 
             var ip = new IPEndPoint(msg.ReceiverIPAddress, SendPort);
-            byte[] bytes = message.GetBytes();
 
-            await _sender.SendAsync(bytes, bytes.Length, ip);
+            using (var mem = new MemoryStream())
+            using (var write = new BinaryWriter(mem))
+            {
+                message.GetStream(write);
+                byte[] bytes = mem.ToArray();
+                await _sender.SendAsync(bytes, bytes.Length, ip);
+            }
         }
 
         private async void Receive()
@@ -48,14 +58,18 @@ namespace AH.Protocol.Lan
             {
                 var receive = await _receiver.ReceiveAsync();
 
-                var message = new LanMessage(receive.Buffer);
-                message.ReceiverIPAddress = LocalIPAddress();
-                message.SenderIPAddress = receive.RemoteEndPoint.Address;
+                using (var reader = new BinaryReader(new MemoryStream(receive.Buffer)))
+                {
+                    var message = new LanMessage(reader);
+                    message.Parse();
+                    message.ReceiverIPAddress = LocalIPAddress();
+                    message.SenderIPAddress = receive.RemoteEndPoint.Address;
 
-                if (message.Type == LanMessageType.Nop)
-                    return;
+                    if (message.Type == MessageType.Nop)
+                        return;
 
-                Receiver?.Invoke(message);
+                    Receiver?.Invoke(message);
+                }
             }
         }
 
