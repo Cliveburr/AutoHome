@@ -4,7 +4,10 @@
 #include "user_interface.h"
 #include "espconn.h"
 #include "gpio.h"
+
 #include "user_config.h"
+#include "flash_funcs.h"
+#include "net.h"
 
 #define USE_US_TIMER
 
@@ -105,10 +108,24 @@ void wifi_handle_event_cb(System_Event_t *evt)
     }
 } 
 
-void user_init(void)
-{
-    os_printf("SDK version:%s\n", system_get_sdk_version());
-    os_printf("Vai Planeta, aaaa");
+
+
+void user_init(void) {
+
+#ifdef DEBUG
+    os_printf("SDK version: %s\n", system_get_sdk_version());
+    os_printf("Auto Home - Module UID: %u\n", MyUID);
+    os_printf("Module type RGB Led Ribbon\n");
+#endif
+
+    config_load();
+
+    net_init();
+
+    if (config.net_mode) {
+        led_ribbon_ini();
+    }
+
     struct station_config stationConf;
 	wifi_set_opmode_current(STATION_MODE);
 	os_memset(&stationConf, 0, sizeof(struct station_config));

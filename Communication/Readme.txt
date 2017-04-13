@@ -69,6 +69,9 @@ Downloads
 	RTOS_SDK
 	https://github.com/espressif/ESP8266_RTOS_SDK
 	
+	NONOS_SDK - Samples
+	https://github.com/espressif/esp8266-nonos-sample-code
+	
 	Arduino Environment
 	https://www.arduino.cc/en/Main/Software
 	
@@ -96,4 +99,17 @@ Toolchain
 {
 	Oficial
 	https://github.com/esp8266/esp8266-wiki/wiki/Toolchain
+}
+
+
+Fota
+{
+	Oficial
+	http://espressif.com/sites/default/files/documentation/99c-esp8266_fota_guide_en_.pdf
+}
+
+
+Regulador
+{
+	https://www.quora.com/How-do-I-make-a-5v-to-3-3v-logic-converter
 }

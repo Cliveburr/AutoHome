@@ -8,5 +8,6 @@
         "**/.DS_Store": true,
         "**/app/**/*.js": true,
         "**/app/**/*.js.map": true
-    }
+    },
+    "vsicons.presets.angular": true
 }

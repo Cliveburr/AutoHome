@@ -26,7 +26,8 @@
             "name": "Win32",
             "includePath": [
                 "C:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/include/*",
-                "F:/ESP8266/VirtualBox/Share/NONOS_SDK/include"
+                "${workspaceRoot}/../include",
+                "${workspaceRoot}/../driver_lib/include"
             ],
             "browse": {
                 "limitSymbolsToIncludedHeaders": true,
