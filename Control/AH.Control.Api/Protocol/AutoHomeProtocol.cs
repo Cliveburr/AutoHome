@@ -37,8 +37,17 @@ namespace AH.Control.Api.Protocol
 
         public void BroadcastInfoRequest()
         {
-            var msg = new LanMessage(0, IPAddress.Broadcast, MessageType.InfoRequest);
-            AutoHome.Send(msg);
+            var host = Dns.GetHostEntryAsync(Dns.GetHostName()).GetAwaiter().GetResult();
+
+            foreach (var address in host.AddressList.Where(a => a.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork))
+            {
+                var ip = address.GetAddressBytes();
+                ip[3] = 255;
+                var send = new IPAddress(ip);
+
+                var msg = new LanMessage(0, send, MessageType.InfoRequest);
+                AutoHome.Send(msg);
+            }
         }
 
         public void InfoRequest(ModuleEntity entity)

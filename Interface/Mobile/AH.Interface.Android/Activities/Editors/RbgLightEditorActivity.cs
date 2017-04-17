@@ -66,7 +66,7 @@ namespace AH.Interface.Android.Activities.Editors
             tabHost.TabChanged += TabHost_TabChanged;
 
             rgbeSeekR.Max = 255;
-<<<<<<< HEAD
+
             //rgbeSeekR.SetProgress(Model.LedRibbonRgbState.Value.Red, true);
             rgbeSeekR.Progress = Model.LedRibbonRgbState.Value.Red;
             rgbeSeekR.SetBackgroundColor(new Color(rgbeSeekR.Progress, 0, 0));
@@ -80,12 +80,12 @@ namespace AH.Interface.Android.Activities.Editors
             //rgbeSeekB.SetProgress(Model.LedRibbonRgbState.Value.Blue, true);
             rgbeSeekB.Progress = Model.LedRibbonRgbState.Value.Blue;
             rgbeSeekB.SetBackgroundColor(new Color(0, 0, rgbeSeekB.Progress));
-=======
+
             rgbeSeekR.ProgressChanged += RgbeSeek_ProgressChanged;
             rgbeSeekG.Max = 255;
             rgbeSeekG.ProgressChanged += RgbeSeek_ProgressChanged;
             rgbeSeekB.Max = 255;
->>>>>>> 25f553b56e304f19f1d83fd400e797498f793b75
+
             rgbeSeekB.ProgressChanged += RgbeSeek_ProgressChanged;
 
             RefreshValue();
@@ -99,11 +99,14 @@ namespace AH.Interface.Android.Activities.Editors
 
         private void RefreshValue()
         {
-            rgbeSeekR.SetProgress(Model.LedRibbonRgbState.Value.Red, true);
+            //rgbeSeekR.SetProgress(Model.LedRibbonRgbState.Value.Red, true);
+            rgbeSeekR.Progress = Model.LedRibbonRgbState.Value.Red;
             rgbeSeekR.SetBackgroundColor(new Color(rgbeSeekR.Progress, 0, 0));
-            rgbeSeekG.SetProgress(Model.LedRibbonRgbState.Value.Green, true);
+            //rgbeSeekG.SetProgress(Model.LedRibbonRgbState.Value.Green, true);
+            rgbeSeekG.Progress = Model.LedRibbonRgbState.Value.Green;
             rgbeSeekG.SetBackgroundColor(new Color(0, rgbeSeekG.Progress, 0));
-            rgbeSeekB.SetProgress(Model.LedRibbonRgbState.Value.Blue, true);
+            //rgbeSeekB.SetProgress(Model.LedRibbonRgbState.Value.Blue, true);
+            rgbeSeekB.Progress = Model.LedRibbonRgbState.Value.Blue;
             rgbeSeekB.SetBackgroundColor(new Color(0, 0, rgbeSeekB.Progress));
             rgbePanel.SetBackgroundColor(new Color(rgbeSeekR.Progress, rgbeSeekG.Progress, rgbeSeekB.Progress));
         }

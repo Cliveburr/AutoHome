@@ -15,6 +15,20 @@ namespace AH.Interface.Android
         {
             base.OnCreate(bundle);
 
+            //var request = System.Net.WebRequest.Create("http://192.168.1.102:10982/api/area/") as System.Net.HttpWebRequest;
+            //request.KeepAlive = false;
+            //request.Method = "GET";
+            ////request.Accept = "application/json";
+            ////request.ContentType = "application/json";
+
+            //var rep = request.GetResponse();
+            //using (var st = rep.GetResponseStream())
+            //using (var sr = new System.IO.StreamReader(st))
+            //{
+            //    var text = sr.ReadToEnd();
+            //}
+
+
             if (App.IsConnected())
             {
                 App.ShowArea(this);

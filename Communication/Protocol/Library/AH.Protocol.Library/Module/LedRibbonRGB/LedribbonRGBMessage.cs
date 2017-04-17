@@ -9,7 +9,7 @@ namespace AH.Protocol.Library.Module.LedRibbonRGB
 {
     public class LedribbonRGBMessage
     {
-        public LedribbonRGBMessageType Type { get; private set; }
+        public LedribbonRGBContentType Type { get; private set; }
         public RgbLightValue State { get; private set; }
 
         private LedribbonRGBMessage()
@@ -20,7 +20,7 @@ namespace AH.Protocol.Library.Module.LedRibbonRGB
         {
             return new LedribbonRGBMessage
             {
-                Type = LedribbonRGBMessageType.StateRequest
+                Type = LedribbonRGBContentType.StateRequest
             };
         }
 
@@ -28,7 +28,7 @@ namespace AH.Protocol.Library.Module.LedRibbonRGB
         {
             return new LedribbonRGBMessage
             {
-                Type = LedribbonRGBMessageType.StateResponse,
+                Type = LedribbonRGBContentType.StateResponse,
                 State = state
             };
         }
@@ -37,7 +37,7 @@ namespace AH.Protocol.Library.Module.LedRibbonRGB
         {
             return new LedribbonRGBMessage
             {
-                Type = LedribbonRGBMessageType.StateChange,
+                Type = LedribbonRGBContentType.StateChange,
                 State = state
             };
         }
@@ -48,7 +48,7 @@ namespace AH.Protocol.Library.Module.LedRibbonRGB
             {
                 mem.WriteByte((byte)Type);
 
-                var hasState = Type == LedribbonRGBMessageType.StateChange || Type == LedribbonRGBMessageType.StateResponse;
+                var hasState = Type == LedribbonRGBContentType.StateChange || Type == LedribbonRGBContentType.StateResponse;
 
                 if (hasState)
                 {
@@ -68,9 +68,9 @@ namespace AH.Protocol.Library.Module.LedRibbonRGB
             {
                 var typeBytes = new byte[1];
                 mem.Read(typeBytes, 0, 1);
-                var type = (LedribbonRGBMessageType)typeBytes[0];
+                var type = (LedribbonRGBContentType)typeBytes[0];
 
-                var hasState = type == LedribbonRGBMessageType.StateChange || type == LedribbonRGBMessageType.StateResponse;
+                var hasState = type == LedribbonRGBContentType.StateChange || type == LedribbonRGBContentType.StateResponse;
 
                 if (hasState)
                 {

@@ -19,9 +19,26 @@ namespace AH.Protocol.Library.Module.LedRibbonRGB
 
         public void GetStream(BinaryWriter stream)
         {
-            stream.Write(State.Red);
-            stream.Write(State.Green);
-            stream.Write(State.Blue);
+            var cicloRed = (uint)10000;
+            var cicloGreen = (uint)10000;
+            var cicloBlue = (uint)10000;
+
+            var redHigh = (cicloRed * State.Red) / 255;
+            var redLow = cicloRed - redHigh;
+
+            var greenHigh = (cicloGreen * State.Green) / 255;
+            var greenLow = cicloGreen - greenHigh;
+
+            var blueHigh = (cicloBlue * State.Blue) / 255;
+            var blueLow = cicloBlue - blueHigh;
+
+
+            stream.Write(redLow);
+            stream.Write(redHigh);
+            stream.Write(greenLow);
+            stream.Write(greenHigh);
+            stream.Write(blueLow);
+            stream.Write(blueHigh);
         }
 
         public void Parse(BinaryReader stream)

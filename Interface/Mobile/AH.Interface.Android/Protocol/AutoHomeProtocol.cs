@@ -45,11 +45,11 @@ namespace AH.Interface.Android.Protocol
                 {
                     var receive = await _receiver.ReceiveAsync();
 
-                    if (receive.Buffer[6] == 4)
+                    if (receive.Buffer[4] == 4)
                     {
                         _pingTimeout.Stop();
 
-                        var apiPort = BitConverter.ToInt32(receive.Buffer, 7);
+                        var apiPort = BitConverter.ToInt32(receive.Buffer, 5);
                         ReceivePong?.Invoke($"{receive.RemoteEndPoint.Address.ToString()}:{apiPort.ToString()}", null);
                     }
                 }
@@ -69,7 +69,7 @@ namespace AH.Interface.Android.Protocol
         {
             try
             {
-                var bytes = new byte[] { 0, 0, 0, 0, 1, 0, 3 };
+                var bytes = new byte[] { 0, 0, 1, 0, 3 };
 
                 var ip = new IPEndPoint(IPAddress.Broadcast, SendPort);
 

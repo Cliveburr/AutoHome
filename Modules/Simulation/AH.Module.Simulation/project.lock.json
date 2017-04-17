@@ -7599,13 +7599,8 @@
         "lib/netstandard1.0/Microsoft.Extensions.Primitives.xml"
       ]
     },
-<<<<<<< HEAD
-    "Microsoft.NETCore.App/1.0.1": {
-      "sha512": "iMs8v3mYYuInVBvsovZhthnpOvSlp6qShZOhEkrbMFMkyq1x9srHRCAo5qnLk5vR0VNRJi2sv5P5xvZYjSkY9w==",
-=======
     "Microsoft.NETCore.App/1.0.0": {
       "sha512": "Bv40dLDrT+Igcg1e6otW3D8voeJCfcAxOlsxSVlDz+J+cdWls5kblZvPHHvx7gX3/oJoQVIkEeO3sMyv5PSVJA==",
->>>>>>> 25f553b56e304f19f1d83fd400e797498f793b75
       "type": "package",
       "path": "Microsoft.NETCore.App/1.0.0",
       "files": [
@@ -7652,13 +7647,8 @@
         "runtime.json"
       ]
     },
-<<<<<<< HEAD
-    "Microsoft.NETCore.Jit/1.0.4": {
-      "sha512": "MUyt6bB8eKEmEbAiYh3tNvTIJnkFLCFaIN4zQevqwoGsLmcAW06cr55UXQYgtUQBr9AunNxTB3gkzbteHQ1k0A==",
-=======
     "Microsoft.NETCore.Jit/1.0.2": {
       "sha512": "Ok2vWofa6X8WD9vc4pfLHwvJz1/B6t3gOAoZcjrjrQf7lQOlNIuZIZtLn3wnWX28DuQGpPJkRlBxFj7Z5txNqw==",
->>>>>>> 25f553b56e304f19f1d83fd400e797498f793b75
       "type": "package",
       "path": "Microsoft.NETCore.Jit/1.0.2",
       "files": [
@@ -7682,13 +7672,8 @@
         "runtime.json"
       ]
     },
-<<<<<<< HEAD
-    "Microsoft.NETCore.Runtime.CoreCLR/1.0.4": {
-      "sha512": "LXfoCltxkYpoloocN0jiFcBeVsKxyke/drh2yfzD/Nno4UWMq/8wIPwLejrtXEHNLXClsxKiT1rh58pc8d5pPQ==",
-=======
     "Microsoft.NETCore.Runtime.CoreCLR/1.0.2": {
       "sha512": "A0x1xtTjYJWZr2DRzgfCOXgB0JkQg8twnmtTJ79wFje+IihlLbXtx6Z2AxyVokBM5ruwTedR6YdCmHk39QJdtQ==",
->>>>>>> 25f553b56e304f19f1d83fd400e797498f793b75
       "type": "package",
       "path": "Microsoft.NETCore.Runtime.CoreCLR/1.0.2",
       "files": [

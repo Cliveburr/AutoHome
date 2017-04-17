@@ -1,4 +1,15 @@
 
+Tasks
+
+	- aplicar ao led real
+		comprar mosft e acoplador optico
+	- salvar as config no flash
+	- montar a rotação entre access point e station
+		configurar e descobrir por modo AP
+		tornar dinamico o UID
+	- montar o FOTA
+
+
 1 - Layer Interface
 	- WebUI
 	- App
