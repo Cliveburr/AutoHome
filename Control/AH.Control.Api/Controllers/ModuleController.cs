@@ -154,6 +154,28 @@ namespace AH.Control.Api.Controllers
             }
         }
 
+        //[HttpGet("discoveryforconfiguration")]
+        //public ConfigurationViewModel GetDiscoveryForConfiguration()
+        //{
+        //    var module = _module.Get(id);
+        //    if (module == null)
+        //        return null;
+
+        //    var area = _area.Get(module.AreaBelong);
+        //    if (area == null)
+        //        return null;
+
+        //    return new ConfigurationViewModel
+        //    {
+        //        ModuleId = module.ModuleId,
+        //        Alias = module.Alias,
+        //        Type = module.Type,
+        //        Area = area.Name,
+        //        LedRibbonRgbState = module.LedRibbonRgbState,
+        //        StandardList = GetStandardList(module.Type, true)
+        //    };
+        //}
+
         private Models.Standard.StandardListViewModel[] GetStandardList(ModuleType type, bool withValue = false)
         {
             switch (type)

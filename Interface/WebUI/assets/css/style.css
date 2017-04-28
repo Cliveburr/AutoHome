@@ -8828,3 +8828,6 @@ base-chart.chart {
 
 .drag-handle {
   cursor: move; }
+
+.chk-large {
+  transform: scale(1.5, 1.5); }

@@ -13,6 +13,8 @@ export class ModuleComponent implements OnInit {
     public model: IndexViewModel;
     public moduleType = ModuleType;
 
+    public componentData: any;
+
     public constructor(
         private base: BaseView,
         private moduleService: ModuleService
@@ -42,5 +44,21 @@ export class ModuleComponent implements OnInit {
 
     public onBack(): void {
         this.base.back();
-    }    
+    }
+    
+    public onPing(module: IndexModule): void {
+        this.moduleService
+            .ping(module.moduleId)
+            .then(() => this.onRefresh());
+    }
+
+    public onWifiConfiguration(): void {
+        this.base.modal.showModal();
+    }
+
+    public onChkSelChange(value: boolean): void {
+        for (var module of this.model.list) {
+            module.sel = value;
+        }
+    }
 }
