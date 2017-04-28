@@ -1,0 +1,54 @@
+
+<h2>Area Edit</h2>
+
+<button type="button" class="btn btn-primary" (click)="onBack()"><i class="fa fa-arrow-left" aria-hidden="true"></i></button>
+<button type="button" class="btn btn-primary" (click)="onSave()"><i class="fa fa-floppy-o" aria-hidden="true"></i> Save</button>
+<hr class="my-2">
+
+<form *ngIf="model">
+    <div class="card">
+        <div class="card-header">
+            <strong>Properties</strong>
+        </div>
+        <div class="card-block">
+            <div class="form-group row">
+                <label class="col-2 col-form-label" for="name">Name</label>
+                <input class="col-5 form-control" type="text" id="name" placeholder="Name" [(ngModel)]="model.name" name="name">
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-6">
+            <div class="card" droppable
+                (onDrop)="onAvaliableDrop($event)"
+                [dragOverClass]="'drag-target-border'"
+                [dropScope]="'belong'">
+                <div class="card-header">
+                    <strong>Modules Avaliable</strong>
+                </div>
+                <div class="card-block">
+                    <li draggable class="list-group-item drag-handle" *ngFor="let ava of model.avaliable"
+                        [dragData]="ava"
+                        [dragScope]="'avaliable'"
+                        [dragOverClass]="'drag-over-border'">{{ava.alias}}</li>
+                </div>
+            </div>
+        </div>
+        <div class="col-6">
+            <div class="card" droppable
+                (onDrop)="onBelongDrop($event)"
+                [dragOverClass]="'drag-target-border'"
+                [dropScope]="'avaliable'">
+                <div class="card-header">
+                    <strong>Modules belong to this Area</strong>
+                </div>
+                <div class="card-block">
+                    <li draggable class="list-group-item drag-handle" *ngFor="let bel of model.belong" 
+                        [dragData]="bel"
+                        [dragScope]="'belong'"
+                        [dragOverClass]="'drag-over-border'">{{bel.alias}}</li>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

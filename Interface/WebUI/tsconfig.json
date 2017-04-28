@@ -15,7 +15,7 @@
     "noImplicitReturns": true,
     "noImplicitUseStrict": false,
     "noFallthroughCasesInSwitch": true,
-    "rootDir": "./app",
+    "importHelpers": true,
     "watch": true,
     "typeRoots": [
       "./node_modules/@types"
@@ -26,10 +26,11 @@
   },
   "compileOnSave": false,
   "files": [
-    "app/main.ts",
+    "app/main/main.ts",
     "app/view/home/home.module.ts",
+    "app/view/module/module.module.ts",
     "app/view/area/area.module.ts",
-    "app/view/data/data.module.ts",
+    "app/view/standard/standard.module.ts",
     "app/view/editor/editor.module.ts"
   ]
 }

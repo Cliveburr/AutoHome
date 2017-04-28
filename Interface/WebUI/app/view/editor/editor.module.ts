@@ -1,15 +1,14 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule }    from '@angular/forms';
+import { TabsModule } from 'ng2-bootstrap';
 
 import { RgbLightModuleComponent } from './rgblight/rgblight-module.component';
 import { RgbLightStandardComponent } from './rgblight/rgblight-standard.component';
 import { ColorPickerModule } from 'angular2-color-picker';
 
-import { StandardService } from '../../service/standardService';
-import { ModuleService } from '../../service/moduleService';
+import { SharedModule } from '../../main/shared.module';
 
 const routes: Routes = [
     { path: '', redirectTo: '/home', pathMatch: 'full' },
@@ -18,10 +17,10 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [ CommonModule, RouterModule.forChild(routes), NgbModule, FormsModule, ColorPickerModule ],
+  imports: [ CommonModule, RouterModule.forChild(routes), FormsModule, ColorPickerModule, SharedModule, TabsModule ],
   declarations: [ RgbLightStandardComponent, RgbLightModuleComponent ],
   exports: [ RouterModule ],
-  providers: [ StandardService, ModuleService ]
+  providers: [ ]
 })
 export default class EditorModule {
 

@@ -5,18 +5,33 @@
 <button type="button" class="btn btn-primary" (click)="onApply()"><i class="fa fa-floppy-o" aria-hidden="true"></i> Apply</button>
 <hr class="my-2">
 
-<div class="form-group row">
-    <label class="col-2 col-form-label" for="name">Standard Name</label>
-    <input class="col-6 form-control" disabled type="text" id="name" placeholder="Name" [value]="standard?.name">
+<div class="card">
+    <div class="card-header">
+        <strong>Properties</strong>
+    </div>
+    <div class="card-block">
+        <div class="form-group row">
+            <label class="col-2 col-form-label" for="name">Standard Name</label>
+            <input class="col-6 form-control" disabled type="text" id="name" placeholder="Name" [value]="standard?.name">
+        </div>
+    </div>
 </div>
-<div class="form-group row">
-    <label class="col-2 col-form-label" for="value">Value</label>
-    <div class="col-6 no-padding">
-        <input class="form-control" type="text" id="value" placeholder="Value" [value]="color"
-            [style.background]="color" 
-            [(colorPicker)]="color"
-            [cpAlphaChannel]="'disabled'"
-            [cpOutputFormat]="'rgba'"
-            [cpPosition]="'bottom'">
+
+<div class="card">
+    <div class="card-header">
+        <strong>Color</strong>
+    </div>
+    <div class="card-block">
+        <div class="form-group row">
+            <label class="col-2 col-form-label" for="value">Value</label>
+            <div class="col-6 no-padding">
+                <input class="form-control" type="text" id="value" placeholder="Value" [value]="color"
+                    [style.background]="color" 
+                    [(colorPicker)]="color"
+                    [cpAlphaChannel]="'disabled'"
+                    [cpOutputFormat]="'rgba'"
+                    [cpPosition]="'bottom'">
+            </div>
+        </div>
     </div>
 </div>

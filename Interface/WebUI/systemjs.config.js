@@ -18,8 +18,10 @@
       '@angular/router': 'npm:@angular/router/bundles/router.umd.js',
       '@angular/forms': 'npm:@angular/forms/bundles/forms.umd.js',
       'rxjs': 'npm:rxjs',
+      'tslib': 'npm:tslib/tslib.js',
       // Bootstrap
-      '@ng-bootstrap/ng-bootstrap': 'npm:@ng-bootstrap/ng-bootstrap/bundles/ng-bootstrap.js',
+      'moment': 'npm:moment/moment.js',
+      'ng2-bootstrap': 'npm:ng2-bootstrap/bundles/ng2-bootstrap.umd.min.js',
       // Vendor
       'angular2-color-picker': 'npm:angular2-color-picker',
       'ng2-drag-drop': 'npm:ng2-drag-drop'
@@ -27,7 +29,7 @@
     // packages tells the System loader how to load when no filename and/or no extension
     packages: {
       app: {
-        main: './main.js',
+        main: './main/main.js',
         defaultExtension: 'js'
       },
       rxjs: {
@@ -37,7 +39,10 @@
         main:'index.js',
         defaultExtension: 'js'
       },
-      'ng2-drag-drop': { main: 'index.js',  defaultExtension: 'js' }
+      'ng2-drag-drop': {
+        main: 'index.js',
+        defaultExtension: 'js'
+      }
     }
   });
 })(this);
