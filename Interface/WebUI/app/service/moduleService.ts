@@ -3,7 +3,8 @@ import { Http } from '@angular/http';
 import { ConfigService } from './configService';
 
 import { BaseService } from './baseService';
-import { IndexViewModel, EditViewModel, EditorViewModel, ModuleType, ConfigurationViewModel } from '../model/moduleModel';
+import { IndexViewModel, EditViewModel, EditorViewModel, ModuleType, ConfigurationViewModel,
+    WifiConfigurationModel } from '../model/moduleModel';
 import { StandardType } from '../model/standardModel';
 
 @Injectable()
@@ -68,5 +69,9 @@ export class ModuleService extends BaseService {
             case ModuleType.incandescentLamp:
                 return StandardType.blackWhiteLight;
         }
+    }
+
+    public postWifiConfiguration(id: string, data: WifiConfigurationModel): Promise<null> {
+        return super.post(data, 'wificonfiguration/' + id);
     }
 }

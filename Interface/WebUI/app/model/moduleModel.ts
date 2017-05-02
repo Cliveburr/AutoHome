@@ -52,3 +52,8 @@ export class ConfigurationViewModel
     public wifiname: string;
     public wifipass: string;
 }
+
+export interface WifiConfigurationModel {
+    wifiname: string;
+    wifipass: string;
+}

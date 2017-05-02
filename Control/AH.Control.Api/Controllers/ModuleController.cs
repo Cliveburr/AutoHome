@@ -154,6 +154,12 @@ namespace AH.Control.Api.Controllers
             }
         }
 
+        [HttpPost("wificonfiguration/{id}")]
+        public void WifiConfiguration(string id, [FromBody]WifiConfigurationModel model)
+        {
+            throw new Exception();
+        }
+
         //[HttpGet("discoveryforconfiguration")]
         //public ConfigurationViewModel GetDiscoveryForConfiguration()
         //{

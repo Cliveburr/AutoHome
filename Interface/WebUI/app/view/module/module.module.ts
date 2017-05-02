@@ -9,6 +9,7 @@ import { SharedModule } from '../../main/shared.module';
 import { ModuleComponent } from './module.component';
 import { ModuleEditComponent } from './module-edit.component';
 import { ModuleDiscoveryComponent } from './module-discovery.component';
+import { WifiConfigurationComponent } from './wifi-configuration.component';
 
 
 const routes: Routes = [
@@ -21,7 +22,8 @@ const routes: Routes = [
   imports: [ CommonModule, RouterModule.forChild(routes), FormsModule, BsDropdownModule, SharedModule ],
   declarations: [ ModuleComponent, ModuleEditComponent, ModuleDiscoveryComponent ],
   exports: [ RouterModule ],
-  providers: [ ]
+  providers: [ ],
+  entryComponents: [  ]
 })
 export default class ModuleModule {
 

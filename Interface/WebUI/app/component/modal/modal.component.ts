@@ -1,6 +1,7 @@
 import { Component, OnInit, ComponentFactoryResolver, ViewContainerRef } from '@angular/core';
 import { ModalService } from './modal.service';
 import { ModalMessageComponent } from './modal-message.component';
+import { DynamicModalComponent } from './dynamic-modal.component';
 
 @Component({
   moduleId: module.id,
@@ -27,6 +28,14 @@ export class ModalComponent implements OnInit {
 
         ref.instance.staticModal.show();
     }
+
+    public showDynamicModal(): DynamicModalComponent {
+        let factory = this.componentFactoryResolver.resolveComponentFactory(DynamicModalComponent);
+        let ref = this.viewContainerRef.createComponent(factory);
+        ref.changeDetectorRef.detectChanges();
+
+        return ref.instance;
+    }
 }
 
-export const MODAL_COMPONENTS = [ModalComponent, ModalMessageComponent];
+export const MODAL_COMPONENTS = [ModalComponent, ModalMessageComponent, DynamicModalComponent];

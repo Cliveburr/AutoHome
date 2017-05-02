@@ -3,6 +3,7 @@ import { ActivatedRoute, Router, RoutesRecognized, NavigationEnd } from '@angula
 import { Location } from '@angular/common';
 
 import { ModalService } from '../../component/modal/modal.service';
+import { NotifyService } from '../../component/notify.service';
 
 @Injectable()
 export class BaseView {
@@ -12,7 +13,8 @@ export class BaseView {
         public route: ActivatedRoute,
         public router: Router,
         public location: Location,
-        public modal: ModalService
+        public modal: ModalService,
+        public notify: NotifyService
     ) {
     }
 

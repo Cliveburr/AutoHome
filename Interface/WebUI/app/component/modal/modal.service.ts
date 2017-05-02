@@ -1,5 +1,6 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Type } from '@angular/core';
 import { ModalComponent } from './modal.component';
+import { DynamicModalInterface } from './dynamic-modal.component';
 
 var staticData = {
     component: <ModalComponent>null
@@ -16,5 +17,11 @@ export class ModalService {
 
     public showModal(): void {
         staticData.component.showModal();
+    }
+
+    public createDynamic<T extends DynamicModalInterface>(title: string, obj: Type<T>): T {
+        let modal = staticData.component.showDynamicModal();
+        let instance = modal.setContent(title, obj);
+        return instance;
     }
 }

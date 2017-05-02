@@ -1,0 +1,14 @@
+<div class="modal-body">
+    <div class="form-group row">
+        <label class="col-2 col-form-label" for="wifiname">Name</label>
+        <input class="col-6 form-control" type="text" id="wifiname" placeholder="Name" [(ngModel)]="model.wifiname" name="wifiname">
+    </div>
+    <div class="form-group row">
+        <label class="col-2 col-form-label" for="wifipass">Password</label>
+        <input class="col-6 form-control" type="password" id="wifipass" placeholder="Password" [(ngModel)]="model.wifipass" name="wifipass">
+    </div>
+</div>
+<div class="modal-footer">
+    <button type="button" class="col-2 btn btn-primary" (click)="onClose()"><i class="fa fa-window-close" aria-hidden="true"></i> Close</button>
+    <button type="button" class="col-2 btn btn-success" (click)="onApply()"><i class="fa fa-floppy-o" aria-hidden="true"></i> Apply</button>
+</div>
