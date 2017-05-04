@@ -4,6 +4,7 @@ import { IndexViewModel, IndexModule, ModuleType } from '../../model/moduleModel
 import { ModuleService } from '../../service/moduleService';
 import { NotifyType } from '../../component/notify.service';
 import { WifiConfigurationComponent } from './wifi-configuration.component';
+import { FotaUpgradeComponent } from './fota-upgrade.component';
 
 @Component({
   moduleId: module.id,
@@ -81,5 +82,23 @@ export class ModuleComponent implements OnInit {
 
     private getSel(): IndexModule[] {
         return this.model.list.filter(m => m.sel);
+    }
+
+    public onFOTAUpgrade(): void {
+        let sels = this.getSel();
+
+        if (sels.length == 0) {
+            this.base.notify.addMessage(NotifyType.Warning, '<strong>FOTA Upgrade!</strong> Need to select at least one to upgrade.', 5000);
+            return;
+        }
+
+        let ttype = sels[0].type;
+        if (sels.filter(s => s.type != ttype).length > 0) {
+            this.base.notify.addMessage(NotifyType.Warning, '<strong>FOTA Upgrade!</strong> Only module with the same type can be upgrade at same time.', 5000);
+            return;
+        }
+
+        let model = this.base.modal.createDynamic<FotaUpgradeComponent>('FOTA Upgrade', FotaUpgradeComponent);
+        model.setModules(sels);
     }
 }

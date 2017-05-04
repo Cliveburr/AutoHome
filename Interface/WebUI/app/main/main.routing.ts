@@ -20,7 +20,8 @@ export const routes: Routes = [
       { path: 'module', loadChildren: './app/view/module/module.module' },
       { path: 'area', loadChildren: './app/view/area/area.module' },
       { path: 'standard', loadChildren: './app/view/standard/standard.module' },
-      { path: 'editor', loadChildren: './app/view/editor/editor.module' }
+      { path: 'editor', loadChildren: './app/view/editor/editor.module' },
+      { path: 'moduleversion', loadChildren: './app/view/moduleversion/moduleversion.module' }
     ]
   }
 ];

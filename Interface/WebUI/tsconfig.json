@@ -31,6 +31,7 @@
     "app/view/module/module.module.ts",
     "app/view/area/area.module.ts",
     "app/view/standard/standard.module.ts",
-    "app/view/editor/editor.module.ts"
+    "app/view/editor/editor.module.ts",
+    "app/view/moduleversion/moduleversion.module.ts"
   ]
 }

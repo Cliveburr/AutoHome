@@ -8,19 +8,15 @@ import { SharedModule } from '../../main/shared.module';
 
 import { ModuleComponent } from './module.component';
 import { ModuleEditComponent } from './module-edit.component';
-import { ModuleDiscoveryComponent } from './module-discovery.component';
-import { WifiConfigurationComponent } from './wifi-configuration.component';
-
 
 const routes: Routes = [
   { path: '', component: ModuleComponent },
-  { path: 'discovery', component: ModuleDiscoveryComponent },
   { path: ':id', component: ModuleEditComponent }
 ];
 
 @NgModule({
   imports: [ CommonModule, RouterModule.forChild(routes), FormsModule, BsDropdownModule, SharedModule ],
-  declarations: [ ModuleComponent, ModuleEditComponent, ModuleDiscoveryComponent ],
+  declarations: [ ModuleComponent, ModuleEditComponent ],
   exports: [ RouterModule ],
   providers: [ ],
   entryComponents: [  ]
