@@ -1,4 +1,5 @@
 ﻿using AH.Control.Api.Entities;
+using AH.Protocol.Library.Module;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -78,6 +79,12 @@ namespace AH.Control.Api.Business
                 return string.Empty;
 
             return Db.ModuleVersion.Delete(entity.ModuleVersionId);
+        }
+
+        public IEnumerable<ModuleVersionEntity> GetFilter(ModuleType type)
+        {
+            return Db.ModuleVersion
+                .Filter(new { Type = type });
         }
     }
 }

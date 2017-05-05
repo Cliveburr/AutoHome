@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { EditViewModel, WifiConfigurationModel } from '../../model/moduleModel';
-import { ModuleVersionService } from '../../service/moduleversion.service';
 import { IndexModule } from '../../model/moduleModel';
+import { ModuleVersionService } from '../../service/moduleversion.service';
+import { IndexModule as VersionIndexModule } from '../../model/moduleversion.model';
+import { NotifyService, NotifyType } from '../../component/notify.service';
 
 @Component({
   moduleId: module.id,
@@ -11,11 +12,13 @@ import { IndexModule } from '../../model/moduleModel';
 })
 export class FotaUpgradeComponent implements OnInit {
     public model: IndexModule[];
-    public onApplyEvent: (data: WifiConfigurationModel) => void;
+    public versions: VersionIndexModule[];
+    public versionSel: VersionIndexModule;
     public onCloseEvent: () => void;
 
     public constructor(
-        private moduleVersionService: ModuleVersionService
+        private moduleVersionService: ModuleVersionService,
+        private notify: NotifyService
     ) {
     }
 
@@ -29,12 +32,19 @@ export class FotaUpgradeComponent implements OnInit {
     public setModules(sels: IndexModule[]): void {
         this.model = sels;
         this.moduleVersionService
-            .getVersionForType(sels[0].type)
+            .getFilter(sels[0].type)
             .then(data => this.versions = data);
     }
 
     public onApply() : void {
-        this.onApplyEvent(this.model);
-        this.onCloseEvent();
+        let ids = this.model.map(m => m.moduleId);
+        let versionId = this.versionSel.moduleVersionId;
+
+        this.moduleVersionService
+            .postFOTAUpgrade(ids, versionId)
+            .then(data => {
+                this.notify.addMessage(NotifyType.Success, '<strong>FOTA Upgrade!</strong> Modules successfully upgrade.', 3000);
+                this.onCloseEvent();
+            });
     }
 }

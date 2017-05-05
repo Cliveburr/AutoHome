@@ -157,7 +157,11 @@ namespace AH.Control.Api.Controllers
         [HttpPost("wificonfiguration/{id}")]
         public void WifiConfiguration(string id, [FromBody]WifiConfigurationModel model)
         {
-            throw new Exception();
+            var module = _module.Get(id);
+            if (module == null)
+                throw new Exception($"Module Id: {id} not found!");
+
+            _autoHome.SendWifiConfiguration(module, model);
         }
 
         //[HttpGet("discoveryforconfiguration")]

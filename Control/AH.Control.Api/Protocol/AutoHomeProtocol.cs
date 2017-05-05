@@ -1,5 +1,6 @@
 ﻿using AH.Control.Api.Business;
 using AH.Control.Api.Entities;
+using AH.Control.Api.Models.Module;
 using AH.Protocol.Lan;
 using AH.Protocol.Lan.Message;
 using AH.Protocol.Library;
@@ -30,24 +31,15 @@ namespace AH.Control.Api.Protocol
 
             LedRibbonRgb = new LedRibbonRGBCenter(this, moduleComponent);
 
-            Lan = new LanProtocol(Options.ReceivePort, Options.SendPort);
+            Lan = new LanProtocol(Options.TcpReceivePort, Options.TcpSendPort, Options.UdpReceivePort, Options.UdpSendPort);
             AutoHome = new AhProtocol(Options.UID, Lan);
             AutoHome.Receiver += AutoHome_Receiver;
         }
 
         public void BroadcastInfoRequest()
         {
-            var host = Dns.GetHostEntryAsync(Dns.GetHostName()).GetAwaiter().GetResult();
-
-            foreach (var address in host.AddressList.Where(a => a.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork))
-            {
-                var ip = address.GetAddressBytes();
-                ip[3] = 255;
-                var send = new IPAddress(ip);
-
-                var msg = new LanMessage(0, send, MessageType.InfoRequest);
-                AutoHome.Send(msg);
-            }
+            var msg = new LanMessage(0, IPAddress.Broadcast, MessageType.InfoRequest);
+            AutoHome.Send(msg);
         }
 
         public void InfoRequest(ModuleEntity entity)
@@ -73,7 +65,7 @@ namespace AH.Control.Api.Protocol
             var content = new InfoContent();
             message.ParseContent(content);
 
-            ModuleComponent.UpdateAddressForUID(message.SenderUID, message.SenderIPAddress, content);
+            ModuleComponent.UpdateAddressForUID(message.SenderUID, message.RemoteIPAddress, content);
         }
 
         private void ProcessModuleMessage(LanMessage message)
@@ -91,7 +83,7 @@ namespace AH.Control.Api.Protocol
         private void SendPong(LanMessage message)
         {
             var content = new PongContent(Options.ApiPort);
-            var msg = new LanMessage(message.SenderUID, message.SenderIPAddress, MessageType.ApiPong, content);
+            var msg = new LanMessage(message.SenderUID, message.RemoteIPAddress, MessageType.ApiPong, content);
             AutoHome.Send(msg);
         }
 
@@ -101,6 +93,19 @@ namespace AH.Control.Api.Protocol
             {
                 case ModuleType.LedRibbonRgb: LedRibbonRgb.SendValue(entity); break;
             }
+        }
+
+        public void SendWifiConfiguration(ModuleEntity entity, WifiConfigurationModel model)
+        {
+            var content = new WifiConfigurationContent
+            {
+                Wifiname = model.Wifiname,
+                Wifipass = model.Wifipass
+            };
+
+            var address = new IPAddress(entity.Address);
+            var msg = new LanMessage(entity.UID, address, MessageType.WifiConfiguration, content);
+            AutoHome.Send(msg);
         }
     }
 }

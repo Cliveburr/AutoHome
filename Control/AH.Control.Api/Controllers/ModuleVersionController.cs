@@ -1,6 +1,7 @@
 ﻿using AH.Control.Api.Business;
 using AH.Control.Api.Entities;
 using AH.Control.Api.Models.ModuleVersion;
+using AH.Protocol.Library.Module;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -69,9 +70,9 @@ namespace AH.Control.Api.Controllers
                     Version = version.Version,
                     Type = version.Type,
                     User1File = version.User1File,
-                    User1Blob = Convert.ToBase64String(version.User1Blob),
+                    User1Blob = version.User1Blob == null ? "" :  Convert.ToBase64String(version.User1Blob),
                     User2File = version.User2File,
-                    User2Blob = Convert.ToBase64String(version.User2Blob)
+                    User2Blob = version.User2Blob == null ? "" : Convert.ToBase64String(version.User2Blob)
                 };
             }
         }
@@ -100,6 +101,19 @@ namespace AH.Control.Api.Controllers
             {
                 _moduleVersion.Update(moduleVersion);
             }
+        }
+
+        [HttpGet("filter/{type}")]
+        public IndexModuleVersion[] GetFilter(ModuleType type)
+        {
+            var moduleVersion = _moduleVersion.GetFilter(type);
+            return moduleVersion.Select(v => new IndexModuleVersion
+            {
+                ModuleVersionId = v.ModuleVersionId,
+                Name = v.Name,
+                Version = v.Version,
+                Type = v.Type
+            }).ToArray();
         }
     }
 }

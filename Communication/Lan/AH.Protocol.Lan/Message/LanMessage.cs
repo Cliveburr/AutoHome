@@ -6,18 +6,17 @@ namespace AH.Protocol.Lan.Message
 {
     public class LanMessage : Library.Message.MessageBase
     {
-        public IPAddress SenderIPAddress { get; set; }
-        public IPAddress ReceiverIPAddress { get; set; }
+        public IPAddress RemoteIPAddress { get; set; }
 
         public LanMessage(BinaryReader stream)
             : base(stream)
         {
         }
 
-        public LanMessage(ushort receiverUID, IPAddress receiverIPAddress, MessageType type, IContentMessage content = null)
+        public LanMessage(ushort receiverUID, IPAddress remoteIPAddress, MessageType type, IContentMessage content = null)
             : base(receiverUID, type, content)
         {
-            ReceiverIPAddress = receiverIPAddress;
+            RemoteIPAddress = remoteIPAddress;
         }
 
         public override void GetStream(BinaryWriter stream)

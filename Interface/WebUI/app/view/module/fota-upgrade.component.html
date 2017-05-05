@@ -1,11 +1,7 @@
 <div class="modal-body">
-    <div class="form-group row">
-        <label class="col-2 col-form-label" for="wifiname">Name</label>
-        <input class="col-6 form-control" type="text" id="wifiname" placeholder="Name" [(ngModel)]="model.wifiname" name="wifiname">
-    </div>
-    <div class="form-group row">
-        <label class="col-2 col-form-label" for="wifipass">Password</label>
-        <input class="col-6 form-control" type="password" id="wifipass" placeholder="Password" [(ngModel)]="model.wifipass" name="wifipass">
+    <div class="form-group row" *ngIf="versions">
+        <label class="col-2 col-form-label" for="versionSel">Version</label>
+        <enumselect class="col-5" [list]="versions" id="moduleType" [(ngModel)]="versionSel" name="versionSel"></enumselect>
     </div>
 </div>
 <div class="modal-footer">

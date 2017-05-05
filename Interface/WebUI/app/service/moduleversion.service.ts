@@ -36,4 +36,8 @@ export class ModuleVersionService extends BaseService {
     public getFilter(type: ModuleType): Promise<IndexModule[]> {
         return super.getUrl('filter/' + type);
     }
+
+    public postFOTAUpgrade(moduleIds: string[], moduleVersionId: string): Promise<null> {
+        return super.post(moduleIds, 'fotaupgrade/' + moduleVersionId);
+    }
 }

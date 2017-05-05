@@ -8,8 +8,10 @@ namespace AH.Control.Api.Protocol
     public class AutoHomeOptions
     {
         public ushort UID { get; set; }
-        public int SendPort { get; set; }
-        public int ReceivePort { get; set; }
+        public int TcpSendPort { get; set; }
+        public int TcpReceivePort { get; set; }
+        public int UdpSendPort { get; set; }
+        public int UdpReceivePort { get; set; }
         public int ApiPort { get; set; }
     }
 }

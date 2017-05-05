@@ -13,10 +13,12 @@ namespace AH.Module.Simulation.Mode
         public void Start()
         {
             var uid = ushort.Parse(Program.Configuration["UID"]);
-            var sendPort = int.Parse(Program.Configuration["SendPort"]);
-            var receivePort = int.Parse(Program.Configuration["ReceivePort"]);
+            var tcpSendPort = int.Parse(Program.Configuration["TCP_SendPort"]);
+            var tcpReceivePort = int.Parse(Program.Configuration["TCP_ReceivePort"]);
+            var udpSendPort = int.Parse(Program.Configuration["UDP_SendPort"]);
+            var udpReceivePort = int.Parse(Program.Configuration["UDP_ReceivePort"]);
 
-            Lan = new LanProtocol(receivePort, sendPort);
+            Lan = new LanProtocol(tcpReceivePort, tcpSendPort, udpReceivePort, udpSendPort);
             AutoHome = new AhProtocol(uid, Lan);
             AutoHome.Receiver += AutoHome_Receiver;
 
