@@ -1,8 +1,11 @@
 #ifndef __LED_RIBBON_H__
 #define __LED_RIBBON_H__
 
+#include "auto_home.station.h"
+
+//#define USE_US_TIMER
+
 enum LedribbonRGBContentType {
-    Nop = 0,
     StateRequest = 1,
     StateResponse = 2,
     StateChange = 3
@@ -14,12 +17,12 @@ struct LedribbonRGBContent {
 };
 
 struct LedribbonRGBStateContent {
-    unsigned int redLow;
-    unsigned int redHigh;
-    unsigned int greenLow;
-    unsigned int greenHigh;
-    unsigned int blueLow;
-    unsigned int blueHigh;
+    uint32_t redLow;
+    uint32_t redHigh;
+    uint32_t greenLow;
+    uint32_t greenHigh;
+    uint32_t blueLow;
+    uint32_t blueHigh;
 };
 
 struct color_struct {
@@ -34,13 +37,15 @@ struct color_struct bluePin;
 struct color_struct greenPin;
 struct color_struct redPin;
 
-void LedRibbonInitialize();
-void ProcessModuleMessage(struct MessageBase msg);
-struct LedribbonRGBContent ParseContent(char *data);
-struct LedribbonRGBStateContent ParseStateContent(char *data);
-void SendResponseState(struct LanMessage msg);
-void ProcessChangeState(struct LanMessage msg, struct LedribbonRGBContent content)
-void SetPinState(struct color_struct *color);
-void PinEvent(struct color_struct *color);
+void ledRibbon_initialize(void);
+void set_off(void);
+void set_normal_operation(void);
+void set_pin_state(struct color_struct *color);
+void pin_event(struct color_struct *color);
+void process_module_message(struct MessageBase msg);
+struct LedribbonRGBContent parse_content(char *data);
+void send_response_state(struct MessageBase msg);
+void process_change_state(struct MessageBase msg, struct LedribbonRGBContent content);
+struct LedribbonRGBStateContent parse_state_content(char *data);
 
 #endif

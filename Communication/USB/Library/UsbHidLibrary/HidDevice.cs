@@ -4,6 +4,8 @@ using NaFile = NativeNET.Kernel32.File;
 using NaDevice = NativeNET.SetupApi.Device;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Win32.SafeHandles;
+using System.IO;
 
 namespace UsbHidLibrary
 {
@@ -17,22 +19,20 @@ namespace UsbHidLibrary
         public HidDeviceAttributes Attributes { get; private set; }
         public HidDeviceCapabilities Capabilities { get; private set; }
         public byte ReportID { get; set; }
-        public DeviceMode DeviceReadMode { get; private set; }
-        public DeviceMode DeviceWriteMode { get; private set; }
+        public DeviceMode DeviceMode { get; private set; }
         public int Timeout { get; set; }
 
-        public HidDevice(HidDeviceInfo info, DeviceMode devideReadMode, DeviceMode deviceWriteMode)
+        public HidDevice(HidDeviceInfo info, DeviceMode devideMode)
         {
             Path = info.Path;
             Description = info.Description;
-            ReportID = 0x0;
-            DeviceReadMode = devideReadMode;
-            DeviceWriteMode = deviceWriteMode;
+            ReportID = 10;
+            DeviceMode = devideMode;
             Timeout = 30;
 
             try
             {
-                Handle = OpenDeviceIO();
+                OpenDeviceIO();
                 GetDeviceAttributes();
                 GetDeviceCapabilities();
             }
@@ -44,20 +44,20 @@ namespace UsbHidLibrary
         }
 
         public HidDevice(HidDeviceInfo info)
-            : this(info, DeviceMode.NonOverlapped, DeviceMode.NonOverlapped)
+            : this(info, DeviceMode.NonOverlapped)
         {
         }
 
-        private IntPtr OpenDeviceIO()
+        private void OpenDeviceIO()
         {
-            NaFile.FlagsAndAttributes flags = DeviceReadMode == DeviceMode.Overlapped ?
+            NaFile.FlagsAndAttributes flags = DeviceMode == DeviceMode.Overlapped ?
                 NaFile.FlagsAndAttributes.FILE_FLAG_OVERLAPPED :
                 0;
 
-            return NaFile.CreateFile.Run(
+            Handle = NaFile.CreateFile.Run(
                 Path,
-                NaFile.DesiredAccessFlags.GENERIC_READ | NaFile.DesiredAccessFlags.GENERIC_WRITE,
-                NaFile.ShareModeFlags.FILE_SHARE_READ | NaFile.ShareModeFlags.FILE_SHARE_WRITE,
+                NaFile.DesiredAccessFlags.GENERIC_WRITE | NaFile.DesiredAccessFlags.GENERIC_READ,
+                NaFile.ShareModeFlags.FILE_SHARE_WRITE | NaFile.ShareModeFlags.FILE_SHARE_READ,
                 NaFile.CreationDispositionEnum.OPEN_EXISTING,
                 flags,
                 IntPtr.Zero);
