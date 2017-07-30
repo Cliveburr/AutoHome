@@ -1,0 +1,51 @@
+﻿<Window x:Class="AH.Module.Controller.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:AH.Module.Controller"
+        mc:Ignorable="d"
+        Title="AutoHome Module Controller" Height="532.991" Width="617.694" WindowStartupLocation="CenterScreen" Closed="Window_Closed">
+    <Grid>
+        <TabControl Margin="5">
+            <TabItem Header="Modules">
+                <DockPanel Background="#FFE5E5E5">
+                    <GroupBox DockPanel.Dock="Top" Margin="5" Header="Selected">
+                        <StackPanel Orientation="Vertical">
+                            <StackPanel Orientation="Horizontal">
+                                <Label Margin="5">Send Port:</Label>
+                                <TextBox Margin="5" Width="70" Text="{Binding Path=SendPort}"></TextBox>
+                                <Label Margin="5">Receive Port:</Label>
+                                <TextBox Margin="5" Width="70" Text="{Binding Path=ReceivePort}"></TextBox>
+                                <Button Margin="5" Width="100" Click="ChangePorts_Click">Change</Button>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <Label Margin="5">UID:</Label>
+                                <TextBox Margin="5" Width="50" Text="{Binding Path=Selected.UID}"></TextBox>
+                                <Label Margin="5">Ip:</Label>
+                                <TextBox Margin="5" Width="150" Text="{Binding Path=Selected.Ip}"></TextBox>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <Button Margin="5" Width="100" Click="RefreshList_Click">Refresh List</Button>
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
+                    <GroupBox Header="List">
+                        <DataGrid x:Name="dgModules" Margin="5" ItemsSource="{Binding ModuleList}" CanUserAddRows="False" CanUserDeleteRows="False" AutoGenerateColumns="False" SelectionMode="Single" GridLinesVisibility="None" SelectionChanged="dgModules_SelectionChanged">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn IsReadOnly="True" Header="UID" Width="50" Binding="{Binding UID}" />
+                                <DataGridTextColumn IsReadOnly="True" Header="Ip" Width="200" Binding="{Binding Ip}" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </GroupBox>
+                </DockPanel>
+            </TabItem>
+            <TabItem Header="Configuration">
+
+            </TabItem>
+            <TabItem Header="Fota">
+
+            </TabItem>
+        </TabControl>
+    </Grid>
+</Window>
