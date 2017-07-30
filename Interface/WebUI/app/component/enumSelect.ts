@@ -9,7 +9,7 @@ export const SELECT_VALUE_ACCESSOR: any = {
 
 @Component({
   selector: 'enumselect',
-  template: `<div class="row"><select class="custom-select col-sm-12" [ngModel]="value" (ngModelChange)="onChange($event)" name="sel">
+  template: `<div class="row"><select class="form-control col-sm-12" [ngModel]="value" (ngModelChange)="onChange($event)" name="sel">
 <option *ngFor="let key of keys" [value]="key" [label]="list[key]"></option></select></div>`,
   providers: [SELECT_VALUE_ACCESSOR]
 })

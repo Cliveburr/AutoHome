@@ -4,7 +4,7 @@ import { ColorPickerService } from 'angular2-color-picker';
 import { EditorViewModel, ModuleType } from '../../../model/moduleModel';
 import { ModuleService } from '../../../service/moduleService';
 import { RgbLightModel } from '../../../model/rgbLightModel';
-import { NgbTabChangeEvent, NgbTabsetConfig } from '@ng-bootstrap/ng-bootstrap';
+import { TabsetComponent } from 'ng2-bootstrap';
 
 @Component({
   moduleId: module.id,
@@ -17,17 +17,15 @@ export class RgbLightModuleComponent implements OnInit {
     public id: string;
     public model: EditorViewModel;
     public color: string = "#FFFFFF";
-    public moduleTab: string;
     public standardSel: string;
+    @ViewChild('module')
+    module: TabsetComponent;
 
     public constructor(
         private base: BaseView,
         private moduleService: ModuleService,
         private cpService: ColorPickerService,
-        config: NgbTabsetConfig
     ) {
-        config.justify = 'start';
-        config.type = 'pills';
     }
 
     public ngOnInit(): void {
@@ -53,16 +51,17 @@ export class RgbLightModuleComponent implements OnInit {
 
     private setLedRibbonRgb(model: EditorViewModel): void {
         if (model.ledRibbonRgbState) {
-           this.moduleTab = model.ledRibbonRgbState.isStandard ? 'byStandard': 'byManual';
-           if (model.ledRibbonRgbState.value) {
-               this.setColor(model.ledRibbonRgbState.value);
-           }
-           if (model.ledRibbonRgbState.isStandard) {
-               this.standardSel = model.ledRibbonRgbState.standardId;
-           }
+            var tabId = model.ledRibbonRgbState.isStandard ? 1: 0;
+            this.module.tabs[tabId].active = true;
+            if (model.ledRibbonRgbState.value) {
+                this.setColor(model.ledRibbonRgbState.value);
+            }
+            if (model.ledRibbonRgbState.isStandard) {
+                this.standardSel = model.ledRibbonRgbState.standardId;
+            }
         }
         else {
-            this.moduleTab = 'byManual';
+            this.module.tabs[0].active = true;
         }
         this.model = model;
     }
@@ -95,7 +94,7 @@ export class RgbLightModuleComponent implements OnInit {
     }
 
     private applyLedRibbonRgb(value: RgbLightModel): void {
-        if (this.moduleTab == 'byManual') {
+        if (this.module.tabs[0].active) {
             this.model.ledRibbonRgbState = {
                 isStandard: false,
                 standardId: null,
@@ -109,10 +108,6 @@ export class RgbLightModuleComponent implements OnInit {
                 value: value
             };
         }
-    }
-
-    public onModuleTabChange(event: NgbTabChangeEvent): void {
-        this.moduleTab = event.nextId;
     }
 
     private setColor(value: RgbLightModel): void {

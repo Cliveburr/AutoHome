@@ -3,7 +3,8 @@ import { Http } from '@angular/http';
 import { ConfigService } from './configService';
 
 import { BaseService } from './baseService';
-import { IndexViewModel, EditViewModel, EditorViewModel, ModuleType } from '../model/moduleModel';
+import { IndexViewModel, EditViewModel, EditorViewModel, ModuleType, ConfigurationViewModel,
+    WifiConfigurationModel } from '../model/moduleModel';
 import { StandardType } from '../model/standardModel';
 
 @Injectable()
@@ -23,6 +24,22 @@ export class ModuleService extends BaseService {
 
     public discovery(): Promise<null> {
         return this.ugetUrl('broadcastinforequest');
+    }
+
+    // public discovery(): Promise<ConfigurationViewModel> {
+    //     return this.ugetUrl('discoveryforconfiguration');
+    // }
+
+    // public postConfiguration(model: ConfigurationViewModel): Promise<null> {
+    //     return super.post(model, 'configuration');
+    // }
+
+    public ping(id: string): Promise<null> {
+        return super.post(id, 'ping');
+    }
+
+    public postReset(): Promise<null> {
+        return super.post({}, 'reset');
     }
 
     public delete(id: string): Promise<null> {
@@ -52,5 +69,9 @@ export class ModuleService extends BaseService {
             case ModuleType.incandescentLamp:
                 return StandardType.blackWhiteLight;
         }
+    }
+
+    public postWifiConfiguration(id: string, data: WifiConfigurationModel): Promise<null> {
+        return super.post(data, 'wificonfiguration/' + id);
     }
 }

@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { BaseView } from '../shared/baseView';
-import { AreaViewModel, ModuleItem } from '../../model/areaModel';
-import { ModuleType } from '../../model/moduleModel';
+import { IndexViewModel, IndexArea } from '../../model/areaModel';
 import { AreaService } from '../../service/areaService';
 
 @Component({
@@ -11,7 +10,7 @@ import { AreaService } from '../../service/areaService';
   providers: [ BaseView ]
 })
 export class AreaComponent implements OnInit {
-    public model: AreaViewModel;
+    public model: IndexViewModel;
 
     public constructor(
         private base: BaseView,
@@ -25,16 +24,18 @@ export class AreaComponent implements OnInit {
 
     public onRefresh(): void {
         this.areaService
-            .getArea()
+            .getIndex()
             .then((data) => this.model = data);
     }
 
-    public onEdit(module: ModuleItem): void {
-        let editorType = '';
-        switch (module.type) {
-            case ModuleType.ledRibbonRgb: editorType = 'rgblight'; break;
-        }
-        this.base.router.navigateByUrl(`editor/${editorType}/module/${module.moduleId}`);
+    public onCreate(): void {
+        this.base.router.navigate(['/data/area', 'create']);
+    }
+
+    public onDelete(area: IndexArea): void {
+        this.areaService
+            .delete(area.areaId)
+            .then(() => this.onRefresh());
     }
 
     public onBack(): void {

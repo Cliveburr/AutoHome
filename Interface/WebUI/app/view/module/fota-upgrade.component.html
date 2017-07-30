@@ -1,0 +1,10 @@
+<div class="modal-body">
+    <div class="form-group row" *ngIf="versions">
+        <label class="col-2 col-form-label" for="versionSel">Version</label>
+        <enumselect class="col-5" [list]="versions" id="moduleType" [(ngModel)]="versionSel" name="versionSel"></enumselect>
+    </div>
+</div>
+<div class="modal-footer">
+    <button type="button" class="col-2 btn btn-primary" (click)="onClose()"><i class="fa fa-window-close" aria-hidden="true"></i> Close</button>
+    <button type="button" class="col-2 btn btn-success" (click)="onApply()"><i class="fa fa-floppy-o" aria-hidden="true"></i> Apply</button>
+</div>

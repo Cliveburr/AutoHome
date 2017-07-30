@@ -23,6 +23,10 @@
             "taskName": "build",
             "isBuildCommand": true,
             "args": [ "run", "build" ]
+        },
+        {
+            "taskName": "build-ts",
+            "args": ["run", "build-ts"]
         }
     ]
 }

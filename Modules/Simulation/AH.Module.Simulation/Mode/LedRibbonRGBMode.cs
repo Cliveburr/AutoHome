@@ -12,6 +12,9 @@ namespace AH.Module.Simulation.Mode
     public class LedRibbonRGBMode : ModeBase
     {
         public RgbLightValue State { get; set; }
+        public int WorkMode { get; set; }
+        public string Wifiname { get; set; }
+        public string Wifipass { get; set; }
 
         public LedRibbonRGBMode()
         {
@@ -26,7 +29,6 @@ namespace AH.Module.Simulation.Mode
         protected override void AutoHome_Receiver(MessageBase message)
         {
             Console.WriteLine("Message income:");
-            Console.WriteLine(message.ToString());
 
             var lanMsg = message as LanMessage;
 
@@ -34,6 +36,7 @@ namespace AH.Module.Simulation.Mode
             {
                 case MessageType.InfoRequest: SendInfoResponse(lanMsg); break;
                 case MessageType.ModuleMessage: ProcessModuleMessage(lanMsg); break;
+                case MessageType.WifiConfiguration: ProcessWifiConfiguration(lanMsg); break;
             }
         }
 
@@ -51,11 +54,46 @@ namespace AH.Module.Simulation.Mode
 
         protected override void OnStarted()
         {
-            SendBroadcastInfoResponse();
+            ModuleStart();
+        }
+
+        public void ModuleStart()
+        {
+            if (WorkMode == 0)
+            {
+                SetAPMode();
+            }
+            else
+            {
+                SetStationMode();
+            }
+        }
+
+        private void SetAPMode()
+        {
+            Console.WriteLine("Running in Access Point mode!");
+            // start the ap
+        }
+
+        private void SetStationMode()
+        {
+            Console.WriteLine("Running in Station mode!");
+
+            // connect to wifi
+            if (true)
+            {
+                SendBroadcastInfoResponse();
+            }
+            else
+            {
+                SetAPMode();
+            }
         }
 
         private void SendBroadcastInfoResponse()
         {
+            Console.WriteLine("SendBroadcastInfoResponse!");
+
             var content = new InfoContent(ModuleType.LedRibbonRgb);
             var response = new LanMessage(0, IPAddress.Broadcast, MessageType.InfoResponse, content);
             AutoHome.Send(response);
@@ -63,17 +101,21 @@ namespace AH.Module.Simulation.Mode
 
         private void SendInfoResponse(LanMessage message)
         {
+            Console.WriteLine("SendInfoResponse!");
+
             var content = new InfoContent(ModuleType.LedRibbonRgb);
-            var response = new LanMessage(message.SenderUID, message.SenderIPAddress, MessageType.InfoResponse, content);
+            var response = new LanMessage(message.SenderUID, message.RemoteIPAddress, MessageType.InfoResponse, content);
             AutoHome.Send(response);
         }
 
         private void SendResponseState(LanMessage message)
         {
+            Console.WriteLine("SendResponseState!");
+
             var content = new LedribbonRGBContent(LedribbonRGBContentType.StateResponse,
                 new LedribbonRGBStateContent(State));
 
-            var response = new LanMessage(message.SenderUID, message.SenderIPAddress, MessageType.ModuleMessage, content);
+            var response = new LanMessage(message.SenderUID, message.RemoteIPAddress, MessageType.ModuleMessage, content);
             AutoHome.Send(response);
         }
 
@@ -85,6 +127,24 @@ namespace AH.Module.Simulation.Mode
             State = content.State;
             Console.WriteLine("State changed");
             Console.WriteLine(State.ToString());
+        }
+
+        private void ProcessWifiConfiguration(LanMessage message)
+        {
+            var content = new WifiConfigurationContent();
+            message.ParseContent(content);
+
+            Console.WriteLine("WifiConfiguration");
+            Console.WriteLine($"Wifiname: {content.Wifiname}");
+            Console.WriteLine($"Wifipass: {content.Wifipass}");
+
+            Wifiname = content.Wifiname;
+            Wifipass = content.Wifipass;
+
+            WorkMode = 1;
+
+            Console.WriteLine("Restarting...");
+            ModuleStart();
         }
     }
 }

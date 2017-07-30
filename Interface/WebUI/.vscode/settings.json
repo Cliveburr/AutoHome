@@ -1,13 +1,14 @@
 // Place your settings in this file to overwrite default and user settings.
 {
     "typescript.tsdk": "./node_modules/typescript/lib",
-    "files.exclude": {
+    "explorer.openEditors.visible": 0,
+    "typescript.referencesCodeLens.enabled": true,
+     "files.exclude": {
         "**/.git": true,
         "**/.svn": true,
-        "**/.hg": true,
         "**/.DS_Store": true,
-        "**/app/**/*.js": true,
-        "**/app/**/*.js.map": true
+        "app/**/*.js": true,
+        "app/**/*.js.map": true
     },
     "vsicons.presets.angular": true
 }

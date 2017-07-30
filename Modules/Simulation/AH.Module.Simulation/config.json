@@ -1,5 +1,7 @@
 ﻿{
-  "UID": 2,
-  "SendPort": 15555,
-  "ReceivePort": 15556
+  "UID": 4,
+  "TCP_SendPort": 15555,
+  "TCP_ReceivePort": 15556,
+  "UDP_SendPort": 15557,
+  "UDP_ReceivePort": 15558
 }

@@ -19,6 +19,7 @@ export class IndexViewModel
 
 export class IndexModule
 {
+    public sel: boolean;
     public moduleId: string;
     public UID: number;
     public alias: string;
@@ -40,4 +41,19 @@ export class EditorViewModel
     public type: ModuleType;
     public standardList: StandardListModel[];
     public ledRibbonRgbState: ModuleStateModel;
+}
+
+export class ConfigurationViewModel
+{
+    public UID: number;
+    public alias: string;
+    public type: ModuleType;
+    public version: string;
+    public wifiname: string;
+    public wifipass: string;
+}
+
+export interface WifiConfigurationModel {
+    wifiname: string;
+    wifipass: string;
 }

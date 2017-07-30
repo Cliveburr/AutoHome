@@ -43,6 +43,7 @@ namespace AH.Control.Api
             services.AddScoped<ModuleComponent>();
             services.AddScoped<StandardComponent>();
             services.AddScoped<AreaComponent>();
+            services.AddScoped<ModuleVersionComponent>();
 
             services.Configure<AutoHomeOptions>(Configuration.GetSection("AutoHomeProtocol"));
             services.AddSingleton<AutoHomeProtocol>();

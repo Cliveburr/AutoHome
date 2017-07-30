@@ -29,6 +29,8 @@ namespace AH.Module.Simulation
     {
         public static IConfigurationRoot Configuration { get; set; }
 
+        private static LedRibbonRGBMode _ledRibbonRGBMode;
+
         public static void Main(string[] args)
         {
             Configuration = new ConfigurationBuilder()
@@ -104,10 +106,13 @@ namespace AH.Module.Simulation
                 Console.WriteLine();
                 Console.WriteLine("Simulation an LedRibbonRGB module");
                 Console.WriteLine("UID: " + Configuration["UID"]);
-                Console.WriteLine("SendPort: " + Configuration["SendPort"]);
-                Console.WriteLine("ReceivePort: " + Configuration["ReceivePort"]);
+                Console.WriteLine("TCP_SendPort: " + Configuration["TCP_SendPort"]);
+                Console.WriteLine("TCP_ReceivePort: " + Configuration["TCP_ReceivePort"]);
+                Console.WriteLine("UDP_SendPort: " + Configuration["UDP_SendPort"]);
+                Console.WriteLine("UDP_ReceivePort: " + Configuration["UDP_ReceivePort"]);
 
-                context.Mode = new LedRibbonRGBMode();
+                _ledRibbonRGBMode = new LedRibbonRGBMode();
+                context.Mode = _ledRibbonRGBMode;
                 context.Mode.Context = context;
 
                 Console.WriteLine("Simulation starting...");
@@ -124,6 +129,9 @@ namespace AH.Module.Simulation
                         case ConsoleKey.Escape:
                             context.Finish = true;
                             break;
+                        case ConsoleKey.R:
+                            _ledRibbonRGBMode.ModuleStart();
+                            break;
                         default:
                             Console.WriteLine("Invalid!");
                             break;
@@ -138,7 +146,7 @@ namespace AH.Module.Simulation
             var sendPort = int.Parse(Program.Configuration["SendPort"]);
             var receivePort = int.Parse(Program.Configuration["ReceivePort"]);
 
-            var lan = new LanProtocol(15555, 15555);
+            var lan = new LanProtocol(15555, 15555, 15555, 15555);
             var autoHome = new AhProtocol(0, lan);
             autoHome.Receiver += new ReceiverDelegate((MessageBase message) =>
             {

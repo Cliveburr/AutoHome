@@ -2,14 +2,13 @@
 <html>
   <head>
     <title>Auto Home</title>
-    <base href="/">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <base href="./">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
-
-    <link rel="stylesheet" href='app/view/shared/layout.component.css' />
+    <link rel="stylesheet" href='node_modules/font-awesome/css/font-awesome.min.css' />
+    <link rel="stylesheet" href='assets/css/style.css' />
 
     <script src="node_modules/zone.js/dist/zone.js"></script>
     <script src="node_modules/reflect-metadata/Reflect.js"></script>
@@ -20,7 +19,7 @@
       System.import('app').catch(function(err){ console.error(err); });
     </script>
   </head>
-  <body>
-    <ah-layout></ah-layout>
+  <body class="app header-fixed sidebar-fixed aside-menu-fixed aside-menu-hidden">
+    <script>window.__theme = 'bs4';</script>
   </body>
 </html>

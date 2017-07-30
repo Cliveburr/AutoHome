@@ -154,6 +154,38 @@ namespace AH.Control.Api.Controllers
             }
         }
 
+        [HttpPost("wificonfiguration/{id}")]
+        public void WifiConfiguration(string id, [FromBody]WifiConfigurationModel model)
+        {
+            var module = _module.Get(id);
+            if (module == null)
+                throw new Exception($"Module Id: {id} not found!");
+
+            _autoHome.SendWifiConfiguration(module, model);
+        }
+
+        //[HttpGet("discoveryforconfiguration")]
+        //public ConfigurationViewModel GetDiscoveryForConfiguration()
+        //{
+        //    var module = _module.Get(id);
+        //    if (module == null)
+        //        return null;
+
+        //    var area = _area.Get(module.AreaBelong);
+        //    if (area == null)
+        //        return null;
+
+        //    return new ConfigurationViewModel
+        //    {
+        //        ModuleId = module.ModuleId,
+        //        Alias = module.Alias,
+        //        Type = module.Type,
+        //        Area = area.Name,
+        //        LedRibbonRgbState = module.LedRibbonRgbState,
+        //        StandardList = GetStandardList(module.Type, true)
+        //    };
+        //}
+
         private Models.Standard.StandardListViewModel[] GetStandardList(ModuleType type, bool withValue = false)
         {
             switch (type)

@@ -11,6 +11,7 @@ namespace AH.Control.Api.Entities
         public Table<ModuleEntity> Module { get; private set; }
         public Table<StandardEntity> Standard { get; private set; }
         public Table<AreaEntity> Area { get; private set; }
+        public Table<ModuleVersionEntity> ModuleVersion { get; private set; }
 
         public AutoHomeDatabase(IConnection conn)
             : base("AutoHome", conn)
@@ -18,6 +19,7 @@ namespace AH.Control.Api.Entities
             Module = new Table<ModuleEntity>("Module", this);
             Standard = new Table<StandardEntity>("Standard", this);
             Area = new Table<AreaEntity>("Area", this);
+            ModuleVersion = new Table<ModuleVersionEntity>("ModuleVersion", this);
             conn.Check();
             Initialize();
         }
@@ -27,6 +29,7 @@ namespace AH.Control.Api.Entities
             Module.Initialize();
             Standard.Initialize();
             Area.Initialize();
+            ModuleVersion.Initialize();
         }
     }
 }
