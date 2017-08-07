@@ -30,5 +30,18 @@ namespace AH.Module.Controller
             AutoHome?.Dispose();
             App.Shutdown();
         }
+
+        public static void ErrorHandler(Exception err)
+        {
+            if (err is AggregateException)
+            {
+                err = ((AggregateException)err).InnerExceptions.First();
+            }
+
+            MainWindow.Dispatcher.Invoke(() =>
+            {
+                MessageBox.Show(err.ToString());
+            });
+        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Net;
 
 namespace AH.Module.Controller.Protocol
 {
@@ -6,12 +7,10 @@ namespace AH.Module.Controller.Protocol
     {
         public byte UID { get; set; }
         public MessageType Type { get; set; }
-        public string Ip { get; set; }
 
-        public SendMessage(byte UID, string ip, MessageType type)
+        public SendMessage(byte UID, MessageType type)
         {
             this.UID = UID;
-            Ip = ip;
             Type = type;
         }
 

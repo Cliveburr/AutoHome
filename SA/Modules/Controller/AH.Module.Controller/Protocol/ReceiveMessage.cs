@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Net;
 
 namespace AH.Module.Controller.Protocol
 {
@@ -25,6 +26,12 @@ namespace AH.Module.Controller.Protocol
         public T ParseContent<T>() where T: IReceiveContent
         {
             var content = Activator.CreateInstance<T>();
+
+            if (content.Type != Type)
+            {
+                throw new Exception("Content type incorret!");
+            }
+
             content.Parse(_reader);
             return content;
         }
@@ -32,6 +39,7 @@ namespace AH.Module.Controller.Protocol
 
     public interface IReceiveContent
     {
+        MessageType Type { get; }
         void Parse(BinaryReader reader);
     }
 }

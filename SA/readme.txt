@@ -1,9 +1,9 @@
 
 <done> 1. Gravar e ler da memoria do ESP
 
-2. Subir e logar na rede automaticamente
+<done> 2. Subir e logar na rede automaticamente
 
-3. Fechar modo de update FOTA
+<done> 3. Fechar modo de update FOTA
 
 4. Comutar o led RGB por comandos TCP
 

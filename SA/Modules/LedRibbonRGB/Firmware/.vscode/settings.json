@@ -1,0 +1,24 @@
+// Place your settings in this file to overwrite default and user settings.
+{
+    "explorer.openEditors.visible": 0,
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/.DS_Store": true,
+        "**/.output": true,
+        "app/**/*.js.map": true
+    },
+    "files.associations": {
+        "eagle_soc.h": "c",
+        "osapi.h": "c",
+        "gpio.h": "c",
+        "user_config.h": "c",
+        "user_interface.h": "c",
+        "net.h": "c",
+        "espconn.h": "c",
+        "auto_home.station.h": "c",
+        "led_ribbon.h": "c",
+        "c_types.h": "c"
+    }
+}

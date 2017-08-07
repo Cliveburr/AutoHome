@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AH.Module.Controller"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d"
         Title="AutoHome Module Controller" Height="532.991" Width="617.694" WindowStartupLocation="CenterScreen" Closed="Window_Closed">
     <Grid>
@@ -34,6 +35,7 @@
                         <DataGrid x:Name="dgModules" Margin="5" ItemsSource="{Binding ModuleList}" CanUserAddRows="False" CanUserDeleteRows="False" AutoGenerateColumns="False" SelectionMode="Single" GridLinesVisibility="None" SelectionChanged="dgModules_SelectionChanged">
                             <DataGrid.Columns>
                                 <DataGridTextColumn IsReadOnly="True" Header="UID" Width="50" Binding="{Binding UID}" />
+                                <DataGridTextColumn IsReadOnly="True" Header="Alias" Width="200" Binding="{Binding Alias}" />
                                 <DataGridTextColumn IsReadOnly="True" Header="Ip" Width="200" Binding="{Binding Ip}" />
                             </DataGrid.Columns>
                         </DataGrid>
@@ -41,10 +43,88 @@
                 </DockPanel>
             </TabItem>
             <TabItem Header="Configuration">
-
+                <DockPanel Background="#FFE5E5E5">
+                    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
+                        <Button Margin="5" Width="100" Click="Configuration_Read_Click">Read</Button>
+                        <Button Margin="5" Width="100" Click="Configuration_Save_Click">Save</Button>
+                    </StackPanel>
+                    <GroupBox DockPanel.Dock="Top" Header="Wifi">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <Label Margin="5">Name:</Label>
+                                <TextBox Margin="5" Width="200" Text="{Binding Configuration.WifiName}"></TextBox>
+                                <Label Margin="5">Password:</Label>
+                                <TextBox Margin="5" Width="150" Text="{Binding Configuration.Password}"></TextBox>
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
+                    <GroupBox Header="General">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <Label Margin="5">Alias:</Label>
+                                <TextBox Margin="5" Width="150" Text="{Binding Configuration.Alias}"></TextBox>
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
+                </DockPanel>
             </TabItem>
             <TabItem Header="Fota">
-
+                <DockPanel Background="#FFE5E5E5">
+                    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
+                        <Button Margin="5" Width="100" Click="Fota_Read_Click">Read</Button>
+                        <Button Margin="5" Width="100" Click="Fota_Flash_Click">Flash</Button>
+                    </StackPanel>
+                    <GroupBox DockPanel.Dock="Top" Header="State">
+                        <StackPanel Orientation="Horizontal">
+                            <Label Margin="5">Next User:</Label>
+                            <TextBox Margin="5" Width="100" IsReadOnly="True" Text="{Binding Fota.NextUser}"></TextBox>
+                        </StackPanel>
+                    </GroupBox>
+                    <GroupBox DockPanel.Dock="Bottom" Header="Progress">
+                        <ProgressBar x:Name="pbFotaWrite" Margin="5" Minimum="0" Height="20"  />
+                    </GroupBox>
+                    <GroupBox DockPanel.Dock="Top" Header="User files">
+                        <StackPanel>
+                            <DockPanel>
+                                <Label DockPanel.Dock="Left" Margin="5">User 1 bin:</Label>
+                                <Button DockPanel.Dock="Right" Margin="5" Width="100" Click="Fota_User1Select_Click">Select</Button>
+                                <TextBox Margin="5" Text="{Binding Fota.User1bin}"></TextBox>
+                            </DockPanel>
+                            <DockPanel>
+                                <Label DockPanel.Dock="Left" Margin="5">User 2 bin:</Label>
+                                <Button DockPanel.Dock="Right" Margin="5" Width="100" Click="Fota_User2Select_Click">Select</Button>
+                                <TextBox Margin="5" Text="{Binding Fota.User2bin}"></TextBox>
+                            </DockPanel>
+                        </StackPanel>
+                    </GroupBox>
+                </DockPanel>
+            </TabItem>
+            <TabItem Header="RGB Led Ribbon">
+                <DockPanel Background="#FFE5E5E5">
+                    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
+                        <Button Margin="5" Width="100" Click="RGBLR_Read_Click">Read</Button>
+                        <Button Margin="5" Width="100" Click="RGBLR_Change_Click">Change</Button>
+                    </StackPanel>
+                    <GroupBox DockPanel.Dock="Top" Header="PWM Length (us)">
+                        <DockPanel>
+                            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
+                                <Label Margin="5" DockPanel.Dock="Top">Red:</Label>
+                                <TextBox Margin="5" Width="100" Text="{Binding RGBLR.PWMLengthRed}"></TextBox>
+                            </StackPanel>
+                            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
+                                <Label Margin="5" DockPanel.Dock="Top">Green:</Label>
+                                <TextBox Margin="5" Width="100" Text="{Binding RGBLR.PWMLengthGreen}"></TextBox>
+                            </StackPanel>
+                            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
+                                <Label Margin="5" DockPanel.Dock="Top">Blue:</Label>
+                                <TextBox Margin="5" Width="100" Text="{Binding RGBLR.PWMLengthBlue}"></TextBox>
+                            </StackPanel>
+                        </DockPanel>
+                    </GroupBox>
+                    <GroupBox DockPanel.Dock="Top" Header="Color">
+                        <xctk:ColorPicker SelectedColor="{Binding RGBLR.Color, Mode=TwoWay}" Margin="5" VerticalAlignment="Top" Height="50" DisplayColorAndName="False" />
+                    </GroupBox>
+                </DockPanel>
             </TabItem>
         </TabControl>
     </Grid>
