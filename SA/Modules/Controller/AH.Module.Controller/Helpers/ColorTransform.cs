@@ -58,9 +58,9 @@ namespace AH.Module.Controller.Helpers
             var greenLen = (long)(greenHigh + greenLow);
             var blueLen = (long)(blueHigh + blueLow);
 
-            var red = (redHigh * 255) / redLen;
-            var green = (greenHigh * 255) / greenLen;
-            var blue = (blueHigh * 255) / blueLen;
+            var red = redLen > 0 ? (redHigh * 255) / redLen : 0;
+            var green = greenLen > 0 ? (greenHigh * 255) / greenLen : 0;
+            var blue = blueLen > 0 ? (blueHigh * 255) / blueLen : 0;
 
             return new ColorTransform
             {

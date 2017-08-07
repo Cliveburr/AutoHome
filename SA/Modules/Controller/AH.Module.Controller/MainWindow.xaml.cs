@@ -206,7 +206,7 @@ namespace AH.Module.Controller
             {
                 CheckSelected();
 
-                _context.Fota = new ControllerFota();
+                _context.Fota.NextUser = "reading...";
                 _context.RaiseNotify("Fota");
 
                 using (var tcp = Program.AutoHome.Connect(IPAddress.Parse(_context.Selected.Ip)))

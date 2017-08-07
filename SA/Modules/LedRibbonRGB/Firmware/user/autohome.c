@@ -7,6 +7,7 @@
 #include "net.h"
 #include "autohome.h"
 #include "fota.h"
+#include "led_ribbon.h"
 
 
 // ############################## MESSAGES
@@ -85,7 +86,7 @@ void autohome_udp_recv(remot_info *pcon_info, char *data, unsigned short len) {
 
         espconn_sent(&udp_espconnv, buffer, totalBuffer);
         os_free(buffer);
-        
+
         os_free(msg);
     }
 }
@@ -166,6 +167,8 @@ void autohome_tcp_recv(struct espconn *pesp_conn, char *data, unsigned short len
             case MT_FotaStateReadRequest: fotaStateRead(pesp_conn); break;
             case MT_FotaStartRequest: fotaStart(msg->body); break;
             case MT_FotaWriteRequest: fotaWrite(pesp_conn, msg->body); break;
+            case MT_RGBLedRibbonReadStateRequest: ledRibbonReadState(pesp_conn); break;
+            case MT_RGBLedRibbonChangeRequest: ledRibbonChange(msg->body); break;
         }
 
         os_free(msg);

@@ -5,7 +5,7 @@
 
 <done> 3. Fechar modo de update FOTA
 
-4. Comutar o led RGB por comandos TCP
+<done> 4. Comutar o led RGB por comandos TCP
 
 5. Fechar o aplicativo android
 

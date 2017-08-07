@@ -8,6 +8,7 @@
 #include "autohome.h"
 #include "fota.h"
 #include "net.h"
+#include "led_ribbon.h"
 
 LOCAL char *upgrade_buffer;
 LOCAL uint16 upgrade_buffer_length;
@@ -62,6 +63,7 @@ void fotaStart(char *data) {
 
 void fotaReboot(void) {
     stop_all();
+    ledRibbon_set_off();
     system_upgrade_reboot();
 }
 

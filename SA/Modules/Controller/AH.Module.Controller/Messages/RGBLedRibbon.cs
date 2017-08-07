@@ -28,12 +28,12 @@ namespace AH.Module.Controller.Messages
 
         public void Parse(BinaryReader reader)
         {
-            RedHigh = reader.ReadUInt32();
             RedLow = reader.ReadUInt32();
-            GreenHigh = reader.ReadUInt32();
+            RedHigh = reader.ReadUInt32();
             GreenLow = reader.ReadUInt32();
-            BlueHigh = reader.ReadUInt32();
+            GreenHigh = reader.ReadUInt32();
             BlueLow = reader.ReadUInt32();
+            BlueHigh = reader.ReadUInt32();
         }
     }
 
@@ -53,12 +53,12 @@ namespace AH.Module.Controller.Messages
 
         protected override void WriteContent(BinaryWriter writer)
         {
-            writer.Write(RedHigh);
             writer.Write(RedLow);
-            writer.Write(GreenHigh);
+            writer.Write(RedHigh);
             writer.Write(GreenLow);
-            writer.Write(BlueHigh);
+            writer.Write(GreenHigh);
             writer.Write(BlueLow);
+            writer.Write(BlueHigh);
         }
     }
 }

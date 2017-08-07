@@ -14,7 +14,10 @@ enum MessageType {
     MT_FotaStateReadResponse = 7,
     MT_FotaStartRequest = 8,
     MT_FotaWriteRequest = 9,
-    MT_FotaWriteResponse = 10
+    MT_FotaWriteResponse = 10,
+    MT_RGBLedRibbonReadStateRequest = 11,
+    MT_RGBLedRibbonReadStateResponse = 12,
+    MT_RGBLedRibbonChangeRequest = 13
 };
 
 struct MessageBase {
