@@ -30,9 +30,10 @@ struct ConfigStruct {
 
 
 /* *** auto_home config *** */
-#define MYUID       1
+#define MYUID              1
 #define VERSION_HIGH       0
 #define VERSION_LOW        1
+#define MODULE_TYPE        1    // LedRibbonRgb = 1
 /* *** end auto_home config *** */
 
 

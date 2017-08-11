@@ -74,15 +74,17 @@ void autohome_udp_recv(remot_info *pcon_info, char *data, unsigned short len) {
         #endif
 
         uint8 aliasLen = os_strlen(config.alias);
-        uint8 totalBuffer = 6 + 1 + aliasLen;
+        uint8 totalBuffer = 7 + 1 + aliasLen;
 
         uint8* buffer = (uint8*)os_zalloc(totalBuffer);
         buffer[0] = MYUID;
         buffer[1] = MT_Pong;
         os_sprintf(&buffer[2], "PONG", 4);
 
-        buffer[6] = aliasLen;
-        os_memcpy(&buffer[7], config.alias, aliasLen);
+        buffer[6] = MODULE_TYPE;
+
+        buffer[7] = aliasLen;
+        os_memcpy(&buffer[8], config.alias, aliasLen);
 
         espconn_sent(&udp_espconnv, buffer, totalBuffer);
         os_free(buffer);

@@ -79,15 +79,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Helpers\ColorTransform.cs" />
-    <Compile Include="Messages\Configuration.cs" />
-    <Compile Include="Messages\Fota.cs" />
-    <Compile Include="Messages\PingPong.cs" />
-    <Compile Include="Messages\RGBLedRibbon.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="Protocol\AutoHome.cs" />
-    <Compile Include="Protocol\MessageType.cs" />
-    <Compile Include="Protocol\ReceiveMessage.cs" />
-    <Compile Include="Protocol\SendMessage.cs" />
     <Compile Include="TestFlashFuncs.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -123,7 +115,12 @@
     </None>
     <AppDesigner Include="Properties\" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Protocol\AH.Protocol.Library\AH.Protocol.Library.csproj">
+      <Project>{1688b16f-e5ce-4c0c-93dd-3de64a235750}</Project>
+      <Name>AH.Protocol.Library</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

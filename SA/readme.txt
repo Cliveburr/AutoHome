@@ -7,7 +7,7 @@
 
 <done> 4. Comutar o led RGB por comandos TCP
 
-5. Fechar o aplicativo android
+<done> 5. Fechar o aplicativo android
 
 6. Calcular a potencia necessária para a fita RGB
 

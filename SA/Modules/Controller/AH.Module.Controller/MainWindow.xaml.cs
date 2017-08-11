@@ -1,25 +1,17 @@
 ﻿using AH.Module.Controller.Helpers;
-using AH.Module.Controller.Messages;
-using AH.Module.Controller.Protocol;
+using AH.Protocol.Library;
+using AH.Protocol.Library.Messages;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Sockets;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Windows.Threading;
 
 namespace AH.Module.Controller
@@ -69,17 +61,17 @@ namespace AH.Module.Controller
             };
 
             Program.AutoHome = new AutoHome(_context.SendPort, _context.ReceivePort);
-            Program.AutoHome.OnUdpRecevied += AutoHome_OnUdpRecevied;
+            Program.AutoHome.OnUdpReceived += AutoHome_OnUdpRecevied;
 
             DataContext = _context;
         }
 
-        private void AutoHome_OnUdpRecevied(IPAddress address, ReceiveMessage message)
+        private void AutoHome_OnUdpRecevied(IPAddress address, Message message)
         {
             if (message.Type != MessageType.Pong)
                 return;
 
-            var content = message.ParseContent<PongReceiveMessage>();
+            var content = message.ReadContent<PongReceiveMessage>();
 
             if (!content.IsValid)
                 return;
@@ -101,7 +93,7 @@ namespace AH.Module.Controller
             {
                 _context.ModuleList.Clear();
                 //_context.ModuleList.Add(new ControllerListItem { UID = 1, Ip = "192.168.0.1" }); IPAddress.Parse(_context.Selected.Ip)
-                Program.AutoHome.SendUdp(IPAddress.Broadcast, new PingSendMessage(0));
+                Program.AutoHome.SendUdp(IPAddress.Broadcast, new Message(0, new PingSendMessage()));
             }
             catch (Exception err)
             {
@@ -162,9 +154,9 @@ namespace AH.Module.Controller
 
                 using (var tcp = Program.AutoHome.Connect(IPAddress.Parse(_context.Selected.Ip)))
                 {
-                    var receive = tcp.SendAndReceive(new ConfigurationReadRequest((byte)_context.Selected.UID));
+                    var receive = tcp.SendAndReceive(new Message((byte)_context.Selected.UID, new ConfigurationReadRequest()));
 
-                    var content = receive.ParseContent<ConfigurationReadResponse>();
+                    var content = receive.ReadContent<ConfigurationReadResponse>();
 
                     _context.Configuration.WifiName = content.WifiName;
                     _context.Configuration.Password = content.WifiPassword;
@@ -186,12 +178,12 @@ namespace AH.Module.Controller
 
                 using (var tcp = Program.AutoHome.Connect(IPAddress.Parse(_context.Selected.Ip)))
                 {
-                    tcp.Send(new ConfigurationSaveRequest((byte)_context.Selected.UID)
+                    tcp.Send(new Message((byte)_context.Selected.UID, new ConfigurationSaveRequest
                     {
                         WifiName = _context.Configuration.WifiName,
                         WifiPassword = _context.Configuration.Password,
                         Alias = _context.Configuration.Alias
-                    });
+                    }));
                 }
             }
             catch (Exception err)
@@ -211,9 +203,9 @@ namespace AH.Module.Controller
 
                 using (var tcp = Program.AutoHome.Connect(IPAddress.Parse(_context.Selected.Ip)))
                 {
-                    var receive = tcp.SendAndReceive(new FotaStateReadRequest((byte)_context.Selected.UID));
+                    var receive = tcp.SendAndReceive(new Message((byte)_context.Selected.UID, new FotaStateReadRequest()));
 
-                    var content = receive.ParseContent<FotaStateReadResponse>();
+                    var content = receive.ReadContent<FotaStateReadResponse>();
 
                     _context.Fota.NextUser = content.UserBin == 1 ?
                         "User 1 bin" :
@@ -241,9 +233,9 @@ namespace AH.Module.Controller
                 {
                     using (var tcp = Program.AutoHome.Connect(IPAddress.Parse(_context.Selected.Ip)))
                     {
-                        var receive = tcp.SendAndReceive(new FotaStateReadRequest((byte)_context.Selected.UID));
+                        var receive = tcp.SendAndReceive(new Message((byte)_context.Selected.UID, new FotaStateReadRequest()));
 
-                        var content = receive.ParseContent<FotaStateReadResponse>();
+                        var content = receive.ReadContent<FotaStateReadResponse>();
 
                         var file = content.UserBin == 1 ?
                             _context.Fota.User1bin :
@@ -266,19 +258,19 @@ namespace AH.Module.Controller
                             pbFotaWrite.Maximum = chunks.Count;
                         }, DispatcherPriority.Render);
 
-                        tcp.Send(new FotaStartRequest((byte)_context.Selected.UID)
+                        tcp.Send(new Message((byte)_context.Selected.UID, new FotaStartRequest
                         {
                             FileSize = (uint)file_bytes.Length
-                        });
+                        }));
 
                         foreach (var chunk in chunks)
                         {
-                            var writeReceive = tcp.SendAndReceive(new FotaWriteRequest((byte)_context.Selected.UID)
+                            var writeReceive = tcp.SendAndReceive(new Message((byte)_context.Selected.UID, new FotaWriteRequest
                             {
                                 Chunk = chunk.ToArray()
-                            });
+                            }));
 
-                            var writeContent = writeReceive.ParseContent<FotaWriteResponse>();
+                            var writeContent = writeReceive.ReadContent<FotaWriteResponse>();
 
                             Dispatcher.Invoke(() =>
                             {
@@ -345,9 +337,9 @@ namespace AH.Module.Controller
 
                 using (var tcp = Program.AutoHome.Connect(IPAddress.Parse(_context.Selected.Ip)))
                 {
-                    var receive = tcp.SendAndReceive(new RGBLedRibbonReadStateRequest((byte)_context.Selected.UID));
+                    var receive = tcp.SendAndReceive(new Message((byte)_context.Selected.UID, new RGBLedRibbonReadStateRequest()));
 
-                    var content = receive.ParseContent<RGBLedRibbonReadStateResponse>();
+                    var content = receive.ReadContent<RGBLedRibbonReadStateResponse>();
 
                     var helper = ColorTransform.FromValues(
                         content.RedHigh,
@@ -405,7 +397,7 @@ namespace AH.Module.Controller
                         _context.RGBLR.PWMLengthGreen,
                         _context.RGBLR.PWMLengthBlue);
 
-                    tcp.Send(new RGBLedRibbonChangeRequest((byte)_context.Selected.UID)
+                    tcp.Send(new Message((byte)_context.Selected.UID, new RGBLedRibbonChangeRequest
                     {
                         RedHigh = helper.RedHigh,
                         RedLow = helper.RedLow,
@@ -413,7 +405,7 @@ namespace AH.Module.Controller
                         GreenLow = helper.GreenLow,
                         BlueHigh = helper.BlueHigh,
                         BlueLow = helper.BlueLow
-                    });
+                    }));
                 }
             }
             catch (Exception err)

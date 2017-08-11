@@ -1,4 +1,4 @@
-﻿namespace AH.Module.Controller.Protocol
+﻿namespace AH.Protocol.Library
 {
     public enum MessageType : byte
     {

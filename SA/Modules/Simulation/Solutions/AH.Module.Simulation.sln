@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "01 - Controller", "01 - Controller", "{AF07B252-2AD8-455C-83A7-9DDEEE464BB4}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "01 - Simulation", "01 - Simulation", "{AF07B252-2AD8-455C-83A7-9DDEEE464BB4}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "02 - Protocol", "02 - Protocol", "{5BB50C4B-86DE-47AD-991D-09CF8D4A86D8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AH.Module.Controller", "..\AH.Module.Controller\AH.Module.Controller.csproj", "{FE5DB663-A970-49A4-8B6E-38515F5FDAF3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AH.Module.Simulation", "..\AH.Module.Simulation\AH.Module.Simulation.csproj", "{D1B245B5-D356-4B24-AF85-603FE910262E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AH.Protocol.Library", "..\..\..\Protocol\AH.Protocol.Library\AH.Protocol.Library.csproj", "{1688B16F-E5CE-4C0C-93DD-3DE64A235750}"
 EndProject
@@ -17,10 +17,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{FE5DB663-A970-49A4-8B6E-38515F5FDAF3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FE5DB663-A970-49A4-8B6E-38515F5FDAF3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FE5DB663-A970-49A4-8B6E-38515F5FDAF3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FE5DB663-A970-49A4-8B6E-38515F5FDAF3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D1B245B5-D356-4B24-AF85-603FE910262E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D1B245B5-D356-4B24-AF85-603FE910262E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D1B245B5-D356-4B24-AF85-603FE910262E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D1B245B5-D356-4B24-AF85-603FE910262E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1688B16F-E5CE-4C0C-93DD-3DE64A235750}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1688B16F-E5CE-4C0C-93DD-3DE64A235750}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1688B16F-E5CE-4C0C-93DD-3DE64A235750}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -30,7 +30,7 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{FE5DB663-A970-49A4-8B6E-38515F5FDAF3} = {AF07B252-2AD8-455C-83A7-9DDEEE464BB4}
+		{D1B245B5-D356-4B24-AF85-603FE910262E} = {AF07B252-2AD8-455C-83A7-9DDEEE464BB4}
 		{1688B16F-E5CE-4C0C-93DD-3DE64A235750} = {5BB50C4B-86DE-47AD-991D-09CF8D4A86D8}
 	EndGlobalSection
 EndGlobal

@@ -1,6 +1,6 @@
-﻿using System.Windows.Media;
+using Android.Graphics;
 
-namespace AH.Module.Controller.Helpers
+namespace AH.Interface.Android.Helpers
 {
     public class ColorTransform
     {
@@ -59,7 +59,7 @@ namespace AH.Module.Controller.Helpers
 
             return new ColorTransform
             {
-                Color = Color.FromRgb((byte)red, (byte)green, (byte)blue),
+                Color = new Color((byte)red, (byte)green, (byte)blue),
                 RedLen = redLen,
                 GreenLen = greenLen,
                 BlueLen = blueLen,

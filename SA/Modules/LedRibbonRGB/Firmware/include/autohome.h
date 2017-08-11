@@ -1,6 +1,17 @@
 #ifndef __AUTOHOME_H__
 #define __AUTOHOME_H__
 
+/* *** Config section *** */
+
+/* To use the autohome, must define this in user_config.h
+
+#define MYUID              1
+#define VERSION_HIGH       0
+#define VERSION_LOW        1
+#define MODULE_TYPE        1    // LedRibbonRgb = 1
+
+*/
+
 #include "espconn.h"
 
 enum MessageType {

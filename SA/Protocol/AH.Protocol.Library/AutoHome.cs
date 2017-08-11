@@ -1,21 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading.Tasks;
 
-namespace AH.Module.Controller.Protocol
+namespace AH.Protocol.Library
 {
     public class AutoHome : IDisposable
     {
         private Task _udpReceive;
         private UdpClient _udpSend;
 
-        public delegate void UdpReceived(IPAddress address, ReceiveMessage message);
-        public event UdpReceived OnUdpRecevied;
+        public delegate void UdpReceived(IPAddress address, Message message);
+        public event UdpReceived OnUdpReceived;
 
         public int SendPort { get; set; }
         public int ReceivePort { get; set; }
@@ -35,29 +33,59 @@ namespace AH.Module.Controller.Protocol
 
             while (true)
             {
-                var receive = await udp.ReceiveAsync();
+                try
+                {
+                    var receive = await udp.ReceiveAsync();
 
-                var message = new ReceiveMessage(receive.Buffer);
-                OnUdpRecevied?.Invoke(receive.RemoteEndPoint.Address, message);
+                    var message = new Message(receive.Buffer);
+                    OnUdpReceived?.Invoke(receive.RemoteEndPoint.Address, message);
+                }
+                catch (ObjectDisposedException err)
+                {
+                    break;
+                }
+                catch (Exception err)
+                {
+                    //ReceivePong?.Invoke(null, err);
+                    break;
+                }
             }
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             _udpSend.Close();
             _udpReceive.Dispose();
         }
 
-        public void SendUdp(IPAddress address, SendMessage message)
+        public void SendUdp(IPAddress address, Message message)
         {
-            if (message.Type != MessageType.Ping)
+            if (!(message.Type == MessageType.Ping || message.Type == MessageType.Pong))
             {
-                throw new Exception("Only message of type Ping can be sent by udp packet!");
+                throw new Exception("Only message of type Ping or Pong can be sent by udp packet!");
             }
 
-            var ip = new IPEndPoint(address, SendPort);
             var buffer = message.GetBytes();
-            _udpSend.Send(buffer, buffer.Length, ip);
+
+            if (address == IPAddress.Broadcast)
+            {
+                _udpSend.EnableBroadcast = true;
+                var host = Dns.GetHostEntryAsync(Dns.GetHostName()).GetAwaiter().GetResult();
+
+                foreach (var adds in host.AddressList.Where(a => a.AddressFamily == AddressFamily.InterNetwork))
+                {
+                    var ip = adds.GetAddressBytes();
+                    ip[3] = 255;
+                    var endPoint = new IPEndPoint(new IPAddress(ip), SendPort);
+
+                    _udpSend.Send(buffer, buffer.Length, endPoint);
+                }
+            }
+            else
+            {
+                var ip = new IPEndPoint(address, SendPort);
+                _udpSend.Send(buffer, buffer.Length, ip);
+            }
         }
 
         public AutoHomeConnection Connect(IPAddress address)
@@ -90,14 +118,14 @@ namespace AH.Module.Controller.Protocol
             catch { }
         }
 
-        public void Send(SendMessage message)
+        public void Send(Message message)
         {
             var buffer = message.GetBytes();
 
             _tcp.Client.Send(buffer, buffer.Length, SocketFlags.None);
         }
 
-        public ReceiveMessage SendAndReceive(SendMessage message)
+        public Message SendAndReceive(Message message)
         {
             var buffer = message.GetBytes();
 
@@ -115,7 +143,7 @@ namespace AH.Module.Controller.Protocol
                     var received = _tcp.Client.Receive(receiveBuffer, SocketFlags.None);
                     writer.Write(receiveBuffer, 0, received);
                 } while (_tcp.Available > 0);
-                return new ReceiveMessage(mem.ToArray());
+                return new Message(mem.ToArray());
             }
         }
     }
