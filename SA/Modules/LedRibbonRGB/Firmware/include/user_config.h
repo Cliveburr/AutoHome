@@ -44,11 +44,11 @@ struct ConfigStruct {
 /* *** end fota config *** */
 
 // RGB Ribbon settings
-#define REDPIN 12
-#define REDFUNC FUNC_GPIO12
-#define BLUEPIN 4
-#define BLUEFUNC FUNC_GPIO4
-#define GREENPIN 5
-#define GREENFUNC FUNC_GPIO5
+// #define REDPIN 12
+// #define REDFUNC FUNC_GPIO12
+// #define BLUEPIN 4
+// #define BLUEFUNC FUNC_GPIO4
+// #define GREENPIN 5
+// #define GREENFUNC FUNC_GPIO5
 
 #endif

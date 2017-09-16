@@ -43,8 +43,6 @@ user_rf_cal_sector_set(void) {
 ICACHE_FLASH_ATTR
 void set_start_mode(void) {
 
-    PIN_FUNC_SELECT(PERIPHS_IO_MUX_MTCK_U, FUNC_GPIO13);
-    PIN_PULLUP_EN(PERIPHS_IO_MUX_MTCK_U);
     unsigned char start_mode = GPIO_INPUT_GET(13);
 
     if (start_mode) {
@@ -61,14 +59,27 @@ void ledRibbon_setAndInitialize(void) {
         os_printf("ledRibbon_setAndInitialize...\n");
     #endif
 
+    // GPIO 14 - Red Signal
     redPin.pin = 14;
     PIN_FUNC_SELECT(PERIPHS_IO_MUX_MTMS_U, FUNC_GPIO14);
 
+    // GPIO 4 - Blue Signal
     bluePin.pin = 4;
     PIN_FUNC_SELECT(PERIPHS_IO_MUX_MTDI_U, FUNC_GPIO4);
 
+    // GPIO 5 - Green Signal
     greenPin.pin = 5;
     PIN_FUNC_SELECT(PERIPHS_IO_MUX_MTDI_U, FUNC_GPIO5);
+
+    // GPIO 13 - Wifi Mode
+    PIN_FUNC_SELECT(PERIPHS_IO_MUX_MTCK_U, FUNC_GPIO13);
+    PIN_PULLUP_EN(PERIPHS_IO_MUX_MTCK_U);
+
+    // GPIO 16 - Switch Signal
+
+
+    // GPIO 12 - Led Live
+
 
     ledRibbon_initialize();
 }
