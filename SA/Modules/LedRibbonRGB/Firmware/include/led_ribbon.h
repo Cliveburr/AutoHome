@@ -16,6 +16,8 @@
 
 */
 
+#define LED_INVERSE_SIGNAL
+
 struct color_struct {
     char pin;
     char state;

@@ -75,11 +75,8 @@ void ledRibbon_setAndInitialize(void) {
     PIN_FUNC_SELECT(PERIPHS_IO_MUX_MTCK_U, FUNC_GPIO13);
     PIN_PULLUP_EN(PERIPHS_IO_MUX_MTCK_U);
 
-    // GPIO 16 - Switch Signal
-
-
-    // GPIO 12 - Led Live
-
+    // GPIO 12 - Switch Signal
+    PIN_FUNC_SELECT(PERIPHS_IO_MUX_MTDI_U, FUNC_GPIO12);
 
     ledRibbon_initialize();
 }

@@ -18,7 +18,11 @@ void set_pin_state(struct color_struct *color) {
     os_timer_disarm(&color->timer);
 
     if (color->highValue) {
+        #ifdef LED_INVERSE_SIGNAL
+        GPIO_OUTPUT_SET(GPIO_ID_PIN(color->pin), 0);
+        #else
         GPIO_OUTPUT_SET(GPIO_ID_PIN(color->pin), 1);
+        #endif
         color->state = 1;
 
         if (color->lowValue) {
@@ -26,7 +30,11 @@ void set_pin_state(struct color_struct *color) {
         }
     }
     else {
+        #ifdef LED_INVERSE_SIGNAL
+        GPIO_OUTPUT_SET(GPIO_ID_PIN(color->pin), 1);
+        #else
         GPIO_OUTPUT_SET(GPIO_ID_PIN(color->pin), 0);
+        #endif
         color->state = 0;
     }
 }
@@ -35,12 +43,20 @@ void pin_event(struct color_struct *color) {
     os_timer_disarm(&color->timer);
 
     if (color->state) {
+        #ifdef LED_INVERSE_SIGNAL
+        GPIO_OUTPUT_SET(GPIO_ID_PIN(color->pin), 1);
+        #else
         GPIO_OUTPUT_SET(GPIO_ID_PIN(color->pin), 0);
+        #endif
         color->state = 0;
         os_timer_arm_us(&color->timer, color->lowValue, 0);
     }
     else {
+        #ifdef LED_INVERSE_SIGNAL
+        GPIO_OUTPUT_SET(GPIO_ID_PIN(color->pin), 0);
+        #else
         GPIO_OUTPUT_SET(GPIO_ID_PIN(color->pin), 1);
+        #endif
         color->state = 1;
         os_timer_arm_us(&color->timer, color->highValue, 0);
     }
@@ -140,6 +156,13 @@ void ledRibbonChange(char* data) {
     set_pin_state(&redPin);
     set_pin_state(&greenPin);
     set_pin_state(&bluePin);
+
+    if (redPin.highValue > 0 || greenPin.highValue > 0 || bluePin.highValue > 0) {
+        GPIO_OUTPUT_SET(GPIO_ID_PIN(12), 1);
+    }
+    else {
+        GPIO_OUTPUT_SET(GPIO_ID_PIN(12), 0);
+    }
 }
 
 // ############################## END MESSAGES
@@ -169,9 +192,15 @@ void ledRibbon_set_off(void) {
         os_printf("ledRibbon_set_off...\n");
     #endif
 
+    #ifdef LED_INVERSE_SIGNAL
+    GPIO_OUTPUT_SET(GPIO_ID_PIN(redPin.pin), 1);
+    GPIO_OUTPUT_SET(GPIO_ID_PIN(bluePin.pin), 1);
+    GPIO_OUTPUT_SET(GPIO_ID_PIN(greenPin.pin), 1);
+    #else
     GPIO_OUTPUT_SET(GPIO_ID_PIN(redPin.pin), 0);
     GPIO_OUTPUT_SET(GPIO_ID_PIN(bluePin.pin), 0);
     GPIO_OUTPUT_SET(GPIO_ID_PIN(greenPin.pin), 0);
+    #endif
     os_timer_disarm(&redPin.timer);
     os_timer_disarm(&bluePin.timer);
     os_timer_disarm(&greenPin.timer);

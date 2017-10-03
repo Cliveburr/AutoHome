@@ -80,141 +80,129 @@
    (Net #00022 
    (rule
    )
-   (wire (path TOP 25400  -8763000 9525000 -8509000 9525000 -8509000 9652000
-     -8128000 9652000)
-    (connect (terminal pin R2-1) (terminal pin "T BLUE"-0))
+   (wire (path TOP 25400  -9779000 5842000 -9014921 5842000 -9014921 5778500
+     -6413500 5778500 -6413500 7884920 -6096000 7884920 -6096000 10033000)
+    (connect (terminal pin "T BLUE"-0) (terminal pin R2-1))
    )
    )
    (Net #00025 
    (rule
    )
-   (wire (path TOP 25400  -8763000 8382000 -8509000 8382000 -8509000 8509000
-     -8128000 8509000)
+   (wire (path TOP 25400  -6350000 10033000 -6350000 9779000 -6604000 9779000
+     -6604000 6985000 -9004667 6985000 -9004667 6096000 -10414000 6096000
+     -10414000 6350000 -10668000 6350000 -10668000 5842000)
     (connect (terminal pin R1-1) (terminal pin "T GREEN"-0))
    )
    )
    (Net #00027 
    (rule
    )
-   (wire (path TOP 25400  -8763000 7112000 -8509000 7112000 -8509000 7239000
-     -8128000 7239000)
-    (connect (terminal pin R3-1) (terminal pin "T RED"-0))
+   (wire (path TOP 25400  -12319000 5588000 -12001500 5588000 -12001500 5334000
+     -5842000 5334000 -5842000 10033000)
+    (connect (terminal pin "T RED"-0) (terminal pin R3-1))
    )
    )
    (Net #00028 
    (rule
    )
-   (wire (path TOP 25400  -8763000 9906000 -8128000 9906000)
+   (wire (path TOP 25400  -10541000 6223000 -10541000 6032500 -10477500 6032500
+     -10477500 5588000 -10033000 5588000 -10033000 5842000)
     (connect (terminal pin R6-1) (terminal pin "T BLUE"-1))
    )
    )
    (Net #00031 
    (rule
    )
-   (wire (path TOP 25400  -8763000 8763000 -8128000 8763000)
+   (wire (path TOP 25400  -11938000 6223000 -11684000 6223000 -11684000 6413500
+     -10922000 6413500 -10922000 5842000)
     (connect (terminal pin R5-1) (terminal pin "T GREEN"-1))
    )
    )
    (Net #00032 
    (rule
    )
-   (wire (path TOP 25400  -8763000 7493000 -8128000 7493000)
+   (wire (path TOP 25400  -9017000 10033000 -9017000 10223500 -12509500 10223500
+     -12509500 5842000 -12319000 5842000)
     (connect (terminal pin R4-1) (terminal pin "T RED"-1))
    )
    )
    (Net #00036 
    (rule
    )
-   (wire (path TOP 25400  -13605000 10239000 -13605000 10848520 -13970000 10848520
-     -13970000 11557000)
-    (connect (terminal pin PW1-2) (terminal pin "L - N - L(OUT)"-1))
+   (wire (path TOP 25400  -12827000 11684000 -12827000 11329607 -11954000 11329607
+     -11954000 10874000)
+    (connect (terminal pin "L - N - L(OUT)"-1) (terminal pin PW1-2))
    )
    )
    (Net #00037 
    (rule
    )
-   (wire (path TOP 25400  -11557000 9525000 -13779500 9525000 -13779500 10239000
-     -14105000 10239000)
-    (connect (terminal pin RL1-2) (terminal pin PW1-3))
+   (wire (path TOP 25400  -13017500 10858500 -13017500 8947537 -14005000 8947537
+     -14005000 8436000)
+    (connect (terminal wire) (terminal pin RL1-2))
    )
-   (wire (path TOP 25400  -14478000 11557000 -14478000 10541000 -14105000 10541000
-     -14105000 10239000)
-    (connect (terminal pin "L - N - L(OUT)"-0) (terminal pin PW1-3))
+   (wire (path TOP 25400  -12319000 11684000 -12319000 11938000 -13017500 11938000
+     -13017500 10858500)
+    (connect (terminal pin "L - N - L(OUT)"-0) (terminal wire))
+   )
+   (wire (path TOP 25400  -13017500 10858500 -12859712 10858500 -12859712 10874000
+     -12454000 10874000)
+    (connect (terminal wire) (terminal pin PW1-3))
    )
    )
    (Net #00038 
    (rule
    )
-   (wire (path TOP 25400  -12573000 7874000 -14287500 7874000 -14287500 7239000
-     -14605000 7239000)
-    (connect (terminal pin D2-1) (terminal pin PW1-1))
-   )
-   (wire (path TOP 25400  -12573000 7874000 -12316460 7874000 -12316460 8515000)
-    (connect (terminal pin D2-1) (terminal pin RL1-1))
+   (wire (path TOP 25400  -13405000 8636000 -13405000 7874000 -12954000 7874000)
+    (connect (terminal pin RL1-1) (terminal pin PW1-1))
    )
    )
-   (Net #00042 
+   (Net #00044 
    (rule
    )
-   (wire (path TOP 25400  -11557000 10275000 -11874500 10275000 -11874500 10621339
-     -13462000 10621339 -13462000 11557000)
-    (connect (terminal pin RL1-3) (terminal pin "L - N - L(OUT)"-2))
-   )
-   )
-   (Net #00043 
-   (rule
-   )
-   (wire (path TOP 25400  -11557000 7874000 -11557000 7493000 -12065000 7493000)
-    (connect (terminal pin D2-0) (terminal pin Q1-0))
-   )
-   (wire (path TOP 25400  -11557000 8515000 -11557000 7874000)
-    (connect (terminal pin RL1-0) (terminal pin D2-0))
-   )
-   )
-   (Net #00046 
-   (rule
-   )
-   (wire (path TOP 25400  -12319000 7493000 -12319000 6858000)
+   (wire (path TOP 25400  -14478000 7747000 -14732000 7747000 -14732000 7112000)
     (connect (terminal pin Q1-1) (terminal pin R8-0))
    )
    )
-   (Net #00052 
+   (Net #00045 
    (rule
    )
-   (wire (path TOP 25400  -13208000 6477000 -13208000 5969000 -12954000 5969000)
-    (connect (terminal pin D1-0) (terminal pin R11-1))
+   (wire (path TOP 25400  -14605000 8636000 -14605000 8307192 -14478000 8307192
+     -14478000 8001000)
+    (connect (terminal pin RL1-0) (terminal pin Q1-0))
+   )
+   )
+   (Net #00051 
+   (rule
+   )
+   (wire (path TOP 25400  -13405000 9856000 -13405000 10916167 -13335000 10916167
+     -13335000 11684000)
+    (connect (terminal pin RL1-4) (terminal pin "L - N - L(OUT)"-2))
    )
    )
    (Net 12V 
    (rule
    )
-   (wire (path TOP 25400  -11938000 11557000 -11176000 11557000 -11176000 9525000
-     -9779000 9525000)
-    (connect (terminal pin "G - 12V"-1) (terminal pin R2-0))
+   (wire (path TOP 25400  -6096000 11049000 -5842000 11049000)
+    (connect (terminal pin R2-0) (terminal pin R3-0))
    )
-   (wire (path TOP 25400  -9779000 8382000 -9779000 8128000 -9969500 8128000
-     -9969500 7366000 -9779000 7366000 -9779000 7112000)
-    (connect (terminal pin R1-0) (terminal pin R3-0))
-   )
-   (wire (path TOP 25400  -9779000 9525000 -9779000 9271000 -9588500 9271000
-     -9588500 8636000 -9779000 8636000 -9779000 8382000)
-    (connect (terminal pin R2-0) (terminal pin R1-0))
+   (wire (path TOP 25400  -6350000 11049000 -6096000 11049000)
+    (connect (terminal pin R1-0) (terminal pin R2-0))
    )
    )
    (Net 3.3V 
    (rule
    )
-   (wire (path TOP 25400  -11811000 4699000 -11811000 4191000 -11049000 4191000)
-    (connect (terminal pin C1-0) (terminal pin R12-1))
+   (wire (path TOP 25400  -10287000 10033000 -10287000 9779000 -10033000 9779000
+     -10033000 6985000)
+    (connect (terminal pin R7-1) (terminal wire))
    )
-   (wire (path TOP 25400  -11811000 5207000 -11811000 4699000)
-    (connect (terminal pin R10-1) (terminal pin C1-0))
+   (wire (path TOP 25400  -9271000 6223000 -9271000 6985000 -10033000 6985000)
+    (connect (terminal pin R10-1) (terminal wire))
    )
-   (wire (path TOP 25400  -12573000 5207000 -12192000 5207000)
-    (connect (terminal pin R9-1) (terminal pin R7-1))
-   )
-   (wire (path TOP 25400  -12192000 5207000 -11811000 5207000)
-    (connect (terminal pin R7-1) (terminal pin R10-1))
+   (wire (path TOP 25400  -10033000 6985000 -10795000 6985000 -10795000 7239000
+     -11049000 7239000)
+    (connect (terminal wire) (terminal pin C1-0))
    )
    )
    (Net "BLUE LED" 
@@ -225,76 +213,59 @@
    (rule
    )
    )
-   (Net EN 
-   (rule
-   )
-   )
    (Net GND 
    (rule
    )
-   (wire (path TOP 25400  -11557000 4699000 -7620000 4699000 -7620000 5588000)
-    (connect (terminal pin C1-1) (terminal pin FLASH-1))
-   )
-   (wire (path TOP 25400  -8128000 10160000 -10414000 10160000 -10414000 11684000)
-    (connect (terminal pin "T BLUE"-2) (terminal pin "TX - RX - G"-2))
-   )
-   (wire (path TOP 25400  -12954000 6477000 -12954000 6223000 -12827000 6223000
-     -12827000 5842000 -13970000 5842000)
-    (connect (terminal pin D1-1) (terminal pin WIFI-1))
-   )
-   (wire (path TOP 25400  -12573000 7493000 -12573000 7683500 -12040071 7683500
-     -12040071 8769201 -11366500 8769201 -11366500 11171768 -12446000 11171768
-     -12446000 11557000)
-    (connect (terminal pin Q1-2) (terminal pin "G - 12V"-0))
-   )
-   (wire (path TOP 25400  -10414000 11684000 -10414000 11938000 -12128500 11938000
-     -12128500 11557000 -12446000 11557000)
-    (connect (terminal pin "TX - RX - G"-2) (terminal pin "G - 12V"-0))
-   )
-   (wire (path TOP 25400  -7937500 9017000 -7937500 10160000 -8128000 10160000)
-    (connect (terminal wire) (terminal pin "T BLUE"-2))
-   )
-   (wire (path TOP 25400  -12890500 7239000 -12890500 7302500 -12573000 7302500
-     -12573000 7493000)
+   (wire (path TOP 25400  -8826500 10223500 -8826500 10350500 -12573000 10350500
+     -12573000 7493000 -14478000 7493000)
     (connect (terminal wire) (terminal pin Q1-2))
    )
-   (wire (path TOP 25400  -12890500 7239000 -12890500 6794500 -12954000 6794500
-     -12954000 6477000)
-    (connect (terminal wire) (terminal pin D1-1))
+   (wire (path TOP 25400  -7239000 6731000 -6477000 6731000 -6477000 9064479
+     -6223000 9064479 -6223000 10223500 -8826500 10223500)
+    (connect (terminal pin WIFI-1) (terminal wire))
    )
-   (wire (path TOP 25400  -6096000 5588000 -6096000 5905500 -7620000 5905500)
-    (connect (terminal pin RESET-1) (terminal wire))
-   )
-   (wire (path TOP 25400  -7620000 5905500 -7620000 5588000)
-    (connect (terminal wire) (terminal pin FLASH-1))
-   )
-   (wire (path TOP 25400  -7937500 7747000 -7937500 9017000)
+   (wire (path TOP 25400  -10414000 7493000 -10414000 10160000 -9144000 10160000
+     -9144000 9842500 -8826500 9842500 -8826500 10223500)
     (connect (terminal wire) (terminal wire))
    )
-   (wire (path TOP 25400  -7937500 7747000 -7937500 7048500 -7620000 7048500
-     -7620000 5905500)
-    (connect (terminal wire) (terminal wire))
+   (wire (path TOP 25400  -10287000 5842000 -10287000 6032500 -8636000 6032500
+     -8636000 6731000)
+    (connect (terminal pin "T BLUE"-2) (terminal pin RESET-1))
    )
-   (wire (path TOP 25400  -12890500 7239000 -13105000 7239000)
-    (connect (terminal wire) (terminal pin PW1-0))
+   (wire (path TOP 25400  -11454000 7874000 -12065000 7874000 -12065000 6096000)
+    (connect (terminal pin PW1-0) (terminal wire))
    )
-   (wire (path TOP 25400  -8128000 9017000 -7937500 9017000)
+   (wire (path TOP 25400  -11176000 5842000 -11493500 5842000 -11493500 6096000
+     -12065000 6096000)
     (connect (terminal pin "T GREEN"-2) (terminal wire))
    )
-   (wire (path TOP 25400  -8128000 7747000 -7937500 7747000)
-    (connect (terminal pin "T RED"-2) (terminal wire))
+   (wire (path TOP 25400  -11454000 7874000 -11049000 7874000 -11049000 7493000)
+    (connect (terminal pin PW1-0) (terminal pin C1-1))
+   )
+   (wire (path TOP 25400  -10287000 7239000 -10287000 7493000 -10414000 7493000)
+    (connect (terminal pin FLASH-1) (terminal wire))
+   )
+   (wire (path TOP 25400  -7747000 5969000 -7747000 6731000)
+    (connect (terminal pin "TX - RX - G"-2) (terminal wire))
+   )
+   (wire (path TOP 25400  -10414000 7493000 -11049000 7493000)
+    (connect (terminal wire) (terminal pin C1-1))
+   )
+   (wire (path TOP 25400  -7239000 6731000 -7747000 6731000)
+    (connect (terminal pin WIFI-1) (terminal wire))
+   )
+   (wire (path TOP 25400  -7747000 6731000 -8636000 6731000)
+    (connect (terminal wire) (terminal pin RESET-1))
+   )
+   (wire (path TOP 25400  -12065000 6096000 -12319000 6096000)
+    (connect (terminal wire) (terminal pin "T RED"-2))
    )
    )
    (Net GPIO00 
    (rule
    )
-   (wire (path TOP 25400  -8128000 5588000 -8509000 5588000 -8509000 6223000
-     -11811000 6223000)
+   (wire (path TOP 25400  -10287000 6731000 -10287000 6223000)
     (connect (terminal pin FLASH-0) (terminal pin R10-0))
-   )
-   )
-   (Net GPIO02 
-   (rule
    )
    )
    (Net "GREEN LED" 
@@ -302,10 +273,6 @@
    )
    )
    (Net "GREEN SIGNAL" 
-   (rule
-   )
-   )
-   (Net "LED LIVE" 
    (rule
    )
    )
@@ -320,9 +287,9 @@
    (Net RST 
    (rule
    )
-   (wire (path TOP 25400  -6604000 5588000 -6985000 5588000 -6985000 4508500
-     -11684000 4508500 -11684000 5334000 -12192000 5334000 -12192000 6223000)
-    (connect (terminal pin RESET-0) (terminal pin R7-0))
+   (wire (path TOP 25400  -9271000 10033000 -9271000 7620000 -8636000 7620000
+     -8636000 7239000)
+    (connect (terminal pin R7-0) (terminal pin RESET-0))
    )
    )
    (Net RX 

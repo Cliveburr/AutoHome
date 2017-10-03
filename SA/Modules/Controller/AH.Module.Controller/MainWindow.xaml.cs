@@ -48,8 +48,8 @@ namespace AH.Module.Controller
                 Configuration = new ControllerConfiguration(),
                 Fota = new ControllerFota
                 {
-                    User1bin = @"F:\ESP8266\VirtualBox\Share\NONOS_SDK\bin\upgrade\user1.4096.new.6.bin",
-                    User2bin = @"F:\ESP8266\VirtualBox\Share\NONOS_SDK\bin\upgrade\user2.4096.new.6.bin"
+                    User1bin = @"D:\ESP8266\VirtualBox\Share\NONOS_SDK\bin\upgrade\user1.4096.new.6.bin",
+                    User2bin = @"D:\ESP8266\VirtualBox\Share\NONOS_SDK\bin\upgrade\user2.4096.new.6.bin"
                 },
                 RGBLR = new ControllerRGBLedRibbon
                 {
