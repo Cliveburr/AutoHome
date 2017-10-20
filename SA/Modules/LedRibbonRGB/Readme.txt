@@ -15,6 +15,45 @@ Consumo: 5.76 W/m
 Número de Leds: 60 pcs/m
 Tensão:12 v
 
+
+
+Strip of 3 LEDs draws 20mA
+Segment of RGB contains 9 LEDs draws 60mA
+
+For 60/ED per meter contains 20 Segment
+
+Current per meter = 60mA x 20 = 1.2A
+
+
+
+
+Sala:
+
+Parede da porta: 4,40m
+Parede lateral: 2,50m
+Parece contraria: 2,80m
+Hall: 1,15m + 1,95m + 1,15m
+
+Total: 13,95m
+
+13,95m x 1.2A = 15,15A
+10m x 1.2A = 12A
+15m x 1.2A = 18A
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 Tensão do led vermelho: 2,21v
 
 
