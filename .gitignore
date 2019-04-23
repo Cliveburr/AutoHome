@@ -78,3 +78,8 @@ Interface/WebUI/app/**/*.js.map
 
 # Control - Api
 Control/**/*.exe
+
+# C project
+*.obj
+*.bin
+Modules/TempHumiSensor/Firmware/.vscode
