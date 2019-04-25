@@ -1,4 +1,6 @@
-
+#include "user_config.h"
+#include "temphumisensor.h"
+#include "net.h"
 
 /******************************* PRIVATE METHODS *************************************/
 
@@ -17,11 +19,11 @@ void start_communication(void)
 
 	if (start_mode)
 	{
-		net_set_station_mode(&temphumisensor_msghandle);
+		net_start_station();
 	}
 	else
 	{
-		net_set_accesspoint_mode(&temphumisensor_msghandle);
+		net_start_accesspoint();
 	}
 }
 
@@ -38,7 +40,7 @@ void temphumisensor_init(void)
 	// start the reading module
 }
 
-void temphumisensor_msghandle(void)
+void temphumisensor_tcp_handle(void)
 {
 
 }

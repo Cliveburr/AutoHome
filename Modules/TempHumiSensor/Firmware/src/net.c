@@ -1,15 +1,14 @@
-#include "c_types.h"
-#include "user_interface.h"
-#include "espconn.h"
-#include "osapi.h"
-#include "mem.h"
+//#include "c_types.h"
+//#include "user_interface.h"
+//#include "espconn.h"
+//#include "osapi.h"
+//#include "mem.h"
 #include "user_config.h"
 #include "net.h"
 #include "autohome.h"
 
 struct espconn udp_espconnv;
 struct espconn tcp_espconnv;
-
 
 /******************************* PRIVATE METHODS *************************************/
 
@@ -24,7 +23,7 @@ void udp_recv_cb(void* arg, char* data, unsigned short len)
 	remot_info* pcon_info = NULL;
 	espconn_get_connection_info(&udp_espconnv, &pcon_info, 0);
 
-	autohome_udp_recv(pcon_info, data, len);
+	autohome_udp_recv(&udp_espconnv, pcon_info, data);
 }
 
 LOCAL ICACHE_FLASH_ATTR
@@ -49,7 +48,7 @@ void tcp_received(void* arg, char* data, unsigned short len)
 		os_printf("tcp_received: %d...\n", len);
 	#endif
 
-	autohome_tcp_recv(pesp_conn, data, len);
+	autohome_tcp_recv(pesp_conn, data);
 }
 
 LOCAL ICACHE_FLASH_ATTR

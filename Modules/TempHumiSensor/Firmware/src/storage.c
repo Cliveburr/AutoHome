@@ -16,19 +16,19 @@ void storage_save(void)
         os_printf("void storage_save(void)\n");
     #endif
 
-    if (config.id >= USHRT_MAX) {
-        config.id = 0;
+    if (config.storage_id >= USHRT_MAX) {
+        config.storage_id = 0;
 
         for (i = 0; i < CONFIG_SEC_COUNT; i++) {
             #ifdef DEBUG
-                os_printf("save refresh config.id = 0 into pos %u\n", i);
+                os_printf("save refresh config.storage_id = 0 into pos %u\n", i);
             #endif
             spi_flash_erase_sector(CONFIG_START_SEC + i);
             spi_flash_write((CONFIG_START_SEC + i) * SPI_FLASH_SEC_SIZE, (uint32*)&config, sizeof(struct ConfigStruct));
         }
     }
     else {
-        config.id++;
+        config.storage_id++;
 
         uint8 pos = lastPos;
         do {
@@ -38,7 +38,7 @@ void storage_save(void)
                 pos = 0;
 
             #ifdef DEBUG
-                os_printf("save config.id = %d into pos %u\n", config.id, pos);
+                os_printf("save config.storage_id = %d into pos %u\n", config.id, pos);
             #endif
             spi_flash_erase_sector(CONFIG_START_SEC + pos);
             spi_flash_write((CONFIG_START_SEC + pos) * SPI_FLASH_SEC_SIZE, (uint32*)&config, sizeof(struct ConfigStruct));
@@ -59,20 +59,20 @@ void storage_load(void)
     uint8 id = 0;
 
     #ifdef DEBUG
-        os_printf("void storage_load(void)\n");
+        os_printf("storage_load...\n");
     #endif
 
     for (i = 0; i < CONFIG_SEC_COUNT; i++) {
         spi_flash_read((CONFIG_START_SEC + i) * SPI_FLASH_SEC_SIZE, (uint32*)&readConfig, sizeof(struct ConfigStruct));
 
-        if (readConfig.id > id) {
-            id = readConfig.id;
+        if (readConfig.storage_id > id) {
+            id = readConfig.storage_id;
             pos = i;
         }
     }
 
     #ifdef DEBUG
-        os_printf("load config.id = %u into pos %u\n", id, pos);
+        os_printf("load config.storage_id = %u into pos %u\n", id, pos);
     #endif
     spi_flash_read((CONFIG_START_SEC + pos) * SPI_FLASH_SEC_SIZE, (uint32*)&config, sizeof(struct ConfigStruct));
     lastPos = pos;

@@ -17,4 +17,6 @@ void user_init(void)
     storage_load();
 
     temphumisensor_init();
+
+	autohome_init();
 }

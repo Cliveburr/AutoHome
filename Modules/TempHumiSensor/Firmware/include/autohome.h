@@ -7,7 +7,8 @@ typedef struct {
     Feature_Init_Delegate init;
 } Feature;
 
-
-void autohome_init(void msghandler(char*));
+void autohome_init(void);
+void autohome_tcp_recv(struct espconn* pesp_conn, char* data);
+void autohome_udp_recv(struct espconn* espconnv, remot_info* pcon_info, char* data);
 
 #endif

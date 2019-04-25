@@ -2,7 +2,6 @@
 #define __TEMPHUMISENSOR_H__
 
 void temphumisensor_init(void);
-
-void temphumisensor_msghandle(void);
+void temphumisensor_tcp_handle(void);
 
 #endif
