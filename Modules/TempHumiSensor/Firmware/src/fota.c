@@ -15,7 +15,8 @@
 	1 = fota_state_read request
 	2 = fota_state_read response
 	3 = fota_start
-	4 = fota_write
+	4 = fota_write request
+	5 = fota_write response
 */
 
 LOCAL char* upgrade_buffer;
@@ -125,9 +126,10 @@ void fota_write(struct espconn* pesp_conn, char* data)
 	}
 
 	upgrade_length -= length;
-	unsigned char* responseBuffer = (unsigned char*)os_zalloc(3);
+	unsigned char* responseBuffer = (unsigned char*)os_zalloc(4);
 	responseBuffer[0] = MYUID;
-	responseBuffer[1] = MT_FotaWriteResponse;
+	responseBuffer[1] = 2;    // fota port
+	responseBuffer[2] = 5;    // fota_write response
 
 	if (upgrade_length == 0) {
 		if (upgrade_buffer_length > 0) {
@@ -139,7 +141,7 @@ void fota_write(struct espconn* pesp_conn, char* data)
 			spi_flash_write(upgrade_sector * SPI_FLASH_SEC_SIZE, (uint32*)upgrade_buffer, SPI_FLASH_SEC_SIZE);
 		}
 
-		responseBuffer[2] = 1;
+		responseBuffer[3] = 1;
 		espconn_sent(pesp_conn, responseBuffer, 3);
 
 		system_upgrade_flag_set(UPGRADE_FLAG_FINISH);
@@ -149,7 +151,7 @@ void fota_write(struct espconn* pesp_conn, char* data)
 		os_timer_arm(&client_timer, 1000, 0);
 	}
 	else {
-		responseBuffer[2] = 0;
+		responseBuffer[3] = 0;
 		espconn_sent(pesp_conn, responseBuffer, 3);
 	}
 	os_free(responseBuffer);

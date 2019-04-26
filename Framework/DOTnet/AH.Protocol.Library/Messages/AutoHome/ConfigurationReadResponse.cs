@@ -1,0 +1,42 @@
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace AH.Protocol.Library.Messages.AutoHome
+{
+    public class ConfigurationReadResponse : IContentMessage
+    {
+        public byte Port { get; } = 1;
+        public byte Msg { get; } = 4;
+        public string WifiName { get; set; }
+        public string WifiPassword { get; set; }
+        public string Alias { get; set; }
+
+        public void Write(BinaryWriter stream)
+        {
+            stream.Write((byte)WifiName.Length);
+            stream.Write(Encoding.UTF8.GetBytes(WifiName));
+
+            stream.Write((byte)WifiPassword.Length);
+            stream.Write(Encoding.UTF8.GetBytes(WifiPassword));
+
+            stream.Write((byte)Alias.Length);
+            stream.Write(Encoding.UTF8.GetBytes(Alias));
+        }
+
+        public void Read(BinaryReader stream)
+        {
+            var wifiNameLen = (int)stream.ReadByte();
+            WifiName = Encoding.UTF8.GetString(stream.ReadBytes(wifiNameLen));
+
+            var wifiPassLen = (int)stream.ReadByte();
+            WifiPassword = Encoding.UTF8.GetString(stream.ReadBytes(wifiPassLen));
+
+            var aliasLen = (int)stream.ReadByte();
+            Alias = Encoding.UTF8.GetString(stream.ReadBytes(aliasLen));
+        }
+    }
+}
