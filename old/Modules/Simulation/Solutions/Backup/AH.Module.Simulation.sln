@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.28809.33
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "02 - Simulation", "02 - Simulation", "{AF07B252-2AD8-455C-83A7-9DDEEE464BB4}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "AH.Module.Simulation", "..\AH.Module.Simulation\AH.Module.Simulation.xproj", "{CB876E1E-B3A2-40DB-AB2C-A2459C851131}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "01 - Protocol", "01 - Protocol", "{5BB50C4B-86DE-47AD-991D-09CF8D4A86D8}"
 EndProject
@@ -11,16 +13,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "01 - AutoHome", "01 - AutoH
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "02 - Lan", "02 - Lan", "{84F5EF74-A15E-4F0F-99E2-90E72CDEB30A}"
 EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "AH.Protocol.Library", "..\..\..\Communication\Protocol\Library\AH.Protocol.Library\AH.Protocol.Library.xproj", "{AD4BB28D-3E06-4EEE-9151-5805965A595C}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "AH.Protocol.Lan", "..\..\..\Communication\Lan\AH.Protocol.Lan\AH.Protocol.Lan.xproj", "{B421A53B-1A5F-4BDE-90CF-61534A8F71E6}"
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{67CCFC0B-8ACF-4371-8719-F28BDFD0A044}"
 	ProjectSection(SolutionItems) = preProject
 		..\global.json = ..\global.json
 	EndProjectSection
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AH.Module.Simulation", "..\AH.Module.Simulation\AH.Module.Simulation.csproj", "{CB876E1E-B3A2-40DB-AB2C-A2459C851131}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AH.Protocol.Library", "..\..\..\Communication\Protocol\Library\AH.Protocol.Library\AH.Protocol.Library.csproj", "{AD4BB28D-3E06-4EEE-9151-5805965A595C}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AH.Protocol.Lan", "..\..\..\Communication\Lan\AH.Protocol.Lan\AH.Protocol.Lan.csproj", "{B421A53B-1A5F-4BDE-90CF-61534A8F71E6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,13 +45,10 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{CB876E1E-B3A2-40DB-AB2C-A2459C851131} = {AF07B252-2AD8-455C-83A7-9DDEEE464BB4}
 		{FA9D9A71-5AA9-43E3-BE81-F86854BE1A6B} = {5BB50C4B-86DE-47AD-991D-09CF8D4A86D8}
 		{84F5EF74-A15E-4F0F-99E2-90E72CDEB30A} = {5BB50C4B-86DE-47AD-991D-09CF8D4A86D8}
-		{CB876E1E-B3A2-40DB-AB2C-A2459C851131} = {AF07B252-2AD8-455C-83A7-9DDEEE464BB4}
 		{AD4BB28D-3E06-4EEE-9151-5805965A595C} = {FA9D9A71-5AA9-43E3-BE81-F86854BE1A6B}
 		{B421A53B-1A5F-4BDE-90CF-61534A8F71E6} = {84F5EF74-A15E-4F0F-99E2-90E72CDEB30A}
-	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {C2AE827A-7FE2-49D3-9374-EED436EEFED5}
 	EndGlobalSection
 EndGlobal

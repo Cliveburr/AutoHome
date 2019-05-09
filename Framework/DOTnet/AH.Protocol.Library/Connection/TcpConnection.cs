@@ -11,22 +11,103 @@ namespace AH.Protocol.Library.Connection
 {
     public class TcpConnection : IDisposable
     {
-        private TcpClient _tcp;
+        public delegate void TcpReceived(TcpClient client, Message message);
+        public event TcpReceived OnTcpReceived;
 
-        public TcpConnection(int tcpPort, IPAddress address)
+        public int SendPort { get; private set; }
+        public int ReceivePort { get; private set; }
+        public int UID { get; set; }
+
+        private TcpClient _send;
+        private TcpListener _receive;
+
+        public int MaxMessageSize { get; set; }
+
+        private struct ReceiveClientData
         {
-            _tcp = new TcpClient();
-            _tcp.SendTimeout = 1000;
-            var ip = new IPEndPoint(address, tcpPort);
+            public TcpClient TcpClient;
+            public byte[] Buffer;
+        }
 
-            _tcp.Connect(ip);
+        public TcpConnection(int uid)
+        {
+            UID = uid;
+            MaxMessageSize = 1024;
+        }
+
+        public void StartSender(int port, IPAddress address)
+        {
+            SendPort = port;
+
+            _send = new TcpClient();
+            _send.SendTimeout = 1000;
+            _send.Connect(new IPEndPoint(address, port));
+        }
+
+        public void StartReceiver(int port)
+        {
+            ReceivePort = port;
+
+            _receive = new TcpListener(IPAddress.Any, port);
+            _receive.Start();
+            _receive.BeginAcceptTcpClient(AcceptTcpClient, null);
+        }
+
+        private void AcceptTcpClient(IAsyncResult result)
+        {
+            try
+            {
+                var data = new ReceiveClientData
+                {
+                    TcpClient = _receive.EndAcceptTcpClient(result),
+                    Buffer = new byte[MaxMessageSize]
+                };
+
+                if (data.TcpClient.Client.Connected)
+                {
+                    data.TcpClient.Client.BeginReceive(data.Buffer, 0, data.Buffer.Length, SocketFlags.None, Receive, data);
+                }
+            }
+            catch
+            {
+            }
+            finally
+            {
+                _receive.BeginAcceptTcpClient(AcceptTcpClient, null);
+            }
+        }
+
+        private void Receive(IAsyncResult result)
+        {
+            var data = (ReceiveClientData)result.AsyncState;
+            try
+            {
+                var bytes = data.TcpClient.Client.EndReceive(result);
+                if (bytes > 0)
+                {
+                    OnTcpReceived?.Invoke(data.TcpClient, new Message(data.Buffer));
+
+                    data.TcpClient.Client.BeginReceive(data.Buffer, 0, data.Buffer.Length, SocketFlags.None, Receive, data);
+                }
+            }
+            catch
+            {
+            }
+            finally
+            {
+                if (data.TcpClient.Client.Connected)
+                {
+                    data.TcpClient.Client.BeginReceive(data.Buffer, 0, data.Buffer.Length, SocketFlags.None, Receive, data);
+                }
+            }
         }
 
         public void Dispose()
         {
             try
             {
-                _tcp?.Close();
+                _send?.Close();
+                _receive?.Stop();
             }
             catch { }
         }
@@ -35,17 +116,17 @@ namespace AH.Protocol.Library.Connection
         {
             var buffer = message.GetBytes();
 
-            _tcp.Client.Send(buffer, buffer.Length, SocketFlags.None);
+            _send.Client.Send(buffer, buffer.Length, SocketFlags.None);
         }
 
         public Message SendAndReceive(Message message)
         {
             var buffer = message.GetBytes();
 
-            _tcp.Client.Send(buffer, buffer.Length, SocketFlags.None);
+            _send.Client.Send(buffer, buffer.Length, SocketFlags.None);
 
-            var timeOutDateTime = DateTime.Now.AddMilliseconds(_tcp.ReceiveTimeout);
-            while (_tcp.Available == 0 && DateTime.Now < timeOutDateTime) ;
+            var timeOutDateTime = DateTime.Now.AddMilliseconds(_send.ReceiveTimeout);
+            while (_send.Available == 0 && DateTime.Now < timeOutDateTime) ;
 
             using (var mem = new MemoryStream())
             using (var writer = new BinaryWriter(mem))
@@ -53,9 +134,9 @@ namespace AH.Protocol.Library.Connection
                 do
                 {
                     var receiveBuffer = new byte[1024];
-                    var received = _tcp.Client.Receive(receiveBuffer, SocketFlags.None);
+                    var received = _send.Client.Receive(receiveBuffer, SocketFlags.None);
                     writer.Write(receiveBuffer, 0, received);
-                } while (_tcp.Available > 0);
+                } while (_send.Available > 0);
                 return new Message(mem.ToArray());
             }
         }

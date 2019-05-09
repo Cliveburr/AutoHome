@@ -9,7 +9,7 @@ namespace AH.Protocol.Library.Messages.AutoHome
 {
     public class UIDSaveRequest : IContentMessage
     {
-        public byte Port { get; } = 1;
+        public PortType Port { get; } = PortType.AutoHome;
         public byte Msg { get; } = 6;
         public byte UID { get; set; }
 

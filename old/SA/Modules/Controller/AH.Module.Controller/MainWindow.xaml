@@ -122,7 +122,7 @@
                         </DockPanel>
                     </GroupBox>
                     <GroupBox DockPanel.Dock="Top" Header="Color">
-                        <xctk:ColorPicker SelectedColor="{Binding RGBLR.Color, Mode=TwoWay}" Margin="5" VerticalAlignment="Top" Height="50" DisplayColorAndName="False" />
+                        <!--<xctk:ColorPicker SelectedColor="{Binding RGBLR.Color, Mode=TwoWay}" Margin="5" VerticalAlignment="Top" Height="50" DisplayColorAndName="False" />-->
                     </GroupBox>
                 </DockPanel>
             </TabItem>

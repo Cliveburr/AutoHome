@@ -4,16 +4,17 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{B4AA6E2C-9DFC-4DD8-83C5-CD9924C9148E}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>AH.Protocol.Library</RootNamespace>
-    <AssemblyName>AH.Protocol.Library</AssemblyName>
+    <ProjectGuid>{10E38F5D-D515-479E-A2CE-D7FFE5CF99AE}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>AH.Module.Simulation</RootNamespace>
+    <AssemblyName>AH.Module.Simulation</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -23,6 +24,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -41,26 +43,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Connection\TcpConnection.cs" />
-    <Compile Include="Connection\UdpConnection.cs" />
-    <Compile Include="IContentMessage.cs" />
-    <Compile Include="Message.cs" />
-    <Compile Include="Messages\AutoHome\AutoHomeMessageType.cs" />
-    <Compile Include="Messages\AutoHome\ConfigurationReadRequest.cs" />
-    <Compile Include="Messages\AutoHome\ConfigurationReadResponse.cs" />
-    <Compile Include="Messages\AutoHome\ConfigurationSaveRequest.cs" />
-    <Compile Include="Messages\AutoHome\PingRequest.cs" />
-    <Compile Include="Messages\AutoHome\PongResponse.cs" />
-    <Compile Include="Messages\AutoHome\UIDSaveRequest.cs" />
-    <Compile Include="Messages\Fota\FotaStartRequest.cs" />
-    <Compile Include="Messages\Fota\FotaStateReadRequest.cs" />
-    <Compile Include="Messages\Fota\FotaStateReadResponse.cs" />
-    <Compile Include="Messages\Fota\FotaWriteRequest.cs" />
-    <Compile Include="Messages\Fota\FotaWriteResponse.cs" />
-    <Compile Include="Messages\PortType.cs" />
-    <Compile Include="Messages\RGBLedRibbon\RGBLedRibbon.cs" />
-    <Compile Include="ModuleType.cs" />
+    <Compile Include="AutoHomePort.cs" />
+    <Compile Include="AutoHomeSimulator.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Framework\DOTnet\AH.Protocol.Library\AH.Protocol.Library.csproj">
+      <Project>{1688B16F-E5CE-4C0C-93DD-3DE64A235750}</Project>
+      <Name>AH.Protocol.Library</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

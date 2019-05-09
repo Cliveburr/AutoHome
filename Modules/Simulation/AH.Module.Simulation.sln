@@ -1,0 +1,39 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28809.33
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "01 - Simulation", "01 - Simulation", "{386141E9-A132-4C9F-B815-A35A0ADACCF1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "02 - Protocol", "02 - Protocol", "{E011E70C-9BB7-4125-95FD-7544757D9785}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AH.Protocol.Library", "..\..\Framework\DOTnet\AH.Protocol.Library\AH.Protocol.Library.csproj", "{1688B16F-E5CE-4C0C-93DD-3DE64A235750}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AH.Module.Simulation", "AH.Module.Simulation\AH.Module.Simulation.csproj", "{10E38F5D-D515-479E-A2CE-D7FFE5CF99AE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1688B16F-E5CE-4C0C-93DD-3DE64A235750}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1688B16F-E5CE-4C0C-93DD-3DE64A235750}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1688B16F-E5CE-4C0C-93DD-3DE64A235750}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1688B16F-E5CE-4C0C-93DD-3DE64A235750}.Release|Any CPU.Build.0 = Release|Any CPU
+		{10E38F5D-D515-479E-A2CE-D7FFE5CF99AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{10E38F5D-D515-479E-A2CE-D7FFE5CF99AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{10E38F5D-D515-479E-A2CE-D7FFE5CF99AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{10E38F5D-D515-479E-A2CE-D7FFE5CF99AE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{1688B16F-E5CE-4C0C-93DD-3DE64A235750} = {E011E70C-9BB7-4125-95FD-7544757D9785}
+		{10E38F5D-D515-479E-A2CE-D7FFE5CF99AE} = {386141E9-A132-4C9F-B815-A35A0ADACCF1}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {32BAC33A-4F23-4D07-A59B-C50D83832168}
+	EndGlobalSection
+EndGlobal

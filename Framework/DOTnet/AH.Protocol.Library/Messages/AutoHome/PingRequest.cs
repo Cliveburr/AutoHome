@@ -5,8 +5,8 @@ namespace AH.Protocol.Library.Messages.AutoHome
 {
     public class PingRequest : IContentMessage
     {
-        public byte Port { get; } = 1;
-        public byte Msg { get; } = 1;
+        public PortType Port { get; } = PortType.AutoHome;
+        public byte Msg { get; } = (byte)AutoHomeMessageType.Ping;
         public string Check { get; set; }
 
         public void Read(BinaryReader stream)

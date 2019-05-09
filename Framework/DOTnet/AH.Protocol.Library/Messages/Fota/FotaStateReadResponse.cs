@@ -9,7 +9,7 @@ namespace AH.Protocol.Library.Messages.Fota
 {
     public class FotaStateReadResponse : IContentMessage
     {
-        public byte Port { get; } = 2;
+        public PortType Port { get; } = PortType.Fota;
         public byte Msg { get; } = 2;
         public byte UserBin { get; set; }
         public ushort ChunkSize { get; set; }

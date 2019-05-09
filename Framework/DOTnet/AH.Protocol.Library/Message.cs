@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AH.Protocol.Library.Messages;
+using System;
 using System.IO;
 
 namespace AH.Protocol.Library
@@ -6,7 +7,7 @@ namespace AH.Protocol.Library
     public class Message
     {
         public byte UID { get; set; }
-        public byte Port { get; set; }
+        public PortType Port { get; set; }
         public byte Msg { get; set; }
         public IContentMessage Content { get; set; }
 
@@ -21,7 +22,7 @@ namespace AH.Protocol.Library
             _reader = new BinaryReader(_mem);
 
             UID = _reader.ReadByte();
-            Port = _reader.ReadByte();
+            Port = (PortType)_reader.ReadByte();
             Msg = _reader.ReadByte();
         }
 
@@ -59,7 +60,7 @@ namespace AH.Protocol.Library
             {
                 writer.Write(UID);
 
-                writer.Write(Port);
+                writer.Write((byte)Port);
 
                 writer.Write(Msg);
 

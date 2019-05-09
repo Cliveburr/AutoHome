@@ -6,7 +6,7 @@ namespace AH.Protocol.Library.Messages
 {
     public class ConfigurationReadRequest : IContentMessage
     {
-        public byte Port { get; } = 1;
+        public PortType Port { get; } = PortType.AutoHome;
         public byte Msg { get; } = 3;
 
         public void Read(BinaryReader stream)

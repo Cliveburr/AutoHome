@@ -6,31 +6,29 @@
         xmlns:local="clr-namespace:AH.Interfaces.Dashboard.Discovery"
         mc:Ignorable="d"
         Title="Discovery Modules" Height="450" Width="800" WindowStartupLocation="CenterScreen">
-    <Grid>
-        <DockPanel Background="#FFE5E5E5">
-            <GroupBox DockPanel.Dock="Top" Margin="5" Header="Selected">
-                <StackPanel Orientation="Vertical">
-                    <DockPanel>
-                        <Button Margin="5" Width="100" Click="Ping_Click">Ping</Button>
-                        <Label Margin="5">Send Port:</Label>
-                        <TextBox Margin="5" Width="70" Text="{Binding Path=SendPort}"></TextBox>
-                        <Label Margin="5">Receive Port:</Label>
-                        <TextBox Margin="5" Width="70" Text="{Binding Path=ReceivePort}"></TextBox>
-                        <Button Margin="5" Width="100" Click="SetPorts_Click">Set Ports</Button>
-                        <Button Margin="5" Width="100" HorizontalAlignment="Right" Click="Connect_Click">Connect</Button>
-                    </DockPanel>
-                </StackPanel>
-            </GroupBox>
-            <GroupBox Header="List">
-                <DataGrid x:Name="dgModules" Margin="5" ItemsSource="{Binding ModuleList}" CanUserAddRows="False" CanUserDeleteRows="False" AutoGenerateColumns="False" SelectionMode="Single" GridLinesVisibility="None">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn IsReadOnly="True" Header="UID" Width="50" Binding="{Binding UID}" />
-                        <DataGridTextColumn IsReadOnly="True" Header="Alias" Width="200" Binding="{Binding Alias}" />
-                        <DataGridTextColumn IsReadOnly="True" Header="Module Type" Width="200" Binding="{Binding ModuleType}" />
-                        <DataGridTextColumn IsReadOnly="True" Header="Ip" Width="200" Binding="{Binding Ip}" />
-                    </DataGrid.Columns>
-                </DataGrid>
-            </GroupBox>
-        </DockPanel>
-    </Grid>
+    <DockPanel Background="#FFE5E5E5">
+        <GroupBox DockPanel.Dock="Top" Margin="5" Header="Selected">
+            <StackPanel Orientation="Vertical">
+                <DockPanel>
+                    <Button Margin="5" Width="100" Click="Ping_Click">Ping</Button>
+                    <Label Margin="5">Send Port:</Label>
+                    <TextBox Margin="5" Width="70" Text="{Binding Path=SendPort}"></TextBox>
+                    <Label Margin="5">Receive Port:</Label>
+                    <TextBox Margin="5" Width="70" Text="{Binding Path=ReceivePort}"></TextBox>
+                    <Button Margin="5" Width="100" Click="SetPorts_Click">Set Ports</Button>
+                    <Button Margin="5" Width="100" HorizontalAlignment="Right" Click="Connect_Click">Connect</Button>
+                </DockPanel>
+            </StackPanel>
+        </GroupBox>
+        <GroupBox Header="List">
+            <DataGrid x:Name="dgModules" Margin="5" ItemsSource="{Binding ModuleList}" CanUserAddRows="False" CanUserDeleteRows="False" AutoGenerateColumns="False" SelectionMode="Single" GridLinesVisibility="None">
+                <DataGrid.Columns>
+                    <DataGridTextColumn IsReadOnly="True" Header="UID" Width="50" Binding="{Binding UID}" />
+                    <DataGridTextColumn IsReadOnly="True" Header="Alias" Width="200" Binding="{Binding Alias}" />
+                    <DataGridTextColumn IsReadOnly="True" Header="Module Type" Width="200" Binding="{Binding ModuleType}" />
+                    <DataGridTextColumn IsReadOnly="True" Header="Ip" Width="200" Binding="{Binding Ip}" />
+                </DataGrid.Columns>
+            </DataGrid>
+        </GroupBox>
+    </DockPanel>
 </Window>

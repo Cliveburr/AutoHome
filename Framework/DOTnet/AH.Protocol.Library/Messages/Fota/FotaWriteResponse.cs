@@ -9,7 +9,7 @@ namespace AH.Protocol.Library.Messages.Fota
 {
     public class FotaWriteResponse : IContentMessage
     {
-        public byte Port { get; } = 2;
+        public PortType Port { get; } = PortType.Fota;
         public byte Msg { get; } = 5;
         public bool IsOver { get; set; }
 

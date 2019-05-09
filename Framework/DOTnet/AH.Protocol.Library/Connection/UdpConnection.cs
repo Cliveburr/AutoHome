@@ -10,46 +10,50 @@ namespace AH.Protocol.Library.Connection
 {
     public class UdpConnection : IDisposable
     {
-        private Task _udpReceive;
-        private UdpClient _udpSend;
-
         public delegate void UdpReceived(IPAddress address, Message message);
         public event UdpReceived OnUdpReceived;
 
-        public int SendPort { get; set; }
-        public int ReceivePort { get; set; }
+        public int SendPort { get; private set; }
+        public int ReceivePort { get; private set; }
 
-        public UdpConnection(int sendPort, int receivePort)
+        private UdpClient _send;
+        private UdpClient _receive;
+
+        public void StartSender(int port)
         {
-            SendPort = sendPort;
-            ReceivePort = receivePort;
+            SendPort = port;
 
-            _udpSend = new UdpClient();
-            _udpReceive = Task.Run((Action)ReceiveUdp);
+            _send = new UdpClient();
         }
 
-        private async void ReceiveUdp()
+        public void StartReceiver(int port)
         {
-            var udp = new UdpClient(ReceivePort);
+            ReceivePort = port;
 
-            while (true)
+            _receive = new UdpClient(ReceivePort);
+            _receive.BeginReceive(OnUdpData, null);
+        }
+
+        private void OnUdpData(IAsyncResult result)
+        {
+            try
             {
-                try
-                {
-                    var receive = await udp.ReceiveAsync();
+                var source = new IPEndPoint(0, 0);
+                var bytes = _receive.EndReceive(result, ref source);
 
-                    var message = new Message(receive.Buffer);
-                    OnUdpReceived?.Invoke(receive.RemoteEndPoint.Address, message);
-                }
-                catch (ObjectDisposedException err)
-                {
-                    break;
-                }
-                catch (Exception err)
-                {
-                    //OnUdpReceived?.Invoke(null, err.Message);
-                    break;
-                }
+                var message = new Message(bytes);
+                OnUdpReceived?.Invoke(source.Address, message);
+            }
+            catch (ObjectDisposedException err)
+            {
+            }
+            catch (Exception err)
+            {
+                //OnUdpReceived?.Invoke(null, err.Message);
+            }
+            finally
+            {
+                _receive.BeginReceive(OnUdpData, null);
             }
         }
 
@@ -57,24 +61,21 @@ namespace AH.Protocol.Library.Connection
         {
             try
             {
-                _udpSend.Close();
-                _udpReceive.Dispose();
+                _receive?.Close();
+                _receive?.Dispose();
+
+                _send?.Dispose();
             }
             catch { }
         }
 
         public void SendUdp(IPAddress address, Message message)
         {
-            if (!(message.Type == MessageType.Ping || message.Type == MessageType.Pong))
-            {
-                throw new Exception("Only message of type Ping or Pong can be sent by udp packet!");
-            }
-
             var buffer = message.GetBytes();
 
             if (address == IPAddress.Broadcast)
             {
-                _udpSend.EnableBroadcast = true;
+                _send.EnableBroadcast = true;
                 var host = Dns.GetHostEntryAsync(Dns.GetHostName()).GetAwaiter().GetResult();
 
                 foreach (var adds in host.AddressList.Where(a => a.AddressFamily == AddressFamily.InterNetwork))
@@ -83,13 +84,15 @@ namespace AH.Protocol.Library.Connection
                     ip[3] = 255;
                     var endPoint = new IPEndPoint(new IPAddress(ip), SendPort);
 
-                    _udpSend.Send(buffer, buffer.Length, endPoint);
+                    _send.Send(buffer, buffer.Length, endPoint);
                 }
             }
             else
             {
+                _send.EnableBroadcast = false;
+
                 var ip = new IPEndPoint(address, SendPort);
-                _udpSend.Send(buffer, buffer.Length, ip);
+                _send.Send(buffer, buffer.Length, ip);
             }
         }
     }

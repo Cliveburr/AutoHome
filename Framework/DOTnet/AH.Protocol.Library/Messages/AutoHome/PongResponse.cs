@@ -9,8 +9,8 @@ namespace AH.Protocol.Library.Messages.AutoHome
 {
     public class PongResponse : IContentMessage
     {
-        public byte Port { get; } = 1;
-        public byte Msg { get; } = 2;
+        public PortType Port { get; } = PortType.AutoHome;
+        public byte Msg { get; } = (byte)AutoHomeMessageType.Pong;
         public ModuleType ModuleType { get; set; }
         public string Check { get; set; }
         public string Alias { get; set; }

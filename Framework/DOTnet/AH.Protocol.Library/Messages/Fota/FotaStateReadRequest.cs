@@ -5,7 +5,7 @@ namespace AH.Protocol.Library.Messages
 {
     public class FotaStateReadRequest : IContentMessage
     {
-        public byte Port { get; } = 2;
+        public PortType Port { get; } = PortType.Fota;
         public byte Msg { get; } = 1;
 
         public void Read(BinaryReader stream)

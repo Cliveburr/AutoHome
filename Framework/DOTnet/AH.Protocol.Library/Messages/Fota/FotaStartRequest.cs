@@ -9,7 +9,7 @@ namespace AH.Protocol.Library.Messages.Fota
 {
     public class FotaStartRequest : IContentMessage
     {
-        public byte Port { get; } = 2;
+        public PortType Port { get; } = PortType.Fota;
         public byte Msg { get; } = 3;
         public uint FileSize { get; set; }
 

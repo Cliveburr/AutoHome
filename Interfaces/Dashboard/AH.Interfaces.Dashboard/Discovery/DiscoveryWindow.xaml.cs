@@ -1,5 +1,6 @@
 ﻿using AH.Protocol.Library;
 using AH.Protocol.Library.Connection;
+using AH.Protocol.Library.Messages;
 using AH.Protocol.Library.Messages.AutoHome;
 using System;
 using System.Collections.Generic;
@@ -24,10 +25,13 @@ namespace AH.Interfaces.Dashboard.Discovery
     {
         private UdpConnection _connection;
         private DiscoveryContext _context;
+        private Dictionary<int, ModuleView.ModuleViewWindow> _modules;
 
         public DiscoveryWindow()
         {
             InitializeComponent();
+
+            _modules = new Dictionary<int, ModuleView.ModuleViewWindow>();
 
             SetContext();
             SetPorts_Click(null, null);
@@ -37,8 +41,8 @@ namespace AH.Interfaces.Dashboard.Discovery
         {
             _context = new DiscoveryContext
             {
-                SendPort = 30,
-                ReceivePort = 31,
+                SendPort = 15555,
+                ReceivePort = 15556,
                 ModuleList = new ObservableCollection<DiscoveryModuleModel>()
             };
             DataContext = _context;
@@ -52,13 +56,15 @@ namespace AH.Interfaces.Dashboard.Discovery
                 _connection.Dispose();
             }
 
-            _connection = new UdpConnection(_context.SendPort, _context.ReceivePort);
+            _connection = new UdpConnection();
             _connection.OnUdpReceived += _connection_OnUdpReceived;
+            _connection.StartSender(_context.SendPort);
+            _connection.StartReceiver(_context.ReceivePort);
         }
 
         private void _connection_OnUdpReceived(IPAddress address, Message message)
         {
-            if (message.Port != 1 || message.Msg != 2)
+            if (message.Port != PortType.AutoHome || message.Msg != (byte)AutoHomeMessageType.Pong)
                 return;
 
             var content = message.ReadContent<PongResponse>();
@@ -93,7 +99,36 @@ namespace AH.Interfaces.Dashboard.Discovery
 
         private void Connect_Click(object sender, RoutedEventArgs e)
         {
+            try
+            {
+                if (dgModules.SelectedItems.Count != 1)
+                {
+                    throw new Exception("Need to select one module to connect!");
+                }
 
+                var module = dgModules.SelectedItem as DiscoveryModuleModel;
+
+                OpenWindowForUID(module);
+            }
+            catch (Exception err)
+            {
+                App.Instance.ErrorHandler(err);
+            }
+        }
+
+        private void OpenWindowForUID(DiscoveryModuleModel module)
+        {
+            if (_modules.ContainsKey(module.UID))
+            {
+                _modules[module.UID].Activate();
+            }
+            else
+            {
+                var newWindow = new ModuleView.ModuleViewWindow(_context.ReceivePort, module);
+                _modules.Add(module.UID, newWindow);
+                newWindow.Closed += new EventHandler((sender, e) => _modules.Remove(module.UID));
+                newWindow.Show();
+            }
         }
     }
 }

@@ -63,13 +63,29 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="BaseContext.cs" />
     <Compile Include="Discovery\DiscoveryContext.cs" />
     <Compile Include="Discovery\DiscoveryWindow.xaml.cs">
       <DependentUpon>DiscoveryWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="ModuleView\AutoHome\AutoHomePage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ModuleView\ModuleViewWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ModuleView\AutoHome\AutoHomeContext.cs" />
+    <Compile Include="ModuleView\AutoHome\AutoHomePage.xaml.cs">
+      <DependentUpon>AutoHomePage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ModuleView\ModuleViewWindow.xaml.cs">
+      <DependentUpon>ModuleViewWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -97,7 +113,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Framework\DOTnet\AH.Protocol.Library\AH.Protocol.Library.csproj">
-      <Project>{1688B16F-E5CE-4C0C-93DD-3DE64A235750}</Project>
+      <Project>{B4AA6E2C-9DFC-4DD8-83C5-CD9924C9148E}</Project>
       <Name>AH.Protocol.Library</Name>
     </ProjectReference>
   </ItemGroup>
