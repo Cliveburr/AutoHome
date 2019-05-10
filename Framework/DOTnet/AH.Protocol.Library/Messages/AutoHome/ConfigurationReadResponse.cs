@@ -10,7 +10,7 @@ namespace AH.Protocol.Library.Messages.AutoHome
     public class ConfigurationReadResponse : IContentMessage
     {
         public PortType Port { get; } = PortType.AutoHome;
-        public byte Msg { get; } = 4;
+        public byte Msg { get; } = (byte)AutoHomeMessageType.ConfigurationReadResponse;
         public string WifiName { get; set; }
         public string WifiPassword { get; set; }
         public string Alias { get; set; }

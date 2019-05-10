@@ -18,28 +18,24 @@ namespace AH.Interfaces.Dashboard.ModuleView
 {
     public partial class ModuleViewWindow : Window
     {
-        private DiscoveryModuleModel _module;
-        private TcpConnection _connection;
+        private ModuleViewConnector _connector;
 
-        public ModuleViewWindow(int port, DiscoveryModuleModel module)
+        public ModuleViewWindow(ModuleViewConnector connector)
         {
             InitializeComponent();
 
-            _module = module;
+            _connector = connector;
 
-            SetConnection(module.UID, port);
+            Config.ConfigFile.Load();
+
             SetFrames();
-        }
-
-        private void SetConnection(int UID, int port)
-        {
-            _connection = new TcpConnection(UID);
-            _connection.StartSender(port, System.Net.IPAddress.Parse(_module.Ip));
         }
 
         private void SetFrames()
         {
-            frAutoHome.Navigate(new AutoHome.AutoHomePage(_connection));
+            frAutoHome.Navigate(new AutoHome.AutoHomePage(_connector));
+            frFota.Navigate(new Fota.FotaPage(_connector));
+            frTempHumiSensor.Navigate(new TempHumiSensor.TempHumiSensorPage(_connector));
         }
 
         private void Window_Closed(object sender, EventArgs e)

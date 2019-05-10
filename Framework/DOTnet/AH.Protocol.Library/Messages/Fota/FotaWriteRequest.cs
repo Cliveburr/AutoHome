@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.IO;
 
 namespace AH.Protocol.Library.Messages.Fota
 {
     public class FotaWriteRequest : IContentMessage
     {
+        public static ushort ChunkSize { get; set; }
+
         public PortType Port { get; } = PortType.Fota;
-        public byte Msg { get; } = 4;
+        public byte Msg { get; } = (byte)FotaMessageType.WriteRequest;
         public byte[] Chunk { get; set; }
 
         public void Write(BinaryWriter stream)
@@ -20,7 +17,7 @@ namespace AH.Protocol.Library.Messages.Fota
 
         public void Read(BinaryReader stream)
         {
-            Chunk = stream.ReadBytes(1);
+            Chunk = stream.ReadBytes(ChunkSize);
         }
     }
 }

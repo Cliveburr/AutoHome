@@ -11,6 +11,14 @@
             <TabItem Header="AutoHome">
                 <Frame x:Name="frAutoHome" NavigationUIVisibility="Hidden"></Frame>
             </TabItem>
+            <TabItem Header="Fota">
+                <Frame x:Name="frFota" NavigationUIVisibility="Hidden"></Frame>
+            </TabItem>
+            <TabItem Header="RGBLedRibbon">
+            </TabItem>
+            <TabItem Header="TempHumiSensor">
+                <Frame x:Name="frTempHumiSensor" NavigationUIVisibility="Hidden"></Frame>
+            </TabItem>
         </TabControl>
     </Grid>
 </Window>

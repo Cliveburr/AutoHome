@@ -45,6 +45,7 @@
   <ItemGroup>
     <Compile Include="AutoHomePort.cs" />
     <Compile Include="AutoHomeSimulator.cs" />
+    <Compile Include="FotaPort.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

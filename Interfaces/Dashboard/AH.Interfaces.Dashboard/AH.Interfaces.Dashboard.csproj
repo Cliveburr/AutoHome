@@ -64,6 +64,8 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="BaseContext.cs" />
+    <Compile Include="Config\ConfigData.cs" />
+    <Compile Include="Config\ConfigFile.cs" />
     <Compile Include="Discovery\DiscoveryContext.cs" />
     <Compile Include="Discovery\DiscoveryWindow.xaml.cs">
       <DependentUpon>DiscoveryWindow.xaml</DependentUpon>
@@ -73,7 +75,15 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="ModuleView\Fota\FotaPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="ModuleView\ModuleViewWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ModuleView\TempHumiSensor\TempHumiSensorPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -83,8 +93,17 @@
     <Compile Include="ModuleView\AutoHome\AutoHomePage.xaml.cs">
       <DependentUpon>AutoHomePage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ModuleView\Fota\FotaContext.cs" />
+    <Compile Include="ModuleView\Fota\FotaPage.xaml.cs">
+      <DependentUpon>FotaPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ModuleView\ModuleViewConnector.cs" />
     <Compile Include="ModuleView\ModuleViewWindow.xaml.cs">
       <DependentUpon>ModuleViewWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ModuleView\TempHumiSensor\TempHumiSensorContext.cs" />
+    <Compile Include="ModuleView\TempHumiSensor\TempHumiSensorPage.xaml.cs">
+      <DependentUpon>TempHumiSensorPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>

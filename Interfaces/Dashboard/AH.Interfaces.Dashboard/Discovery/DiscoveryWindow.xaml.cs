@@ -56,7 +56,7 @@ namespace AH.Interfaces.Dashboard.Discovery
                 _connection.Dispose();
             }
 
-            _connection = new UdpConnection();
+            _connection = new UdpConnection(0);
             _connection.OnUdpReceived += _connection_OnUdpReceived;
             _connection.StartSender(_context.SendPort);
             _connection.StartReceiver(_context.ReceivePort);
@@ -89,7 +89,7 @@ namespace AH.Interfaces.Dashboard.Discovery
             try
             {
                 _context.ModuleList.Clear();
-                _connection.SendUdp(IPAddress.Broadcast, new Message(0, new PingRequest()));
+                _connection.Send(IPAddress.Broadcast, new PingRequest());
             }
             catch (Exception err)
             {
@@ -124,7 +124,13 @@ namespace AH.Interfaces.Dashboard.Discovery
             }
             else
             {
-                var newWindow = new ModuleView.ModuleViewWindow(_context.ReceivePort, module);
+                var newWindow = new ModuleView.ModuleViewWindow(new ModuleView.ModuleViewConnector
+                {
+                    UID = module.UID,
+                    SendPort = _context.SendPort,
+                    ReceivePort = _context.ReceivePort,
+                    Ip = module.Ip
+                });
                 _modules.Add(module.UID, newWindow);
                 newWindow.Closed += new EventHandler((sender, e) => _modules.Remove(module.UID));
                 newWindow.Show();

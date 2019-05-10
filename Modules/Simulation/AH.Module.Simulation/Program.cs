@@ -8,21 +8,20 @@ namespace AH.Module.Simulation
 {
     class Program
     {
-        public static byte UID { get; set; }
         public static AutoHomeSimulator Simulator { get; private set; }
 
         static void Main(string[] args)
         {
             Log("AutoHome Module Simulation");
 
-            UID = 6;
-            Log($"UID: {UID}");
-
             Simulator = new AutoHomeSimulator
             {
                 SendPort = 15556,
-                ReceivePort = 15555
+                ReceivePort = 15555,
+                UID = 6
             };
+
+            Log($"UID: {Simulator.UID}");
 
             Simulator.Start();
 

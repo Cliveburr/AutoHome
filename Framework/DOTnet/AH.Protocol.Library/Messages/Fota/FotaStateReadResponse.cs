@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.IO;
 
 namespace AH.Protocol.Library.Messages.Fota
 {
     public class FotaStateReadResponse : IContentMessage
     {
         public PortType Port { get; } = PortType.Fota;
-        public byte Msg { get; } = 2;
+        public byte Msg { get; } = (byte)FotaMessageType.StateReadResponse;
         public byte UserBin { get; set; }
         public ushort ChunkSize { get; set; }
 

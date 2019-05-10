@@ -1,4 +1,4 @@
-﻿using AH.Protocol.Library.Messages.AutoHome;
+﻿using AH.Protocol.Library.Messages.TempHumiSensor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,14 +14,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace AH.Interfaces.Dashboard.ModuleView.AutoHome
+namespace AH.Interfaces.Dashboard.ModuleView.TempHumiSensor
 {
-    public partial class AutoHomePage : Page
+    public partial class TempHumiSensorPage : Page
     {
         private ModuleViewConnector _connector;
-        private AutoHomeContext _context;
+        private TempHumiSensorContext _context;
 
-        public AutoHomePage(ModuleViewConnector connector)
+        public TempHumiSensorPage(ModuleViewConnector connector)
         {
             InitializeComponent();
 
@@ -32,9 +32,8 @@ namespace AH.Interfaces.Dashboard.ModuleView.AutoHome
 
         private void SetContext()
         {
-            _context = new AutoHomeContext
+            _context = new TempHumiSensorContext
             {
-                UID = _connector.UID
             };
             DataContext = _context;
         }
@@ -49,12 +48,12 @@ namespace AH.Interfaces.Dashboard.ModuleView.AutoHome
 
                     var content = receive.ReadContent<ConfigurationReadResponse>();
 
-                    _context.WifiName = content.WifiName;
-                    _context.RaiseNotify("WifiName");
-                    _context.WifiPassword = content.WifiPassword;
-                    _context.RaiseNotify("WifiPassword");
-                    _context.Alias = content.Alias;
-                    _context.RaiseNotify("Alias");
+                    _context.PointToOff = (int)content.PointToOff;
+                    _context.RaiseNotify("PointToOff");
+                    _context.PointToOn = (int)content.PointToOn;
+                    _context.RaiseNotify("PointToOn");
+                    _context.ReadInverval = (int)content.ReadInverval;
+                    _context.RaiseNotify("ReadInverval");
                 }
             }
             catch (Exception err)
@@ -71,9 +70,9 @@ namespace AH.Interfaces.Dashboard.ModuleView.AutoHome
                 {
                     tcp.Send(new ConfigurationSaveRequest
                     {
-                        WifiName = _context.WifiName,
-                        WifiPassword = _context.WifiPassword,
-                        Alias = _context.Alias
+                        PointToOff = (byte)_context.PointToOff,
+                        PointToOn = (byte)_context.PointToOn,
+                        ReadInverval = (ushort)_context.ReadInverval
                     });
                 }
             }
@@ -83,16 +82,22 @@ namespace AH.Interfaces.Dashboard.ModuleView.AutoHome
             }
         }
 
-        private void UID_Save_Click(object sender, RoutedEventArgs e)
+        private void OneShotRead_Click(object sender, RoutedEventArgs e)
         {
             try
             {
                 using (var tcp = _connector.OpenTcpConnection())
                 {
-                    tcp.Send(new UIDSaveRequest
-                    {
-                        UID = (byte)_context.UID
-                    });
+                    var receive = tcp.SendAndReceive(new OneShotReadRequest());
+
+                    var content = receive.ReadContent<OneShotReadResponse>();
+
+                    _context.OneShotTemperature = (int)content.Temperature;
+                    _context.RaiseNotify("OneShotTemperature");
+                    _context.OneShotHumidity = (int)content.Humidity;
+                    _context.RaiseNotify("OneShotHumidity");
+                    _context.RelayState = content.RelayState == 1 ? "Open" : "Closed";
+                    _context.RaiseNotify("RelayState");
                 }
             }
             catch (Exception err)

@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.IO;
 
 namespace AH.Protocol.Library.Messages.Fota
 {
     public class FotaStartRequest : IContentMessage
     {
         public PortType Port { get; } = PortType.Fota;
-        public byte Msg { get; } = 3;
+        public byte Msg { get; } = (byte)FotaMessageType.StartRequest;
         public uint FileSize { get; set; }
 
         public void Write(BinaryWriter stream)

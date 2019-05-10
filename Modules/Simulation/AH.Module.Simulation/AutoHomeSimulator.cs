@@ -16,75 +16,69 @@ namespace AH.Module.Simulation
     {
         public int SendPort { get; set; }
         public int ReceivePort { get; set; }
+        public int UID { get; set; }
         public UdpConnection UdpConnection { get; private set; }
         public TcpConnection TcpConnection { get; private set; }
 
-        private async void ReceiveTcp()
-        {
-            var listener = new TcpListener(IPAddress.Any, SendPort);
-            listener.Start();
-            var clientTasks = new TaskFactory();
-
-            while (true)
-            {
-                var client = await listener.AcceptTcpClientAsync();
-
-                var clientTask = clientTasks.StartNew(ReceiveTcpClient, client);
-            }
-        }
-
         public void Start()
         {
-            UdpConnection = new UdpConnection();
-            UdpConnection.OnUdpReceived += _udpConnection_OnUdpReceived;
+            UdpConnection = new UdpConnection(UID);
+            UdpConnection.OnUdpReceived += UdpConnection_OnUdpReceived;
             UdpConnection.StartSender(SendPort);
             UdpConnection.StartReceiver(ReceivePort);
 
-            TcpConnection = new TcpConnection();
+            TcpConnection = new TcpConnection(UID);
             TcpConnection.OnTcpReceived += TcpConnection_OnTcpReceived;
             TcpConnection.StartReceiver(SendPort);
         }
 
         private void TcpConnection_OnTcpReceived(TcpClient client, Message message)
         {
-        }
+            Program.Log("Tcp Received");
 
-        private void _udpConnection_OnUdpReceived(IPAddress address, Message message)
-        {
-            Program.Log("Udp Received");
+            IContentMessage response = null;
 
             switch (message.Port)
             {
-                case PortType.AutoHome: AutoHomePort.Instance.OnUdpReceived(address, message); break;
+                case PortType.AutoHome: response = AutoHomePort.Instance.OnTcpReceived(message); break;
+                case PortType.Fota: response = FotaPort.Instance.OnTcpReceived(message); break;
+            }
+
+            if (response != null)
+            {
+                var msgResponse = new Message((byte)UID, response);
+                var buffer = msgResponse.GetBytes();
+                client.Client.Send(buffer, buffer.Length, SocketFlags.None);
             }
         }
 
-        private void ReceiveTcpClient(object obj)
+        private void UdpConnection_OnUdpReceived(IPAddress address, Message message)
         {
-            //var tcp = obj as TcpClient;
-            ////var stream = tcp.GetStream();
+            Program.Log("Udp Received");
 
-            //while (tcp.Connected)
-            //{
-            //    using (var mem = new MemoryStream())
-            //    using (var writer = new BinaryWriter(mem))
-            //    {
-            //        do
-            //        {
-            //            var receiveBuffer = new byte[1024];
-            //            var received = tcp.Client.Receive(receiveBuffer, SocketFlags.None);
-            //            writer.Write(receiveBuffer, 0, received);
-            //        } while (tcp.Available > 0);
-            //        var buffer = mem.ToArray();
-            //        if (buffer.Length > 0)
-            //            OnTcpReceived?.Invoke(tcp, new Message(buffer));
-            //    }
-            //}
+            IContentMessage response = null;
+
+            switch (message.Port)
+            {
+                case PortType.AutoHome: response = AutoHomePort.Instance.OnUdpReceived(message); break;
+            }
+
+            if (response != null)
+            {
+                Program.Simulator.UdpConnection.Send(address, response);
+            }
+        }
+
+        public void ChangeUID(int UID)
+        {
+            UdpConnection.UID = UID;
+            TcpConnection.UID = UID;
         }
 
         public void Dispose()
         {
-            //_tcpReceive.Dispose();
+            UdpConnection?.Dispose();
+            TcpConnection?.Dispose();
         }
     }
 }

@@ -32,7 +32,7 @@ namespace AH.Protocol.Library.Connection
         public TcpConnection(int uid)
         {
             UID = uid;
-            MaxMessageSize = 1024;
+            MaxMessageSize = 2048;
         }
 
         public void StartSender(int port, IPAddress address)
@@ -68,7 +68,7 @@ namespace AH.Protocol.Library.Connection
                     data.TcpClient.Client.BeginReceive(data.Buffer, 0, data.Buffer.Length, SocketFlags.None, Receive, data);
                 }
             }
-            catch
+            catch (Exception err)
             {
             }
             finally
@@ -86,11 +86,9 @@ namespace AH.Protocol.Library.Connection
                 if (bytes > 0)
                 {
                     OnTcpReceived?.Invoke(data.TcpClient, new Message(data.Buffer));
-
-                    data.TcpClient.Client.BeginReceive(data.Buffer, 0, data.Buffer.Length, SocketFlags.None, Receive, data);
                 }
             }
-            catch
+            catch (Exception err)
             {
             }
             finally
@@ -112,14 +110,24 @@ namespace AH.Protocol.Library.Connection
             catch { }
         }
 
-        public void Send(Message message)
+        public void Send(IContentMessage content)
+        {
+            Send(new Message((byte)UID, content));
+        }
+
+        private void Send(Message message)
         {
             var buffer = message.GetBytes();
 
             _send.Client.Send(buffer, buffer.Length, SocketFlags.None);
         }
 
-        public Message SendAndReceive(Message message)
+        public Message SendAndReceive(IContentMessage content)
+        {
+            return SendAndReceive(new Message((byte)UID, content));
+        }
+
+        private Message SendAndReceive(Message message)
         {
             var buffer = message.GetBytes();
 
@@ -133,7 +141,7 @@ namespace AH.Protocol.Library.Connection
             {
                 do
                 {
-                    var receiveBuffer = new byte[1024];
+                    var receiveBuffer = new byte[MaxMessageSize];
                     var received = _send.Client.Receive(receiveBuffer, SocketFlags.None);
                     writer.Write(receiveBuffer, 0, received);
                 } while (_send.Available > 0);

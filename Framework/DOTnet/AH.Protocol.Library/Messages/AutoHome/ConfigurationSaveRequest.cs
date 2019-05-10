@@ -10,7 +10,7 @@ namespace AH.Protocol.Library.Messages.AutoHome
     public class ConfigurationSaveRequest : IContentMessage
     {
         public PortType Port { get; } = PortType.AutoHome;
-        public byte Msg { get; } = 5;
+        public byte Msg { get; } = (byte)AutoHomeMessageType.ConfigurationSaveRequest;
         public string WifiName { get; set; }
         public string WifiPassword { get; set; }
         public string Alias { get; set; }

@@ -10,6 +10,10 @@ namespace AH.Protocol.Library.Messages.AutoHome
     {
         Unkown = 0,
         Ping = 1,
-        Pong = 2
+        Pong = 2,
+        ConfigurationReadRequest = 3,
+        ConfigurationReadResponse = 4,
+        ConfigurationSaveRequest = 5,
+        UIDSaveRequest = 6
     }
 }

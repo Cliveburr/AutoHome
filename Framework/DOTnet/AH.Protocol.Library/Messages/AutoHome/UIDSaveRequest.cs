@@ -10,7 +10,7 @@ namespace AH.Protocol.Library.Messages.AutoHome
     public class UIDSaveRequest : IContentMessage
     {
         public PortType Port { get; } = PortType.AutoHome;
-        public byte Msg { get; } = 6;
+        public byte Msg { get; } = (byte)AutoHomeMessageType.UIDSaveRequest;
         public byte UID { get; set; }
 
         public void Write(BinaryWriter stream)

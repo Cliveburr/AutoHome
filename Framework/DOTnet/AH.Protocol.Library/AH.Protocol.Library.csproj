@@ -57,8 +57,15 @@
     <Compile Include="Messages\Fota\FotaStateReadResponse.cs" />
     <Compile Include="Messages\Fota\FotaWriteRequest.cs" />
     <Compile Include="Messages\Fota\FotaWriteResponse.cs" />
+    <Compile Include="Messages\Fota\FotaMessageType.cs" />
     <Compile Include="Messages\PortType.cs" />
     <Compile Include="Messages\RGBLedRibbon\RGBLedRibbon.cs" />
+    <Compile Include="Messages\TempHumiSensor\ConfigurationReadRequest.cs" />
+    <Compile Include="Messages\TempHumiSensor\ConfigurationReadResponse.cs" />
+    <Compile Include="Messages\TempHumiSensor\ConfigurationSaveRequest.cs" />
+    <Compile Include="Messages\TempHumiSensor\OneShotReadRequest.cs" />
+    <Compile Include="Messages\TempHumiSensor\OneShotReadResponse.cs" />
+    <Compile Include="Messages\TempHumiSensor\TempHumiSensorMessageType.cs" />
     <Compile Include="ModuleType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

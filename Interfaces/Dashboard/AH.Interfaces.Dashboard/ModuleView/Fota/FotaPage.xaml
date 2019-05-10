@@ -1,0 +1,39 @@
+﻿<Page x:Class="AH.Interfaces.Dashboard.ModuleView.Fota.FotaPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:AH.Interfaces.Dashboard.ModuleView.Fota"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="FotaPage" Background="#FFE5E5E5">
+    <DockPanel>
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
+            <Button Margin="5" Width="100" Click="Read_Click">Read</Button>
+            <Button Margin="5" Width="100" Click="Flash_Click">Flash</Button>
+        </StackPanel>
+        <GroupBox DockPanel.Dock="Top" Header="State">
+            <StackPanel Orientation="Horizontal">
+                <Label Margin="5">Next User:</Label>
+                <TextBox Margin="5" Width="100" IsReadOnly="True" Text="{Binding NextUser}"></TextBox>
+            </StackPanel>
+        </GroupBox>
+        <GroupBox DockPanel.Dock="Bottom" Header="Progress">
+            <ProgressBar x:Name="pbFotaWrite" Margin="5" Minimum="0" Height="20"  />
+        </GroupBox>
+        <GroupBox DockPanel.Dock="Top" Header="User files:">
+            <StackPanel>
+                <DockPanel x:Name="dpUser1" IsEnabled="False">
+                    <Label DockPanel.Dock="Left" Margin="5">User 1 bin:</Label>
+                    <Button DockPanel.Dock="Right" Margin="5" Width="100" Click="Fota_User1Select_Click">Select</Button>
+                    <TextBox Margin="5" Text="{Binding User1bin}"></TextBox>
+                </DockPanel>
+                <DockPanel x:Name="dpUser2" IsEnabled="False">
+                    <Label DockPanel.Dock="Left" Margin="5">User 2 bin:</Label>
+                    <Button DockPanel.Dock="Right" Margin="5" Width="100" Click="Fota_User2Select_Click">Select</Button>
+                    <TextBox Margin="5" Text="{Binding User2bin}"></TextBox>
+                </DockPanel>
+            </StackPanel>
+        </GroupBox>
+    </DockPanel>
+</Page>

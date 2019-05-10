@@ -10,7 +10,7 @@ namespace AH.Protocol.Library.Messages.Fota
     public class FotaWriteResponse : IContentMessage
     {
         public PortType Port { get; } = PortType.Fota;
-        public byte Msg { get; } = 5;
+        public byte Msg { get; } = (byte)FotaMessageType.WriteResponse;
         public bool IsOver { get; set; }
 
         public void Read(BinaryReader stream)

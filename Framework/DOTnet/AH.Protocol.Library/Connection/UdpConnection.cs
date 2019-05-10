@@ -15,9 +15,15 @@ namespace AH.Protocol.Library.Connection
 
         public int SendPort { get; private set; }
         public int ReceivePort { get; private set; }
+        public int UID { get; set; }
 
         private UdpClient _send;
         private UdpClient _receive;
+
+        public UdpConnection(int uid)
+        {
+            UID = uid;
+        }
 
         public void StartSender(int port)
         {
@@ -69,7 +75,12 @@ namespace AH.Protocol.Library.Connection
             catch { }
         }
 
-        public void SendUdp(IPAddress address, Message message)
+        public void Send(IPAddress address, IContentMessage content)
+        {
+            Send(address, new Message((byte)UID, content));
+        }
+
+        private void Send(IPAddress address, Message message)
         {
             var buffer = message.GetBytes();
 

@@ -11,6 +11,6 @@ namespace AH.Interfaces.Dashboard.ModuleView.AutoHome
         public string WifiName { get; set; }
         public string WifiPassword { get; set; }
         public string Alias { get; set; }
-        public string UID { get; set; }
+        public int UID { get; set; }
     }
 }
