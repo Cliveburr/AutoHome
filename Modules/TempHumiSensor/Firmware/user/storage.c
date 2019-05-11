@@ -5,6 +5,8 @@
 #include "storage.h"
 #include "user_config.h"
 
+uint8_t lastPos;
+
 ICACHE_FLASH_ATTR
 void storage_save(void)
 {
@@ -38,7 +40,7 @@ void storage_save(void)
                 pos = 0;
 
             #ifdef DEBUG
-                os_printf("save config.storage_id = %d into pos %u\n", config.id, pos);
+                os_printf("save config.storage_id = %d into pos %u\n", config.storage_id, pos);
             #endif
             spi_flash_erase_sector(CONFIG_START_SEC + pos);
             spi_flash_write((CONFIG_START_SEC + pos) * SPI_FLASH_SEC_SIZE, (uint32*)&config, sizeof(struct ConfigStruct));

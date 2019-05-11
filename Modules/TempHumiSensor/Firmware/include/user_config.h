@@ -14,9 +14,6 @@ struct ConfigStruct {
     uint8 net_ssid[32];
     uint8 net_password[64];
     uint8 alias[30];
-    //uint8 net_mode;
-    //uint8 valid_api_address;
-    //uint8 api_address[4];
 } config;
 /* *** end storage config *** */
 
