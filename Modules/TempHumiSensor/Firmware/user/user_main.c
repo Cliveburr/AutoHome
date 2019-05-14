@@ -5,23 +5,19 @@
 
 #include "user_config.h"
 #include "autohome.h"
-#include "storage.h"
 #include "net.h"
 //#include "temphumisensor.h"
 
-#define SYSTEM_PARTITION_OTA_SIZE							0x6A000
-#define SYSTEM_PARTITION_OTA_2_ADDR							0x101000
-#define SYSTEM_PARTITION_RF_CAL_ADDR						0x3fb000
-#define SYSTEM_PARTITION_PHY_DATA_ADDR						0x3fc000
-#define SYSTEM_PARTITION_SYSTEM_PARAMETER_ADDR				0x3fd000
-
 static const partition_item_t at_partition_table[] = {
     { SYSTEM_PARTITION_BOOTLOADER, 						0x0, 												0x1000},
-    { SYSTEM_PARTITION_OTA_1,   						0x1000, 											SYSTEM_PARTITION_OTA_SIZE},
-    { SYSTEM_PARTITION_OTA_2,   						SYSTEM_PARTITION_OTA_2_ADDR, 						SYSTEM_PARTITION_OTA_SIZE},
-    { SYSTEM_PARTITION_RF_CAL,  						SYSTEM_PARTITION_RF_CAL_ADDR, 						0x1000},
-    { SYSTEM_PARTITION_PHY_DATA, 						SYSTEM_PARTITION_PHY_DATA_ADDR, 					0x1000},
-    { SYSTEM_PARTITION_SYSTEM_PARAMETER, 				SYSTEM_PARTITION_SYSTEM_PARAMETER_ADDR, 			0x3000},
+    { SYSTEM_PARTITION_OTA_1,   						0x1000, 											0x6A000},
+    { SYSTEM_PARTITION_OTA_2,   						0x81000,                     						0x6A000},
+    { SYSTEM_PARTITION_RF_CAL,  						0x6B000,                     						0x1000},
+    { SYSTEM_PARTITION_PHY_DATA, 						0x6C000,                         					0x1000},
+    { SYSTEM_PARTITION_SYSTEM_PARAMETER, 				0x6D000,                                 			0x3000},
+    { SYSTEM_PARTITION_CUSTOMER_BEGIN + 0,              0x70000,                                            0x1000},
+    { SYSTEM_PARTITION_CUSTOMER_BEGIN + 1,              0x71000,                                            0x1000},
+    { SYSTEM_PARTITION_CUSTOMER_BEGIN + 2,              0xEB000,                                            0x315000}
 };
 
 void init_done(void);
@@ -92,8 +88,6 @@ void set_net(void)
 ICACHE_FLASH_ATTR
 void init_done(void)
 {
-    storage_load();
-
     init_pins();
 
 	autohome_init();

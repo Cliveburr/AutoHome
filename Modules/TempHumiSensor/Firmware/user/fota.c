@@ -4,11 +4,9 @@
 #include "osapi.h"
 #include "mem.h"
 #include "upgrade.h"
+
 #include "user_config.h"
-#include "autohome.h"
 #include "fota.h"
-#include "net.h"
-#include "led_ribbon.h"
 
 /*
 	Messages id
@@ -35,7 +33,7 @@ void fota_state_read(struct espconn* pesp_conn)
 	#endif
 
 	unsigned char* buffer = (unsigned char*)os_zalloc(6);
-	buffer[0] = MYUID;
+	buffer[0] = config.uid;
 	buffer[1] = 2;    // fota port
 	buffer[2] = 2;    // fota_state_read response
 
@@ -75,6 +73,7 @@ void fota_start(char* data)
 	system_upgrade_flag_set(UPGRADE_FLAG_START);
 }
 
+ICACHE_FLASH_ATTR
 void fotaReboot(void) {
 	stop_all();
 	ledRibbon_set_off();
@@ -95,22 +94,25 @@ void fota_write(struct espconn* pesp_conn, char* data)
 	uint16 tlength = 0;
 	uint16 left = 0;
 
-	if (upgrade_buffer_length + length > SPI_FLASH_SEC_SIZE) {
+	if (upgrade_buffer_length + length > SPI_FLASH_SEC_SIZE)
+	{
 		tlength = SPI_FLASH_SEC_SIZE - upgrade_buffer_length;
 		left = length - tlength;
 
 		os_memcpy(upgrade_buffer + upgrade_buffer_length, data, tlength);
 		upgrade_buffer_length += tlength;
 	}
-	else {
+	else
+	{
 		os_memcpy(upgrade_buffer + upgrade_buffer_length, data, length);
 		upgrade_buffer_length += length;
 	}
 
-	if (upgrade_buffer_length == SPI_FLASH_SEC_SIZE) {
-#ifdef DEBUG
-		os_printf("fotaWrite sector: %u bytes for %u sector\n", upgrade_buffer_length, upgrade_sector);
-#endif
+	if (upgrade_buffer_length == SPI_FLASH_SEC_SIZE)
+	{
+		#ifdef DEBUG
+			os_printf("fotaWrite sector: %u bytes for %u sector\n", upgrade_buffer_length, upgrade_sector);
+		#endif
 
 		spi_flash_erase_sector(upgrade_sector);
 		spi_flash_write(upgrade_sector * SPI_FLASH_SEC_SIZE, (uint32*)upgrade_buffer, SPI_FLASH_SEC_SIZE);
@@ -120,22 +122,25 @@ void fota_write(struct espconn* pesp_conn, char* data)
 		upgrade_buffer_length = 0;
 	}
 
-	if (left > 0) {
+	if (left > 0)
+	{
 		os_memcpy(upgrade_buffer, data + tlength, left);
 		upgrade_buffer_length += left;
 	}
 
 	upgrade_length -= length;
 	unsigned char* responseBuffer = (unsigned char*)os_zalloc(4);
-	responseBuffer[0] = MYUID;
+	responseBuffer[0] = config.uid;
 	responseBuffer[1] = 2;    // fota port
 	responseBuffer[2] = 5;    // fota_write response
 
-	if (upgrade_length == 0) {
-		if (upgrade_buffer_length > 0) {
-#ifdef DEBUG
-			os_printf("fotaWrite sector end: %u bytes for %u sector\n", upgrade_buffer_length, upgrade_sector);
-#endif
+	if (upgrade_length == 0)
+	{
+		if (upgrade_buffer_length > 0)
+		{
+			#ifdef DEBUG
+				os_printf("fotaWrite sector end: %u bytes for %u sector\n", upgrade_buffer_length, upgrade_sector);
+			#endif
 
 			spi_flash_erase_sector(upgrade_sector);
 			spi_flash_write(upgrade_sector * SPI_FLASH_SEC_SIZE, (uint32*)upgrade_buffer, SPI_FLASH_SEC_SIZE);
@@ -150,7 +155,8 @@ void fota_write(struct espconn* pesp_conn, char* data)
 		os_timer_setfn(&client_timer, (os_timer_func_t*)fotaReboot, NULL);
 		os_timer_arm(&client_timer, 1000, 0);
 	}
-	else {
+	else
+	{
 		responseBuffer[3] = 0;
 		espconn_sent(pesp_conn, responseBuffer, 3);
 	}

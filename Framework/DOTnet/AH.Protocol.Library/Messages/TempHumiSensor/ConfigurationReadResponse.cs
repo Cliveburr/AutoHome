@@ -11,24 +11,42 @@ namespace AH.Protocol.Library.Messages.TempHumiSensor
     {
         public PortType Port { get; } = PortType.TempHumiSensor;
         public byte Msg { get; } = (byte)TempHumiSensorMessageType.ConfigurationReadResponse;
-        public byte PointToOff { get; set; }
-        public byte PointToOn { get; set; }
+        public byte GeneralConfig { get; set; }
+        public int GeneralConfig_Interval = 0;
+        public int GeneralConfig_Temperature = 1;
+        public int GeneralConfig_Humidity = 2;
+        public byte TempPointToOff { get; set; }
+        public byte TempPointToOn { get; set; }
+        public byte HumiPointToOff { get; set; }
+        public byte HumiPointToOn { get; set; }
         public ushort ReadInverval { get; set; }
 
         public void Read(BinaryReader stream)
         {
-            PointToOff = stream.ReadByte();
+            GeneralConfig = stream.ReadByte();
 
-            PointToOn = stream.ReadByte();
+            TempPointToOff = stream.ReadByte();
+
+            TempPointToOn = stream.ReadByte();
+
+            HumiPointToOff = stream.ReadByte();
+
+            HumiPointToOn = stream.ReadByte();
 
             ReadInverval = stream.ReadUInt16();
         }
 
         public void Write(BinaryWriter stream)
         {
-            stream.Write(PointToOff);
+            stream.Write(GeneralConfig);
 
-            stream.Write(PointToOn);
+            stream.Write(TempPointToOff);
+
+            stream.Write(TempPointToOn);
+
+            stream.Write(HumiPointToOff);
+
+            stream.Write(HumiPointToOn);
 
             stream.Write(ReadInverval);
         }

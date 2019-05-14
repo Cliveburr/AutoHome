@@ -23,6 +23,7 @@
                         <RowDefinition />
                         <RowDefinition />
                         <RowDefinition />
+                        <RowDefinition />
                     </Grid.RowDefinitions>
 
                     <Label Margin="5" Grid.Column="0" Grid.Row="0">Wifie Name:</Label>
@@ -33,6 +34,9 @@
 
                     <Label Margin="5" Grid.Column="0" Grid.Row="2">Alias:</Label>
                     <TextBox Margin="5" Grid.Column="1" Grid.Row="2" Text="{Binding Alias}"></TextBox>
+
+                    <Label Margin="5" Grid.Column="0" Grid.Row="3">Category:</Label>
+                    <TextBox Margin="5" Grid.Column="1" Grid.Row="3" Text="{Binding Category}"></TextBox>
                 </Grid>
             </DockPanel>
         </GroupBox>

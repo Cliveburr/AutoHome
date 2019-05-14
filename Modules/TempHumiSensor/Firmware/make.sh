@@ -18,7 +18,7 @@ spi_speed=40
 
 spi_mode=QIO
 
-spi_size_map=6
+spi_size_map=4
 
 echo ""
 echo "start..."

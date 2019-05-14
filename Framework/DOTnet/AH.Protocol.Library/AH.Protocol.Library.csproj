@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="Connection\TcpConnection.cs" />
     <Compile Include="Connection\UdpConnection.cs" />
+    <Compile Include="Helpers\BitFields.cs" />
     <Compile Include="IContentMessage.cs" />
     <Compile Include="Message.cs" />
     <Compile Include="Messages\AutoHome\AutoHomeMessageType.cs" />

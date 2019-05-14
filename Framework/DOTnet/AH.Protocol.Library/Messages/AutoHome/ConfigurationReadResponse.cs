@@ -14,6 +14,7 @@ namespace AH.Protocol.Library.Messages.AutoHome
         public string WifiName { get; set; }
         public string WifiPassword { get; set; }
         public string Alias { get; set; }
+        public string Category { get; set; }
 
         public void Write(BinaryWriter stream)
         {
@@ -25,6 +26,9 @@ namespace AH.Protocol.Library.Messages.AutoHome
 
             stream.Write((byte)Alias.Length);
             stream.Write(Encoding.UTF8.GetBytes(Alias));
+
+            stream.Write((byte)Category.Length);
+            stream.Write(Encoding.UTF8.GetBytes(Category));
         }
 
         public void Read(BinaryReader stream)
@@ -37,6 +41,9 @@ namespace AH.Protocol.Library.Messages.AutoHome
 
             var aliasLen = (int)stream.ReadByte();
             Alias = Encoding.UTF8.GetString(stream.ReadBytes(aliasLen));
+
+            var categoryLen = (int)stream.ReadByte();
+            Category = Encoding.UTF8.GetString(stream.ReadBytes(categoryLen));
         }
     }
 }

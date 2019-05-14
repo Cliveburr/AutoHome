@@ -1,7 +1,10 @@
 #include "osapi.h"
 #include "user_interface.h"
 #include "mem.h"
+
 #include "user_config.h"
+#include "storage.h"
+#include "fota.h"
 #include "autohome.h"
 //#include "temphumisensor.h"
 
@@ -63,7 +66,8 @@ void configuration_read(struct espconn* pesp_conn)
 	uint8 wifiNameLen = os_strlen(config.net_ssid);
 	uint8 wifiPassLen = os_strlen(config.net_password);
 	uint8 aliasLen = os_strlen(config.alias);
-	uint8 totalBuffer = 3 + 3 + wifiNameLen + wifiPassLen + aliasLen;
+	uint8 categoryLen = os_strlen(config.category);
+	uint8 totalBuffer = 3 + 3 + wifiNameLen + wifiPassLen + aliasLen + categoryLen;
 
 	uint8* buffer = (uint8*)os_zalloc(totalBuffer);
 	buffer[0] = config.uid;
@@ -82,6 +86,10 @@ void configuration_read(struct espconn* pesp_conn)
 
 	buffer[pos++] = aliasLen;
 	os_memcpy(&buffer[pos], config.alias, aliasLen);
+	pos += aliasLen;
+
+	buffer[pos++] = categoryLen;
+	os_memcpy(&buffer[pos], config.category, categoryLen);
 
 	espconn_sent(pesp_conn, buffer, totalBuffer);
 	os_free(buffer);
@@ -109,6 +117,11 @@ void configuration_save(char* data)
 	uint8 aliasLen = data[pos++];
 	os_memset(config.alias, 0, 30);
 	os_memcpy(config.alias, &data[pos], aliasLen);
+	pos += aliasLen;
+
+	uint8 categoryLen = data[pos++];
+	os_memset(config.category, 0, 256);
+	os_memcpy(config.category, &data[pos], categoryLen);	
 
 	storage_save();
 }
@@ -166,10 +179,15 @@ void autohome_init(void)
 {
     #ifdef DEBUG
         os_printf("autohome_init...\n");
-		os_printf("config.uid = %d\n", config.uid);
 	#endif
 
+    storage_load();
+
 	check_config();
+
+    #ifdef DEBUG
+		os_printf("config.uid = %d\n", config.uid);
+	#endif
 }
 
 ICACHE_FLASH_ATTR
@@ -198,6 +216,6 @@ void autohome_tcp_recv(struct espconn* pesp_conn, char* data)
 	uint8 port = data[1];
 	switch (port) {
 		case 1: autohome_tcp_handler(pesp_conn, &data[2]); break;
-		//case 2: fota_tcp_handler(pesp_conn, &data[2]); break;
+		case 2: fota_tcp_handler(pesp_conn, &data[2]); break;
 	}
 }

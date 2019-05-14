@@ -48,12 +48,12 @@ namespace AH.Interfaces.Dashboard.ModuleView.TempHumiSensor
 
                     var content = receive.ReadContent<ConfigurationReadResponse>();
 
-                    _context.PointToOff = (int)content.PointToOff;
-                    _context.RaiseNotify("PointToOff");
-                    _context.PointToOn = (int)content.PointToOn;
-                    _context.RaiseNotify("PointToOn");
-                    _context.ReadInverval = (int)content.ReadInverval;
-                    _context.RaiseNotify("ReadInverval");
+                    //_context.PointToOff = (int)content.PointToOff;
+                    //_context.RaiseNotify("PointToOff");
+                    //_context.PointToOn = (int)content.PointToOn;
+                    //_context.RaiseNotify("PointToOn");
+                    //_context.ReadInverval = (int)content.ReadInverval;
+                    //_context.RaiseNotify("ReadInverval");
                 }
             }
             catch (Exception err)
@@ -70,9 +70,9 @@ namespace AH.Interfaces.Dashboard.ModuleView.TempHumiSensor
                 {
                     tcp.Send(new ConfigurationSaveRequest
                     {
-                        PointToOff = (byte)_context.PointToOff,
-                        PointToOn = (byte)_context.PointToOn,
-                        ReadInverval = (ushort)_context.ReadInverval
+                        //PointToOff = (byte)_context.PointToOff,
+                        //PointToOn = (byte)_context.PointToOn,
+                        //ReadInverval = (ushort)_context.ReadInverval
                     });
                 }
             }
@@ -103,6 +103,19 @@ namespace AH.Interfaces.Dashboard.ModuleView.TempHumiSensor
             catch (Exception err)
             {
                 App.Instance.ErrorHandler(err);
+            }
+        }
+
+        private void ToggleButton_ChangeText(object sender, RoutedEventArgs e)
+        {
+            var button = sender as System.Windows.Controls.Primitives.ToggleButton;
+            if (button.IsChecked ?? false)
+            {
+                button.Content = "Deactive";
+            }
+            else
+            {
+                button.Content = "Active";
             }
         }
     }

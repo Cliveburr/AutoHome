@@ -55,6 +55,8 @@ namespace AH.Interfaces.Dashboard.ModuleView.AutoHome
                     _context.RaiseNotify("WifiPassword");
                     _context.Alias = content.Alias;
                     _context.RaiseNotify("Alias");
+                    _context.Category = content.Category;
+                    _context.RaiseNotify("Category");
                 }
             }
             catch (Exception err)
@@ -73,7 +75,8 @@ namespace AH.Interfaces.Dashboard.ModuleView.AutoHome
                     {
                         WifiName = _context.WifiName,
                         WifiPassword = _context.WifiPassword,
-                        Alias = _context.Alias
+                        Alias = _context.Alias,
+                        Category = _context.Category
                     });
                 }
             }
