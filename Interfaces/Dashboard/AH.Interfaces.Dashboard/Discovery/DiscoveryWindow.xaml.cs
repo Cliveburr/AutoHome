@@ -41,8 +41,8 @@ namespace AH.Interfaces.Dashboard.Discovery
         {
             _context = new DiscoveryContext
             {
-                SendPort = 15555,
-                ReceivePort = 15556,
+                SendPort = 15556,
+                ReceivePort = 15555,
                 ModuleList = new ObservableCollection<DiscoveryModuleModel>()
             };
             DataContext = _context;

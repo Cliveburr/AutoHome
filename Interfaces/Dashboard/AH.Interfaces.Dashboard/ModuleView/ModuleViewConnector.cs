@@ -17,7 +17,7 @@ namespace AH.Interfaces.Dashboard.ModuleView
         public TcpConnection OpenTcpConnection()
         {
             var tcp = new TcpConnection(UID);
-            tcp.StartSender(ReceivePort, System.Net.IPAddress.Parse(Ip));
+            tcp.StartSender(SendPort, System.Net.IPAddress.Parse(Ip));
             return tcp;
         }
     }

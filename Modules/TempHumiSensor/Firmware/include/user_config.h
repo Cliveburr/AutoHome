@@ -11,6 +11,7 @@
 struct ConfigStruct {
     uint8 uid;
 	uint16 storage_id;
+    uint8 checksum;
     uint8 net_ssid[32];
     uint8 net_password[64];
     uint8 alias[30];
@@ -22,5 +23,10 @@ struct ConfigStruct {
 #define VERSION_LOW        1
 #define MODULE_TYPE        2    // TempHumiSensor = 2
 /* *** end auto_home config *** */
+
+/* *** net config *** */
+#define MOD_SEND_PORT       15555
+#define MOD_RECV_PORT       15556
+/* *** end net config *** */
 
 #endif

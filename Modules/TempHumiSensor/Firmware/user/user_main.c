@@ -6,6 +6,7 @@
 #include "user_config.h"
 #include "autohome.h"
 #include "storage.h"
+#include "net.h"
 //#include "temphumisensor.h"
 
 #define SYSTEM_PARTITION_OTA_SIZE							0x6A000
@@ -49,13 +50,57 @@ void user_init(void)
 }
 
 ICACHE_FLASH_ATTR
+void init_pins(void)
+{
+    #ifdef DEBUG
+        os_printf("init_pins...\n");
+    #endif
+
+    // GPIO 14 - Red Signal
+    // redPin.pin = 14;
+    // PIN_FUNC_SELECT(PERIPHS_IO_MUX_MTMS_U, FUNC_GPIO14);
+
+    // GPIO 4 - Blue Signal
+    // bluePin.pin = 4;
+    // PIN_FUNC_SELECT(PERIPHS_IO_MUX_MTDI_U, FUNC_GPIO4);
+
+    // GPIO 5 - Green Signal
+    // greenPin.pin = 5;
+    // PIN_FUNC_SELECT(PERIPHS_IO_MUX_MTDI_U, FUNC_GPIO5);
+
+    // GPIO 13 - Wifi Mode
+    PIN_FUNC_SELECT(PERIPHS_IO_MUX_MTCK_U, FUNC_GPIO13);
+    PIN_PULLUP_EN(PERIPHS_IO_MUX_MTCK_U);
+
+    // GPIO 12 - Switch Signal
+    // PIN_FUNC_SELECT(PERIPHS_IO_MUX_MTDI_U, FUNC_GPIO12);
+}
+
+ICACHE_FLASH_ATTR
+void set_net(void)
+{
+    uint8 start_mode = GPIO_INPUT_GET(13);
+
+    if (start_mode) {
+        net_start_station();
+    }
+    else {
+        net_start_accesspoint();
+    }
+}
+
+ICACHE_FLASH_ATTR
 void init_done(void)
 {
     storage_load();
 
-    //temphumisensor_init();
+    init_pins();
 
 	autohome_init();
+
+    //temphumisensor_init();
+
+    set_net();
 }
 
 

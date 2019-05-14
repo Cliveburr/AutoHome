@@ -1,8 +1,8 @@
-//#include "c_types.h"
-//#include "user_interface.h"
-//#include "espconn.h"
-//#include "osapi.h"
-//#include "mem.h"
+#include "c_types.h"
+#include "user_interface.h"
+#include "espconn.h"
+#include "osapi.h"
+#include "mem.h"
 #include "user_config.h"
 #include "net.h"
 #include "autohome.h"
@@ -117,7 +117,7 @@ void start_espconnv_tcp(void)
 LOCAL ICACHE_FLASH_ATTR
 void try_reconnect(void)
 {
-	set_station_mode();
+	net_start_station();
 }
 
 void wifi_event_cb(System_Event_t* evt)
