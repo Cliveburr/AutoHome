@@ -6,7 +6,7 @@
 #include "storage.h"
 #include "fota.h"
 #include "autohome.h"
-//#include "temphumisensor.h"
+#include "temphumisensor.h"
 
 /*
 	Messages id
@@ -217,5 +217,6 @@ void autohome_tcp_recv(struct espconn* pesp_conn, char* data)
 	switch (port) {
 		case 1: autohome_tcp_handler(pesp_conn, &data[2]); break;
 		case 2: fota_tcp_handler(pesp_conn, &data[2]); break;
+		case 4: temphumisensor_tcp_handle(pesp_conn, &data[2]); break;
 	}
 }

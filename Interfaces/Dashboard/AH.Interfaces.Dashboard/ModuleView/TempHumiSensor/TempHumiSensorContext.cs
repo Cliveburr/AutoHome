@@ -8,6 +8,7 @@ namespace AH.Interfaces.Dashboard.ModuleView.TempHumiSensor
 {
     public class TempHumiSensorContext : BaseContext
     {
+        public bool IntervalActive { get; set; }
         public bool TemperatureSwitch { get; set; }
         public int TempPointToOff { get; set; }
         public int TempPointToOn { get; set; }

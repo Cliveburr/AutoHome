@@ -6,7 +6,7 @@
 #include "storage.h"
 #include "user_config.h"
 
-uint8_t lastPos;
+//uint8_t lastPos;
 
 ICACHE_FLASH_ATTR
 void storage_save(void)

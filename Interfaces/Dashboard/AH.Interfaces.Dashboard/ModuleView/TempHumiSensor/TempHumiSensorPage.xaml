@@ -30,7 +30,7 @@
                     </Grid.RowDefinitions>
 
                     <Label Margin="5" Grid.Column="0" Grid.Row="0">Interval:</Label>
-                    <ToggleButton Margin="5" Grid.Column="1" Grid.Row="0" Checked="ToggleButton_ChangeText" Unchecked="ToggleButton_ChangeText">Active</ToggleButton>
+                    <ToggleButton Margin="5" Grid.Column="1" Grid.Row="0" IsChecked="{Binding IntervalActive}" Checked="ToggleButton_ChangeText" Unchecked="ToggleButton_ChangeText">Active</ToggleButton>
 
                     <Label Margin="5" Grid.Column="2" Grid.Row="0">Read Interval (ms):</Label>
                     <TextBox Margin="5" Grid.Column="3" Grid.Row="0" Text="{Binding ReadInverval}"></TextBox>

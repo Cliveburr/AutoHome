@@ -48,12 +48,22 @@ namespace AH.Interfaces.Dashboard.ModuleView.TempHumiSensor
 
                     var content = receive.ReadContent<ConfigurationReadResponse>();
 
-                    //_context.PointToOff = (int)content.PointToOff;
-                    //_context.RaiseNotify("PointToOff");
-                    //_context.PointToOn = (int)content.PointToOn;
-                    //_context.RaiseNotify("PointToOn");
-                    //_context.ReadInverval = (int)content.ReadInverval;
-                    //_context.RaiseNotify("ReadInverval");
+                    _context.IntervalActive = content.IntervalActive;
+                    _context.RaiseNotify("IntervalActive");
+                    _context.ReadInverval = content.ReadInverval;
+                    _context.RaiseNotify("ReadInverval");
+                    _context.TemperatureSwitch = content.TemperatureSwitch;
+                    _context.RaiseNotify("TemperatureSwitch");
+                    _context.TempPointToOff = content.TempPointToOff;
+                    _context.RaiseNotify("TempPointToOff");
+                    _context.TempPointToOn = content.TempPointToOn;
+                    _context.RaiseNotify("TempPointToOn");
+                    _context.HumiditySwitch = content.HumiditySwitch;
+                    _context.RaiseNotify("HumiditySwitch");
+                    _context.HumiPointToOff = content.HumiPointToOff;
+                    _context.RaiseNotify("HumiPointToOff");
+                    _context.HumiPointToOn = content.HumiPointToOn;
+                    _context.RaiseNotify("HumiPointToOn");
                 }
             }
             catch (Exception err)
