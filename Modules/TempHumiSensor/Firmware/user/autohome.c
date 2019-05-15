@@ -67,7 +67,7 @@ void configuration_read(struct espconn* pesp_conn)
 	uint8 wifiPassLen = os_strlen(config.net_password);
 	uint8 aliasLen = os_strlen(config.alias);
 	uint8 categoryLen = os_strlen(config.category);
-	uint8 totalBuffer = 3 + 3 + wifiNameLen + wifiPassLen + aliasLen + categoryLen;
+	uint8 totalBuffer = 3 + 4 + wifiNameLen + wifiPassLen + aliasLen + categoryLen;
 
 	uint8* buffer = (uint8*)os_zalloc(totalBuffer);
 	buffer[0] = config.uid;
@@ -168,7 +168,7 @@ void check_config(void)
 	if (config.uid == 0 && config.checksum == 0)
 	{
 		config.uid = 6;
-		os_memcpy(config.alias, "Alias", 5);
+		os_memcpy(config.alias, "Alias\0", 6);
 	}
 }
 

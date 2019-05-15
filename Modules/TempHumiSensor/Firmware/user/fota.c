@@ -7,6 +7,7 @@
 
 #include "user_config.h"
 #include "fota.h"
+#include "net.h"
 
 /*
 	Messages id
@@ -75,8 +76,8 @@ void fota_start(char* data)
 
 ICACHE_FLASH_ATTR
 void fotaReboot(void) {
-	stop_all();
-	ledRibbon_set_off();
+	net_stop_all();
+	//ledRibbon_set_off();
 	system_upgrade_reboot();
 }
 
@@ -147,7 +148,7 @@ void fota_write(struct espconn* pesp_conn, char* data)
 		}
 
 		responseBuffer[3] = 1;
-		espconn_sent(pesp_conn, responseBuffer, 3);
+		espconn_sent(pesp_conn, responseBuffer, 4);
 
 		system_upgrade_flag_set(UPGRADE_FLAG_FINISH);
 
@@ -158,7 +159,7 @@ void fota_write(struct espconn* pesp_conn, char* data)
 	else
 	{
 		responseBuffer[3] = 0;
-		espconn_sent(pesp_conn, responseBuffer, 3);
+		espconn_sent(pesp_conn, responseBuffer, 4);
 	}
 	os_free(responseBuffer);
 }

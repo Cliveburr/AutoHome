@@ -14,7 +14,7 @@ else
     app=1
 fi
 
-spi_speed=40
+spi_speed=80
 
 spi_mode=QIO
 

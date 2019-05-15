@@ -194,7 +194,7 @@ namespace AH.Interfaces.Dashboard.ModuleView.Fota
         {
             switch (value)
             {
-                case 0:
+                case -1:
                     dpUser1.IsEnabled = false;
                     dpUser2.IsEnabled = false;
                     break;
@@ -202,7 +202,7 @@ namespace AH.Interfaces.Dashboard.ModuleView.Fota
                     dpUser1.IsEnabled = true;
                     dpUser2.IsEnabled = false;
                     break;
-                case 2:
+                case 0:
                     dpUser1.IsEnabled = false;
                     dpUser2.IsEnabled = true;
                     break;

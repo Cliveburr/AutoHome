@@ -25,7 +25,7 @@ void init_done(void);
 ICACHE_FLASH_ATTR
 void user_pre_init(void)
 {
-    if(!system_partition_table_regist(at_partition_table, sizeof(at_partition_table)/sizeof(at_partition_table[0]), 6)) {
+    if(!system_partition_table_regist(at_partition_table, sizeof(at_partition_table)/sizeof(at_partition_table[0]), SPI_FLASH_SIZE_MAP)) {
 		os_printf("system_partition_table_regist fail\r\n");
 		while(1);
 	}
@@ -37,7 +37,7 @@ void user_init(void)
 	system_timer_reinit();
 
     #ifdef DEBUG
-		os_printf("Module Temperature and Humidity Sensor\n");
+		os_printf("Module Temperature and Humidity Sensor OAT3\n");
         os_printf("SDK version: %s\n", system_get_sdk_version());
         //os_printf("Auto Home SA %u.%u - Module UID: %u\n", VERSION_HIGH, VERSION_LOW, MYUID);
     #endif
