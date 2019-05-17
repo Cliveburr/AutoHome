@@ -1,4 +1,5 @@
 ﻿using AH.Protocol.Library.Helpers;
+using AH.Protocol.Library.Messages.TempHumiSensor.BitMappers;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,52 +14,31 @@ namespace AH.Protocol.Library.Messages.TempHumiSensor
         public PortType Port { get; } = PortType.TempHumiSensor;
         public byte Msg { get; } = (byte)TempHumiSensorMessageType.ConfigurationReadResponse;
 
-        private byte _generalConfig;
-        public int GeneralConfig_IntervalActive = 0;
-        public int GeneralConfig_TemperatureSwitch = 1;
-        public int GeneralConfig_HumiditySwitch = 2;
-        public byte TempPointToOff { get; set; }
-        public byte TempPointToOn { get; set; }
-        public byte HumiPointToOff { get; set; }
-        public byte HumiPointToOn { get; set; }
+        public general_config_t GeneralConfig { get; set; } = new general_config_t();
+        public short TempPointToOff { get; set; }
+        public short TempPointToOn { get; set; }
+        public ushort HumiPointToOff { get; set; }
+        public ushort HumiPointToOn { get; set; }
         public ushort ReadInverval { get; set; }
-
-        public bool IntervalActive
-        {
-            get { return BitFields.ReadBool(_generalConfig, GeneralConfig_IntervalActive); }
-            set { BitFields.SetBool(ref _generalConfig, GeneralConfig_IntervalActive, value); }
-        }
-
-        public bool TemperatureSwitch
-        {
-            get { return BitFields.ReadBool(_generalConfig, GeneralConfig_TemperatureSwitch); }
-            set { BitFields.SetBool(ref _generalConfig, GeneralConfig_TemperatureSwitch, value); }
-        }
-
-        public bool HumiditySwitch
-        {
-            get { return BitFields.ReadBool(_generalConfig, GeneralConfig_HumiditySwitch); }
-            set { BitFields.SetBool(ref _generalConfig, GeneralConfig_HumiditySwitch, value); }
-        }
 
         public void Read(BinaryReader stream)
         {
-            _generalConfig = stream.ReadByte();
+            GeneralConfig.Value = stream.ReadByte();
 
-            TempPointToOff = stream.ReadByte();
+            TempPointToOff = stream.ReadInt16();
 
-            TempPointToOn = stream.ReadByte();
+            TempPointToOn = stream.ReadInt16();
 
-            HumiPointToOff = stream.ReadByte();
+            HumiPointToOff = stream.ReadUInt16();
 
-            HumiPointToOn = stream.ReadByte();
+            HumiPointToOn = stream.ReadUInt16();
 
             ReadInverval = stream.ReadUInt16();
         }
 
         public void Write(BinaryWriter stream)
         {
-            stream.Write(_generalConfig);
+            stream.Write(GeneralConfig.Value);
 
             stream.Write(TempPointToOff);
 

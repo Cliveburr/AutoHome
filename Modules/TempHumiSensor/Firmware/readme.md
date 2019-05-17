@@ -53,6 +53,8 @@ interval 1 mim
 2MB = 2097152 / 5760 = 364 dias
 
 
+com 10 bytes de data, da para salvar 323174 
+323174 / 1440 = 224 dias
 
 
 Basic Memory Map
@@ -104,3 +106,28 @@ static const partition_item_t at_partition_table[] = {
     { SYSTEM_PARTITION_CUSTOMER_BEGIN + 1,              0x71000,                                            0x1000},
     { SYSTEM_PARTITION_CUSTOMER_BEGIN + 2,              0xEB000,                                            0x315000}
 };
+
+
+
+
+
+
+uint32 system_get_userbin_addr()
+    // Start address info of the current running user binary
+
+uint8 system_get_boot_version()
+
+uint8 system_get_cpu_freq()
+    // CPU frequency; unit : MHz
+
+enum system_get_flash_size_map();
+
+
+uint32 system_get_time()
+
+
+
+soft watchdog
+system_soft_wdt_stop()
+system_soft_wdt_restart()
+system_soft_wdt_feed()

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AH.Protocol.Library.Messages.TempHumiSensor.BitMappers;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -11,26 +12,22 @@ namespace AH.Protocol.Library.Messages.TempHumiSensor
     {
         public PortType Port { get; } = PortType.TempHumiSensor;
         public byte Msg { get; } = (byte)TempHumiSensorMessageType.OneShotReadResponse;
-        public byte Temperature { get; set; }
-        public byte Humidity { get; set; }
-        public byte RelayState { get; set; }
+
+        public switchs_state_t RelayStates { get; set; } = new switchs_state_t();
+        public byte[] Data { get; set; }
 
         public void Read(BinaryReader stream)
         {
-            Temperature = stream.ReadByte();
+            RelayStates.Value = stream.ReadByte();
 
-            Humidity = stream.ReadByte();
-
-            RelayState = stream.ReadByte();
+            Data = stream.ReadBytes(5);
         }
 
         public void Write(BinaryWriter stream)
         {
-            stream.Write(Temperature);
+            stream.Write(RelayStates.Value);
 
-            stream.Write(Humidity);
-
-            stream.Write(RelayState);
+            stream.Write(Data);
         }
     }
 }

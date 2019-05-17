@@ -15,16 +15,10 @@
 // setar para input GPIO_DIS_OUTPUT
 
 
-typedef struct {
-    uint8 success;
-	uint8 data[5];
-	uint8 pin;
-	uint16 start_signal_us;
-	uint16 timeout;
-} DHTModule;
+
 
 ICACHE_FLASH_ATTR
-void dht_read(DHTModule *module)
+void dht_read(dht_module_t *module)
 {
 	uint16 periods[83];
 	uint8 init_state, last_state, pos;
@@ -101,4 +95,22 @@ void dht_read(DHTModule *module)
 		module.success = (data[4] == ((data[0] + data[1] + data[2] + data[3]) & 0xFF) ?
 			1 : 0;
 	}
+}
+
+ICACHE_FLASH_ATTR
+int16_t dht_data_to_temperature(uint8_t *data)
+{
+	int16_t temp = data[2] & 0x7F;
+	temp = (temp << 8) + data[3];
+	if (data[2] & 0x80)
+	{
+		temp *= -1;
+	}
+	return temp;
+}
+
+ICACHE_FLASH_ATTR
+uint16_t dht_data_to_humidity(uint8_t *data)
+{
+	return (data[0] << 8) + data[1];
 }

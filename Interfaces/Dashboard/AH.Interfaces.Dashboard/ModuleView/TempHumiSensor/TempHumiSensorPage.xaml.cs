@@ -1,4 +1,5 @@
 ﻿using AH.Protocol.Library.Messages.TempHumiSensor;
+using AH.Protocol.Library.Messages.TempHumiSensor.BitMappers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -48,21 +49,21 @@ namespace AH.Interfaces.Dashboard.ModuleView.TempHumiSensor
 
                     var content = receive.ReadContent<ConfigurationReadResponse>();
 
-                    _context.IntervalActive = content.IntervalActive;
+                    _context.IntervalActive = content.GeneralConfig.intervalActive;
                     _context.RaiseNotify("IntervalActive");
-                    _context.ReadInverval = content.ReadInverval;
+                    _context.ReadInterval = content.ReadInverval;
                     _context.RaiseNotify("ReadInverval");
-                    _context.TemperatureSwitch = content.TemperatureSwitch;
+                    _context.TemperatureSwitch = content.GeneralConfig.temperatureSwitch;
                     _context.RaiseNotify("TemperatureSwitch");
-                    _context.TempPointToOff = content.TempPointToOff;
+                    _context.TempPointToOff = content.TempPointToOff / 10;
                     _context.RaiseNotify("TempPointToOff");
-                    _context.TempPointToOn = content.TempPointToOn;
+                    _context.TempPointToOn = content.TempPointToOn / 10;
                     _context.RaiseNotify("TempPointToOn");
-                    _context.HumiditySwitch = content.HumiditySwitch;
+                    _context.HumiditySwitch = content.GeneralConfig.humiditySwitch;
                     _context.RaiseNotify("HumiditySwitch");
-                    _context.HumiPointToOff = content.HumiPointToOff;
+                    _context.HumiPointToOff = content.HumiPointToOff / 10;
                     _context.RaiseNotify("HumiPointToOff");
-                    _context.HumiPointToOn = content.HumiPointToOn;
+                    _context.HumiPointToOn = content.HumiPointToOn / 10;
                     _context.RaiseNotify("HumiPointToOn");
                 }
             }
@@ -78,11 +79,19 @@ namespace AH.Interfaces.Dashboard.ModuleView.TempHumiSensor
             {
                 using (var tcp = _connector.OpenTcpConnection())
                 {
+                    var generalConfig = new general_config_t();
+                    generalConfig.intervalActive = _context.IntervalActive;
+                    generalConfig.temperatureSwitch = _context.TemperatureSwitch;
+                    generalConfig.humiditySwitch = _context.HumiditySwitch;
+
                     tcp.Send(new ConfigurationSaveRequest
                     {
-                        //PointToOff = (byte)_context.PointToOff,
-                        //PointToOn = (byte)_context.PointToOn,
-                        //ReadInverval = (ushort)_context.ReadInverval
+                        GeneralConfig = generalConfig,
+                        TempPointToOff = (short)(_context.TempPointToOff * 10),
+                        TempPointToOn = (short)(_context.TempPointToOn * 10),
+                        HumiPointToOff = (ushort)(_context.HumiPointToOff * 10),
+                        HumiPointToOn = (ushort)(_context.HumiPointToOn * 10),
+                        ReadInverval = (ushort)_context.ReadInterval
                     });
                 }
             }
@@ -90,6 +99,22 @@ namespace AH.Interfaces.Dashboard.ModuleView.TempHumiSensor
             {
                 App.Instance.ErrorHandler(err);
             }
+        }
+
+        private float dht_data_to_temperature(byte[] data)
+        {
+            var temp = data[2] & 0x7F;
+            temp = (temp << 8) + data[3];
+            if ((data[2] & 0x80) != 0)
+            {
+                temp *= -1;
+            }
+            return temp / (float)10;
+        }
+
+        private float dht_data_to_humidity(byte[] data)
+        {
+            return ((data[0] << 8) + data[1]) / (float)10;
         }
 
         private void OneShotRead_Click(object sender, RoutedEventArgs e)
@@ -102,12 +127,17 @@ namespace AH.Interfaces.Dashboard.ModuleView.TempHumiSensor
 
                     var content = receive.ReadContent<OneShotReadResponse>();
 
-                    _context.OneShotTemperature = (int)content.Temperature;
+                    var temperature = dht_data_to_temperature(content.Data);
+                    var humidity = dht_data_to_humidity(content.Data);
+
+                    _context.OneShotTemperature = temperature.ToString("F");
                     _context.RaiseNotify("OneShotTemperature");
-                    _context.OneShotHumidity = (int)content.Humidity;
+                    _context.OneShotHumidity = humidity.ToString("F");
                     _context.RaiseNotify("OneShotHumidity");
-                    _context.RelayState = content.RelayState == 1 ? "Open" : "Closed";
-                    _context.RaiseNotify("RelayState");
+                    _context.TemperatureRelayState = content.RelayStates.tempSwtichState ? "Open" : "Closed";
+                    _context.RaiseNotify("TemperatureRelayState");
+                    _context.HumidityRelayState = content.RelayStates.humiSwtichState ? "Open" : "Closed";
+                    _context.RaiseNotify("HumidityRelayState");
                 }
             }
             catch (Exception err)

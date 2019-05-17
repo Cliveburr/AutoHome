@@ -29,7 +29,7 @@ namespace AH.Module.Simulation
 
             TcpConnection = new TcpConnection(UID);
             TcpConnection.OnTcpReceived += TcpConnection_OnTcpReceived;
-            TcpConnection.StartReceiver(SendPort);
+            TcpConnection.StartReceiver(ReceivePort);
         }
 
         private void TcpConnection_OnTcpReceived(TcpClient client, Message message)
@@ -37,18 +37,26 @@ namespace AH.Module.Simulation
             Program.Log("Tcp Received");
 
             IContentMessage response = null;
-
-            switch (message.Port)
+            try
             {
-                case PortType.AutoHome: response = AutoHomePort.Instance.OnTcpReceived(message); break;
-                case PortType.Fota: response = FotaPort.Instance.OnTcpReceived(message); break;
+                switch (message.Port)
+                {
+                    case PortType.AutoHome: response = AutoHomePort.Instance.OnTcpReceived(message); break;
+                    case PortType.Fota: response = FotaPort.Instance.OnTcpReceived(message); break;
+                    case PortType.TempHumiSensor: response = TempHumiSensorPort.Instance.OnTcpReceived(message); break;
+                }
+
+                if (response != null)
+                {
+                    var msgResponse = new Message((byte)UID, response);
+                    var buffer = msgResponse.GetBytes();
+                    client.Client.Send(buffer, buffer.Length, SocketFlags.None);
+                }
             }
-
-            if (response != null)
+            catch (Exception err)
             {
-                var msgResponse = new Message((byte)UID, response);
-                var buffer = msgResponse.GetBytes();
-                client.Client.Send(buffer, buffer.Length, SocketFlags.None);
+                Console.WriteLine(err.ToString());
+                client.Close();
             }
         }
 

@@ -9,25 +9,25 @@
 #define TEMPHUMI_DATA_PIN		    0x3C
 #define TEMPHUMI_TEMPSWITCH_PIN		3
 #define TEMPHUMI_HUMISWITCH_PIN		3
-
-typedef struct GeneralConfigStruct {
-   unsigned char intervalActive : 1;
-   unsigned char temperatureSwitch : 1;
-   unsigned char humiditySwitch : 1;
-} status2;
-
-typedef struct TempHumiSensorStruct {
-    uint8 checksum;
-    GeneralConfigStruct generalConfig;
-    uint8 tempPointToOff;
-    uint8 tempPointToOn;
-    uint8 humiPointToOff;
-    uint8 humiPointToOn;
-    uint8 readInverval;
-} temphumisensor_config;
 /* *** end temphumisensor.h config *** *
 
 */
+
+typedef struct temphumisensor_general_config_t {
+   unsigned char intervalActive : 1;
+   unsigned char temperatureSwitch : 1;
+   unsigned char humiditySwitch : 1;
+};
+
+typedef struct tempHumisensor_sensor_t {
+    uint8 checksum;
+    temphumisensor_general_config_t generalConfig;
+    int16_t tempPointToOff;
+    int16_t tempPointToOn;
+    uint16_t humiPointToOff;
+    uint16_t humiPointToOn;
+    uint16_t readInterval;
+} temphumisensor_config;
 
 void temphumisensor_init(void);
 void temphumisensor_tcp_handle(struct espconn* pesp_conn, char* data);

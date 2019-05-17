@@ -16,8 +16,8 @@ namespace AH.Module.Simulation
 
             Simulator = new AutoHomeSimulator
             {
-                SendPort = 15556,
-                ReceivePort = 15555,
+                SendPort = 15555,
+                ReceivePort = 15556,
                 UID = 6
             };
 

@@ -15,9 +15,10 @@ namespace AH.Interfaces.Dashboard.ModuleView.TempHumiSensor
         public bool HumiditySwitch { get; set; }
         public int HumiPointToOff { get; set; }
         public int HumiPointToOn { get; set; }
-        public int ReadInverval { get; set; }
-        public int OneShotTemperature { get; set; }
-        public int OneShotHumidity { get; set; }
-        public string RelayState { get; set; }
+        public int ReadInterval { get; set; }
+        public string OneShotTemperature { get; set; }
+        public string OneShotHumidity { get; set; }
+        public string TemperatureRelayState { get; set; }
+        public string HumidityRelayState { get; set; }
     }
 }

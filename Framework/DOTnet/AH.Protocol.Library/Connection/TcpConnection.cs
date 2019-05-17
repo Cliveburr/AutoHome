@@ -93,10 +93,11 @@ namespace AH.Protocol.Library.Connection
             }
             finally
             {
-                if (data.TcpClient.Client.Connected)
+                try
                 {
                     data.TcpClient.Client.BeginReceive(data.Buffer, 0, data.Buffer.Length, SocketFlags.None, Receive, data);
                 }
+                catch { }
             }
         }
 

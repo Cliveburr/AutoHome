@@ -61,6 +61,8 @@
     <Compile Include="Messages\Fota\FotaMessageType.cs" />
     <Compile Include="Messages\PortType.cs" />
     <Compile Include="Messages\RGBLedRibbon\RGBLedRibbon.cs" />
+    <Compile Include="Messages\TempHumiSensor\BitMappers\general_config_t.cs" />
+    <Compile Include="Messages\TempHumiSensor\BitMappers\switchs_state_t.cs" />
     <Compile Include="Messages\TempHumiSensor\ConfigurationReadRequest.cs" />
     <Compile Include="Messages\TempHumiSensor\ConfigurationReadResponse.cs" />
     <Compile Include="Messages\TempHumiSensor\ConfigurationSaveRequest.cs" />

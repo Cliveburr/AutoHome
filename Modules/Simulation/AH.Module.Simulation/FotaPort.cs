@@ -24,7 +24,7 @@ namespace AH.Module.Simulation
         private ushort upgrade_sector;
         private byte[] file_content;
 
-        public FotaPort()
+        private FotaPort()
         {
             UserBin = 1;
         }

@@ -18,12 +18,14 @@ namespace AH.Module.Simulation
         public string Alias { get; set; }
         public string WifiName { get; set; }
         public string WifiPassword { get; set; }
+        public string Category { get; set; }
 
         private AutoHomePort()
         {
             Alias = "Simulator";
             WifiName = "";
             WifiPassword = "";
+            Category = "";
         }
 
         public IContentMessage OnUdpReceived(Message message)
@@ -72,7 +74,8 @@ namespace AH.Module.Simulation
             {
                 Alias = Alias,
                 WifiName = WifiName,
-                WifiPassword = WifiPassword
+                WifiPassword = WifiPassword,
+                Category = Category
             };
         }
 
@@ -85,6 +88,7 @@ namespace AH.Module.Simulation
             Alias = content.Alias;
             WifiName = content.WifiName;
             WifiPassword = content.WifiPassword;
+            Category = content.Category;
 
             return null;
         }
