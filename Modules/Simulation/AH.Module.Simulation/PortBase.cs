@@ -31,5 +31,11 @@ namespace AH.Module.Simulation
             CheckMemory();
             Array.Copy(buffer, 0, _memory, pos, len);
         }
+
+        public void spi_flash_read(uint pos, ref byte[] buffer, uint len)
+        {
+            CheckMemory();
+            Array.Copy(_memory, pos, buffer, 0, len);
+        }
     }
 }

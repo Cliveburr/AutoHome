@@ -20,5 +20,6 @@ namespace AH.Interfaces.Dashboard.ModuleView.TempHumiSensor
         public string OneShotHumidity { get; set; }
         public string TemperatureRelayState { get; set; }
         public string HumidityRelayState { get; set; }
+        public bool SaveData { get; set; }
     }
 }

@@ -31,6 +31,8 @@ namespace AH.Module.Simulation
 
         private TempHumiSensorPort()
         {
+            temphumisensor_datainfo_load();
+
             readInterval_timer = new Timer();
             readInterval_timer.Elapsed += temphumisensor_timer_cb;
         }
@@ -173,7 +175,46 @@ namespace AH.Module.Simulation
             return (ushort)((data[0] << 8) + data[1]);
         }
 
-        private void temphumisensor_save_data()
+        private const byte TEMPHUMISENSOR_DATAPCK_COUNTS = 60;   // counts of data in one package
+        private const byte TEMPHUMISENSOR_DATAPCK_LEN = 128;   // header + (data * TEMPHUMISENSOR_DATAPCK_COUNTS)
+        private const uint TEMPHUMISENSOR_DATA_SECTOR_INI = 0xEB;
+        private const uint TEMPHUMISENSOR_DATA_SECTOR_END = 0x400;
+        private bool hasPackageInitied;
+        private DateTimeOffset datapck_started_datetime;
+        private byte datapck_pos;
+        private byte[] datapck_data;
+
+        private void temphumisensor_createdatapackage()
+        {
+            hasPackageInitied = true;
+            datapck_started_datetime = DateTimeOffset.Now;
+            datapck_pos = 0;
+            datapck_data = new byte[5 * TEMPHUMISENSOR_DATAPCK_COUNTS];
+        }
+
+        private void temphumisensor_writedatapackage()
+        {
+            datainfo_addr += TEMPHUMISENSOR_DATAPCK_LEN;
+
+            //if ((datainfo_addr + TEMPHUMISENSOR_DATAPCK_LEN) >= 
+
+
+            var started_timestamp = (uint)datapck_started_datetime.ToUnixTimeSeconds();
+
+            var buffer = BitConverter.GetBytes(started_timestamp)
+                .Concat(BitConverter.GetBytes(temphumisensor_config.readInterval))
+                .Concat(new byte[2])
+                .Concat(datapck_data)
+                .ToArray();
+
+
+
+            temphumisensor_datainfo_save();
+
+            hasPackageInitied = false;
+        }
+
+        private void temphumisensor_data_save()
         {
             // messages
             // ler os dados do sector de next_free_slot
@@ -182,38 +223,20 @@ namespace AH.Module.Simulation
             // na função temphumisensor_resetall, se tiver pacote aberto, salvar e não abrir outro
             // na função temphumisensor_set_timers tem q tratar se fecha o pacote aberto
 
-            // salvar em um sector separado os dht_data_config_t
-            // uint32 next_free_slot = a proxima posição da memoria para gravar um pacote
+            if (!hasPackageInitied)
+            {
+                temphumisensor_createdatapackage();
+            }
 
-            // pacote
-            // uint32 = 4 bytes = timestamp
-            // uint16 = 2 bytes = count quantidade de dados nesse pacote
-            // array of 4 bytes with data
+            var datapck_addr = datapck_pos * 5;
+            Array.Copy(moduleOne.data, 0, datapck_data, datapck_addr, 5);
 
-            // se não começou, pegar o horario do primeiro dado
+            datapck_pos++;
 
-            // salvar
-            // checar se tem pacote iniciado
-            //   se não tiver
-            //     criar um pacote
-            // checar se a adição dessa data não da end_of_memory
-            //   se der
-            //     gravar na memoria o pacote atual
-            //     criar um pacote
-            // adicionar o dado no pacote
-            // checar se a quantidade de dados no pacote já é suficiente para gravar
-            //  se for
-            //    gravar na memoria o pacote atual
-
-            // criar pacote
-            //   ler o timestamp
-            //   checar se o cabeçalho já não da end_of_memory
-            //     se der
-            //        setar next_free_slot para 0
-            //     se não
-            //        next_free_slot++
-
-            // gravar pacote
+            if (datapck_pos == TEMPHUMISENSOR_DATAPCK_COUNTS)
+            {
+                temphumisensor_writedatapackage();
+            }
         }
 
         private void temphumisensor_timer_cb(object sender, ElapsedEventArgs e)
@@ -267,7 +290,11 @@ namespace AH.Module.Simulation
                 }
             }
 
-            // save the data
+            if (temphumisensor_config.generalConfig.saveData)
+            {
+                temphumisensor_data_save();
+            }
+            
             readInterval_timer.Start();  // just in simulation
         }
 
@@ -323,6 +350,59 @@ namespace AH.Module.Simulation
                     moduleOne.data = mem.ToArray().Reverse().ToArray();
                 }
             }
+        }
+
+        private const ushort TEMPHUMI_DATAINFO_SECTOR = 0x72;
+        private uint datainfo_id;
+        private uint datainfo_addr;
+        private ushort datainfo_pos;
+
+        private void temphumisensor_datainfo_load()
+        {
+            var infoSector = new byte[SPI_FLASH_SEC_SIZE];
+            uint sectorIniAddr = TEMPHUMI_DATAINFO_SECTOR * SPI_FLASH_SEC_SIZE;
+
+            spi_flash_read(sectorIniAddr, ref infoSector, SPI_FLASH_SEC_SIZE);
+
+            datainfo_id = 0;
+            datainfo_addr = 0;
+            datainfo_pos = 0;
+            for (var i = 0; i < SPI_FLASH_SEC_SIZE; i += 8)
+            {
+                var thisId = BitConverter.ToUInt32(infoSector, i);
+                if (thisId > datainfo_id)
+                {
+                    datainfo_id = thisId;
+                    datainfo_addr = BitConverter.ToUInt32(infoSector, i + 4);
+                    datainfo_pos = (ushort)i;
+
+                    // need checksum
+                }
+            }
+        }
+
+        private void temphumisensor_datainfo_save()
+        {
+            datainfo_id++;
+            if (datainfo_id == 0)
+            {
+                spi_flash_erase_sector(TEMPHUMI_DATAINFO_SECTOR);
+                datainfo_pos = 0;
+            }
+
+            datainfo_pos += 8;
+            if ((datainfo_pos + 8) >= SPI_FLASH_SEC_SIZE)
+            {
+                datainfo_pos = 0;
+            }
+
+            var buffer = BitConverter.GetBytes(datainfo_id)
+                .Concat(BitConverter.GetBytes(datainfo_addr))
+                .ToArray();
+
+            uint sectorIniAddr = TEMPHUMI_DATAINFO_SECTOR * SPI_FLASH_SEC_SIZE;
+
+            spi_flash_write(sectorIniAddr + datainfo_pos, buffer, 8);
         }
     }
 }

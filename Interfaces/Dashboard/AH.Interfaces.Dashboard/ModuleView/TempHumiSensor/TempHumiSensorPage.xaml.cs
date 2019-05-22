@@ -65,6 +65,8 @@ namespace AH.Interfaces.Dashboard.ModuleView.TempHumiSensor
                     _context.RaiseNotify("HumiPointToOff");
                     _context.HumiPointToOn = content.HumiPointToOn / 10;
                     _context.RaiseNotify("HumiPointToOn");
+                    _context.SaveData = content.GeneralConfig.saveData;
+                    _context.RaiseNotify("SaveData");
                 }
             }
             catch (Exception err)
@@ -83,6 +85,7 @@ namespace AH.Interfaces.Dashboard.ModuleView.TempHumiSensor
                     generalConfig.intervalActive = _context.IntervalActive;
                     generalConfig.temperatureSwitch = _context.TemperatureSwitch;
                     generalConfig.humiditySwitch = _context.HumiditySwitch;
+                    generalConfig.saveData = _context.SaveData;
 
                     tcp.Send(new ConfigurationSaveRequest
                     {
@@ -169,7 +172,11 @@ namespace AH.Interfaces.Dashboard.ModuleView.TempHumiSensor
 
                     var content = receive.ReadContent<DataReadResponse>();
 
-
+                    var index = 0;
+                    var tempAnalaze = string.Concat(
+                            content.Data
+                                .Select(d => string.Format("{0} = {1}\n", index++.ToString(), d.ToString()))
+                        );
                 }
             }
             catch (Exception err)

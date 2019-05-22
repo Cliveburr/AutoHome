@@ -123,7 +123,7 @@ void temphumisensor_timer_cb(void)
 // 		}
 // 	}
 
-// 	// save the data
+// 	// save the data if temphumisensor_general_config_t.saveData is on
 // }
 // /******************************* TIMERS METHODS *************************************/
 

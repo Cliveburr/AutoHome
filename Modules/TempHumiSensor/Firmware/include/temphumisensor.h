@@ -17,6 +17,7 @@ typedef struct {
    uint8_t intervalActive : 1;
    uint8_t temperatureSwitch : 1;
    uint8_t humiditySwitch : 1;
+   uint8_t saveData : 1;
 } temphumisensor_general_config_t;
 
 typedef struct {

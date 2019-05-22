@@ -45,18 +45,6 @@ https://github.com/mathew-hall/esp8266-dht/blob/master/user/ds18b20.c
 
 
 
-interval 1 mim
-60 por hora
-1440 por dia
-1440 x 4 bytes = 5760 bytes por dia
-
-2MB = 2097152 / 5760 = 364 dias
-
-
-com 10 bytes de data, da para salvar 323174 
-323174 / 1440 = 224 dias
-
-
 Basic Memory Map
 Start       Hex            Bytes | Start Sector   | Size       Hex            Bytes | Description
             0x0 |              0 |            0x0 |         0x1000 |           4096 | SYSTEM_PARTITION_BOOTLOADER         (boot_v1.2+)
@@ -131,3 +119,60 @@ soft watchdog
 system_soft_wdt_stop()
 system_soft_wdt_restart()
 system_soft_wdt_feed()
+
+
+
+
+pacote de dados da temphumisensor
+{
+    - para ler a info
+    {
+        - carrega o sector inteiro
+
+        - faz um loop pelo sector inteiro divido por 8 bytes
+            - os 4 primeiros bytes são o id
+            - os 4 proximos bytes são o intervalo de leitura
+            - o maior id é o valido
+    }
+
+    - salvar a info
+    {
+        - incrementa o id
+        - aumenta a posição que foi lido
+        - se for menor q 4096 gravar
+        - se for maior, gravar na posição 0
+    }
+
+
+
+    - info, guarda apenas a ultima posição do pacote gravado uint32
+
+    TEMPHUMI_DATAPCK_LEN = 60     // tamanho dos pacotes em termos de data gravada
+
+    - pacote
+        header
+            4 bytes da data e hora
+            4 bytes para ajustar o tamanho total do pacote a 128
+        data
+            4 bytes de data
+            1 byte de flags dos switchs
+
+    tamanho do pacote = header + (data * TEMPHUMI_DATAPCK_LEN) = 8 + (5 * 60) = 128
+
+
+Area para dados
+Ini: 0xEB000 = 962.560
+Fim: 0x400000 = 4.194.304
+Len: 3.231.744
+Setores: 789
+
+cada pacote guarda 1 hora de informação em 128 bytes
+3.231.744 / 128 = 25.248 pacotes ou horas
+
+25.248 / 24 = 1.052 dias
+
+
+100.000 ciclos de vida
+
+
+}

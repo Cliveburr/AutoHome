@@ -27,6 +27,7 @@
                         <RowDefinition />
                         <RowDefinition />
                         <RowDefinition />
+                        <RowDefinition />
                     </Grid.RowDefinitions>
 
                     <Label Margin="5" Grid.Column="0" Grid.Row="0">Interval:</Label>
@@ -52,6 +53,9 @@
 
                     <Label Margin="5" Grid.Column="4" Grid.Row="2">Point to on %:</Label>
                     <TextBox Margin="5" Grid.Column="5" Grid.Row="2" Text="{Binding HumiPointToOn}"></TextBox>
+
+                    <Label Margin="5" Grid.Column="0" Grid.Row="3">Save Data:</Label>
+                    <ToggleButton Margin="5" Grid.Column="1" Grid.Row="3" IsChecked="{Binding SaveData}" Checked="ToggleButton_ChangeText" Unchecked="ToggleButton_ChangeText">Active</ToggleButton>
                 </Grid>
             </DockPanel>
         </GroupBox>

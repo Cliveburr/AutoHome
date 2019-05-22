@@ -14,6 +14,7 @@ namespace AH.Protocol.Library.Messages.TempHumiSensor.BitMappers
         public int GeneralConfig_IntervalActive = 0;
         public int GeneralConfig_TemperatureSwitch = 1;
         public int GeneralConfig_HumiditySwitch = 2;
+        public int GeneralConfig_SaveData = 3;
 
         public bool intervalActive
         {
@@ -31,6 +32,12 @@ namespace AH.Protocol.Library.Messages.TempHumiSensor.BitMappers
         {
             get { return BitFields.ReadBool(Value, GeneralConfig_HumiditySwitch); }
             set { BitFields.SetBool(ref Value, GeneralConfig_HumiditySwitch, value); }
+        }
+
+        public bool saveData
+        {
+            get { return BitFields.ReadBool(Value, GeneralConfig_SaveData); }
+            set { BitFields.SetBool(ref Value, GeneralConfig_SaveData, value); }
         }
     }
 }
