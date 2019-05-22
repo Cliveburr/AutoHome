@@ -13,23 +13,25 @@
 
 */
 
-typedef struct temphumisensor_general_config_t {
-   unsigned char intervalActive : 1;
-   unsigned char temperatureSwitch : 1;
-   unsigned char humiditySwitch : 1;
-};
+typedef struct {
+   uint8_t intervalActive : 1;
+   uint8_t temperatureSwitch : 1;
+   uint8_t humiditySwitch : 1;
+} temphumisensor_general_config_t;
 
-typedef struct tempHumisensor_sensor_t {
-    uint8 checksum;
+typedef struct {
+    uint8_t checksum;
     temphumisensor_general_config_t generalConfig;
     int16_t tempPointToOff;
     int16_t tempPointToOn;
     uint16_t humiPointToOff;
     uint16_t humiPointToOn;
     uint16_t readInterval;
-} temphumisensor_config;
+} tempHumisensor_sensor_t;
+
+tempHumisensor_sensor_t temphumisensor_config;
 
 void temphumisensor_init(void);
-void temphumisensor_tcp_handle(struct espconn* pesp_conn, char* data);
+void temphumisensor_tcp_handle(struct espconn *pesp_conn, char *data);
 
 #endif

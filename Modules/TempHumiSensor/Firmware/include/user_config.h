@@ -34,4 +34,11 @@ struct ConfigStruct {
 #define USER2_SECTOR    0x81
 /* *** end fota config *** */
 
+/* *** temphumisensor.h config *** */
+#define TEMPHUMI_CONFIG_SECTOR	    0x71
+#define TEMPHUMI_DATA_PIN		    14
+#define TEMPHUMI_TEMPSWITCH_PIN		4
+#define TEMPHUMI_HUMISWITCH_PIN		5
+/* *** end temphumisensor.h config *** */
+
 #endif

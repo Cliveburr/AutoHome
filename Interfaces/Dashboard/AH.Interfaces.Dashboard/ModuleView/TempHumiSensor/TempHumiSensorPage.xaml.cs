@@ -158,5 +158,24 @@ namespace AH.Interfaces.Dashboard.ModuleView.TempHumiSensor
                 button.Content = "Active";
             }
         }
+
+        public void DataRead_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                using (var tcp = _connector.OpenTcpConnection())
+                {
+                    var receive = tcp.SendAndReceive(new DataReadRequest());
+
+                    var content = receive.ReadContent<DataReadResponse>();
+
+
+                }
+            }
+            catch (Exception err)
+            {
+                App.Instance.ErrorHandler(err);
+            }
+        }
     }
 }

@@ -53,9 +53,9 @@ namespace AH.Interfaces.Dashboard.ModuleView.Fota
 
                     var content = receive.ReadContent<FotaStateReadResponse>();
 
-                    _context.NextUser = content.UserBin == 1 ?
-                        "User 1 bin" :
-                        "User 2 bin";
+                    _context.NextUser = content.UserBin == 0 ?
+                        "User 2 bin" :
+                        "User 1 bin";
                     _context.RaiseNotify("NextUser");
 
                     SetUserEnabled(content.UserBin);
@@ -88,9 +88,9 @@ namespace AH.Interfaces.Dashboard.ModuleView.Fota
 
                         var content = receive.ReadContent<FotaStateReadResponse>();
 
-                        var file = content.UserBin == 1 ?
-                            _context.User1bin :
-                            _context.User2bin;
+                        var file = content.UserBin == 0 ?
+                            _context.User2bin :
+                            _context.User1bin;
 
                         if (!File.Exists(file))
                         {
@@ -148,8 +148,8 @@ namespace AH.Interfaces.Dashboard.ModuleView.Fota
             }
             catch (Exception err)
             {
-                App.Instance.ErrorHandler(err);
                 Mouse.OverrideCursor = defaultCursor;
+                App.Instance.ErrorHandler(err);
             }
         }
 
@@ -198,13 +198,13 @@ namespace AH.Interfaces.Dashboard.ModuleView.Fota
                     dpUser1.IsEnabled = false;
                     dpUser2.IsEnabled = false;
                     break;
-                case 1:
-                    dpUser1.IsEnabled = true;
-                    dpUser2.IsEnabled = false;
-                    break;
                 case 0:
                     dpUser1.IsEnabled = false;
                     dpUser2.IsEnabled = true;
+                    break;
+                case 1:
+                    dpUser1.IsEnabled = true;
+                    dpUser2.IsEnabled = false;
                     break;
             }
         }

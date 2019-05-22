@@ -66,6 +66,8 @@
     <Compile Include="Messages\TempHumiSensor\ConfigurationReadRequest.cs" />
     <Compile Include="Messages\TempHumiSensor\ConfigurationReadResponse.cs" />
     <Compile Include="Messages\TempHumiSensor\ConfigurationSaveRequest.cs" />
+    <Compile Include="Messages\TempHumiSensor\DataReadRequest.cs" />
+    <Compile Include="Messages\TempHumiSensor\DataReadResponse.cs" />
     <Compile Include="Messages\TempHumiSensor\OneShotReadRequest.cs" />
     <Compile Include="Messages\TempHumiSensor\OneShotReadResponse.cs" />
     <Compile Include="Messages\TempHumiSensor\TempHumiSensorMessageType.cs" />

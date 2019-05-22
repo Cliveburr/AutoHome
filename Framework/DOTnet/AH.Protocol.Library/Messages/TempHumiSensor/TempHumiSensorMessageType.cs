@@ -14,5 +14,7 @@ namespace AH.Protocol.Library.Messages.TempHumiSensor
         ConfigurationSaveRequest = 3,
         OneShotReadRequest = 4,
         OneShotReadResponse = 5,
+        DataReadRequest = 6,
+        DataReadResponse = 7
     }
 }

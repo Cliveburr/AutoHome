@@ -1,4 +1,10 @@
+#include "ets_sys.h"
+#include "osapi.h"
+#include "c_types.h"
+#include "user_interface.h"
+#include "gpio.h"
 
+#include "dht.h"
 
 // melhor alimentar com 5V
 // esperar 1s depois de ligar antes da primeira leitura
@@ -15,24 +21,27 @@
 // setar para input GPIO_DIS_OUTPUT
 
 
+void wdt_feed(void); 
 
 
 ICACHE_FLASH_ATTR
 void dht_read(dht_module_t *module)
 {
-	uint16 periods[83];
-	uint8 init_state, last_state, pos;
+	uint16_t periods[83], lowCycles, highCycles;
+	uint8_t init_state, last_state, pos, i, period_i;
 	
 	// reset the data
 	module->data[0] = module->data[1] = module->data[2] = module->data[3] = module->data[4] = 0;
+	os_memset(&periods, 0, 83);
  
 	// disable interrupts and feed the dog
-	os_intr_lock();
+	//os_intr_lock();
+	ets_intr_lock();
 	wdt_feed();
 	
 	// set the pin to output
 	GPIO_OUTPUT_SET(GPIO_ID_PIN(module->pin), 1);
-	delay_ms(1);
+	os_delay_us(1000);
 	
 	// send the start signal
 	GPIO_OUTPUT_SET(GPIO_ID_PIN(module->pin), 0);
@@ -53,13 +62,13 @@ void dht_read(dht_module_t *module)
 		{
 			os_delay_us(1);
 			periods[pos]++;
-			if (periods[pos] == module.timeout)
+			if (periods[pos] == module->timeout)
 			{
 				break;
 			}
 		}
 
-		if (periods[pos] == module.timeout)
+		if (periods[pos] == module->timeout)
 		{
 			break;
 		}
@@ -70,31 +79,38 @@ void dht_read(dht_module_t *module)
 	}
 
 	// enable interrupts
-	os_intr_unlock();
+	//os_intr_unlock();
+	ets_intr_unlock();
 	
-	if (pos < 83)
+	for (i = 0; i < 83; i++)
 	{
-		module.success = 0;
+		module->periods[i] = periods[i];
 	}
-	else
-	{
-		for (int i = 0; i < 40; ++i)
-		{
-			uint8 period_i = i + 3;
-			uint32 lowCycles  = periods[period_i * 2];
-			uint32 highCycles = periods[(period_i * 2) + 1];
-			
-			data[i/8] <<= 1;
 
-			if (highCycles > lowCycles)
-			{
-				data[i/8] |= 1;
-			}
-		}
+
+	// if (pos < 83)
+	// {
+	// 	module->success = 0;
+	// }
+	// else
+	// {
+	// 	// for (i = 0; i < 40; i++)
+	// 	// {
+	// 	// 	period_i = i + 3;
+	// 	// 	lowCycles  = periods[period_i * 2];
+	// 	// 	highCycles = periods[period_i * 2 + 1];
+			
+	// 	// 	module->data[i/8] <<= 1;
+
+	// 	// 	if (highCycles > lowCycles)
+	// 	// 	{
+	// 	// 		module->data[i/8] |= 1;
+	// 	// 	}
+	// 	// }
 		
-		module.success = (data[4] == ((data[0] + data[1] + data[2] + data[3]) & 0xFF) ?
-			1 : 0;
-	}
+	// 	module->success = (module->data[4] == ((module->data[0] + module->data[1] +module-> data[2] + module->data[3]) & 0xFF)) ?
+	// 		1 : 0;
+	// }
 }
 
 ICACHE_FLASH_ATTR

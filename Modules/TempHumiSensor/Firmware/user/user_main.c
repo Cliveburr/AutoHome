@@ -25,7 +25,7 @@ void init_done(void);
 ICACHE_FLASH_ATTR
 void user_pre_init(void)
 {
-    if(!system_partition_table_regist(at_partition_table, sizeof(at_partition_table)/sizeof(at_partition_table[0]), SPI_FLASH_SIZE_MAP)) {
+    if(!system_partition_table_regist(at_partition_table, sizeof(at_partition_table)/sizeof(at_partition_table[0]), 4)) {   //SPI_FLASH_SIZE_MAP
 		os_printf("system_partition_table_regist fail\r\n");
 		while(1);
 	}
@@ -52,17 +52,14 @@ void init_pins(void)
         os_printf("init_pins...\n");
     #endif
 
-    // GPIO 14 - Red Signal
-    // redPin.pin = 14;
-    // PIN_FUNC_SELECT(PERIPHS_IO_MUX_MTMS_U, FUNC_GPIO14);
+    // GPIO 14 - Sensor Pin
+    PIN_FUNC_SELECT(PERIPHS_IO_MUX_MTMS_U, FUNC_GPIO14);
 
-    // GPIO 4 - Blue Signal
-    // bluePin.pin = 4;
-    // PIN_FUNC_SELECT(PERIPHS_IO_MUX_MTDI_U, FUNC_GPIO4);
+    // GPIO 4 - Temperature Switch
+     PIN_FUNC_SELECT(PERIPHS_IO_MUX_MTDI_U, FUNC_GPIO4);
 
-    // GPIO 5 - Green Signal
-    // greenPin.pin = 5;
-    // PIN_FUNC_SELECT(PERIPHS_IO_MUX_MTDI_U, FUNC_GPIO5);
+    // GPIO 5 - Humidity Switch
+    PIN_FUNC_SELECT(PERIPHS_IO_MUX_MTDI_U, FUNC_GPIO5);
 
     // GPIO 13 - Wifi Mode
     PIN_FUNC_SELECT(PERIPHS_IO_MUX_MTCK_U, FUNC_GPIO13);
