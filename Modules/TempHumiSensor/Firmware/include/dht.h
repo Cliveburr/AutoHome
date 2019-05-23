@@ -9,7 +9,7 @@ typedef struct {
 	uint8_t pin;
 	uint16_t start_signal_us;
 	uint16_t timeout;
-	uint16_t periods[83];
+	uint8_t periods[84];
 } dht_module_t;
 
 void dht_read(dht_module_t *module);

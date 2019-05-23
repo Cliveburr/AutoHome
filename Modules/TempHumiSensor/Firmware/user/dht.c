@@ -23,94 +23,72 @@
 
 void wdt_feed(void); 
 
+uint8_t state;
 
 ICACHE_FLASH_ATTR
 void dht_read(dht_module_t *module)
 {
-	uint16_t periods[83], lowCycles, highCycles;
-	uint8_t init_state, last_state, pos, i, period_i;
+	uint8_t periods[84], lowCycles, highCycles;
+	uint8_t last_state, pos, i;
 	
 	// reset the data
 	module->data[0] = module->data[1] = module->data[2] = module->data[3] = module->data[4] = 0;
-	os_memset(&periods, 0, 83);
+	os_memset(&periods, 0, 84);
  
 	// disable interrupts and feed the dog
-	//os_intr_lock();
 	ets_intr_lock();
 	wdt_feed();
 	
-	// set the pin to output
+	// set the pin to output to wakeup
 	GPIO_OUTPUT_SET(GPIO_ID_PIN(module->pin), 1);
 	os_delay_us(1000);
 	
 	// send the start signal
 	GPIO_OUTPUT_SET(GPIO_ID_PIN(module->pin), 0);
 	os_delay_us(module->start_signal_us);
-	
+
 	// set the pin to input mode
-	GPIO_DIS_OUTPUT(module->pin);
+	GPIO_DIS_OUTPUT(GPIO_ID_PIN(module->pin));
+	os_delay_us(40);
 	
 	// read the first data state
-	init_state = GPIO_INPUT_GET(GPIO_ID_PIN(module->pin));
-	last_state = init_state;
+	last_state = 1;
 	
-	for (pos = 0; pos < 83; pos++)
+	for (pos = 0; pos < 84; pos++)
 	{
-		periods[pos] = 0;
-
-		while (GPIO_INPUT_GET(GPIO_ID_PIN(module->pin)) == last_state)
+		while (GPIO_INPUT_GET(GPIO_ID_PIN(module->pin)) == last_state && periods[pos] < module->timeout)
 		{
 			os_delay_us(1);
 			periods[pos]++;
-			if (periods[pos] == module->timeout)
-			{
-				break;
-			}
 		}
 
-		if (periods[pos] == module->timeout)
-		{
-			break;
-		}
-		else
-		{
-			last_state ^= 1;
-		}
+		last_state = GPIO_INPUT_GET(GPIO_ID_PIN(module->pin));
 	}
 
 	// enable interrupts
-	//os_intr_unlock();
 	ets_intr_unlock();
 	
-	for (i = 0; i < 83; i++)
+	for (i = 0; i < 84; i++)
 	{
 		module->periods[i] = periods[i];
 	}
 
 
-	// if (pos < 83)
-	// {
-	// 	module->success = 0;
-	// }
-	// else
-	// {
-	// 	// for (i = 0; i < 40; i++)
-	// 	// {
-	// 	// 	period_i = i + 3;
-	// 	// 	lowCycles  = periods[period_i * 2];
-	// 	// 	highCycles = periods[period_i * 2 + 1];
-			
-	// 	// 	module->data[i/8] <<= 1;
-
-	// 	// 	if (highCycles > lowCycles)
-	// 	// 	{
-	// 	// 		module->data[i/8] |= 1;
-	// 	// 	}
-	// 	// }
+	for (i = 0; i < 40; i++)
+	{
+		lowCycles  = periods[(i * 2) + 3];
+		highCycles = periods[(i * 2) + 4];
 		
-	// 	module->success = (module->data[4] == ((module->data[0] + module->data[1] +module-> data[2] + module->data[3]) & 0xFF)) ?
-	// 		1 : 0;
-	// }
+		module->data[i/8] <<= 1;
+
+		if (highCycles > lowCycles)
+		{
+			module->data[i/8] |= 1;
+		}
+	}
+	
+	module->success = (module->data[4] == ((module->data[0] + module->data[1] +module-> data[2] + module->data[3]) & 0xFF)) ?
+		1 : 0;
 }
 
 ICACHE_FLASH_ATTR

@@ -177,6 +177,28 @@ namespace AH.Interfaces.Dashboard.ModuleView.TempHumiSensor
                             content.Data
                                 .Select(d => string.Format("{0} = {1}\n", index++.ToString(), d.ToString()))
                         );
+
+
+                    var data = new byte[5];
+                    for (int i = 0; i < 40; i++)
+                    {
+                        int lowCycles = content.Data[(i * 2) + 3];
+                        int highCycles = content.Data[(i * 2) + 4];
+
+                        data[i / 8] <<= 1;
+
+                        if (highCycles > lowCycles)
+                        {
+                            data[i / 8] |= 1;
+                        }
+                    }
+
+                    var success = (data[4] == ((data[0] + data[1] + data[2] + data[3]) & 0xFF)) ?
+                     		1 : 0;
+
+                    var temperature = dht_data_to_temperature(data);
+                    var humidity = dht_data_to_humidity(data);
+
                 }
             }
             catch (Exception err)

@@ -16,7 +16,7 @@ namespace AH.Protocol.Library.Messages.TempHumiSensor
 
         public void Read(BinaryReader stream)
         {
-            Data = stream.ReadBytes(83);
+            Data = stream.ReadBytes(93);
         }
 
         public void Write(BinaryWriter stream)

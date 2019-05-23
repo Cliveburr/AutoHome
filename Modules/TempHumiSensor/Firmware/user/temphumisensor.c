@@ -249,7 +249,7 @@ void temphumisensor_oneshot_read(struct espconn* pesp_conn)
 	buffer[pos++] = 4;    // temphumisensor port
 	buffer[pos++] = 5;    // oneshot response
 
-	//dht_read(&moduleOne);
+	dht_read(&moduleOne);
 
 	if (moduleOne.success)
 	{
@@ -274,7 +274,7 @@ void temphumisensor_data_read(struct espconn* pesp_conn)
 		os_printf("temphumisensor_data_read...\n");
 	#endif
 
-	uint8_t totalBuffer = 3 + 83;
+	uint8_t totalBuffer = 3 + 84;
 
 	uint8_t* buffer = (uint8_t*)os_zalloc(totalBuffer);
 	os_memset(buffer, 0, totalBuffer);
@@ -286,7 +286,7 @@ void temphumisensor_data_read(struct espconn* pesp_conn)
 	dht_read(&moduleOne);
 
     uint8_t i;
-	for (i = 0; i < 83; i++)
+	for (i = 0; i < 84; i++)
 	{
 		buffer[pos + i] = moduleOne.periods[i];
 	}
@@ -303,8 +303,8 @@ void temphumisensor_init(void)
  	temphumisensor_config_load();
 
 	moduleOne.pin = TEMPHUMI_DATA_PIN;
-	moduleOne.start_signal_us = 20;
-	moduleOne.timeout = 200;
+	moduleOne.start_signal_us = 3000;
+	moduleOne.timeout = 250;
 
  	os_timer_setfn(&readInterval_timer, (os_timer_func_t*)temphumisensor_timer_cb, 0);
  	temphumisensor_resetall();
