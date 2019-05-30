@@ -12,7 +12,7 @@ using System.Timers;
 
 namespace AH.Module.Simulation
 {
-    public class TempHumiSensorPort : PortBase
+    public partial class TempHumiSensorPort : PortBase
     {
         private static TempHumiSensorPort _instance;
         public static TempHumiSensorPort Instance { get; } = _instance ?? new TempHumiSensorPort();
@@ -175,70 +175,6 @@ namespace AH.Module.Simulation
             return (ushort)((data[0] << 8) + data[1]);
         }
 
-        private const byte TEMPHUMISENSOR_DATAPCK_COUNTS = 60;   // counts of data in one package
-        private const byte TEMPHUMISENSOR_DATAPCK_LEN = 128;   // header + (data * TEMPHUMISENSOR_DATAPCK_COUNTS)
-        private const uint TEMPHUMISENSOR_DATA_SECTOR_INI = 0xEB;
-        private const uint TEMPHUMISENSOR_DATA_SECTOR_END = 0x400;
-        private bool hasPackageInitied;
-        private DateTimeOffset datapck_started_datetime;
-        private byte datapck_pos;
-        private byte[] datapck_data;
-
-        private void temphumisensor_createdatapackage()
-        {
-            hasPackageInitied = true;
-            datapck_started_datetime = DateTimeOffset.Now;
-            datapck_pos = 0;
-            datapck_data = new byte[5 * TEMPHUMISENSOR_DATAPCK_COUNTS];
-        }
-
-        private void temphumisensor_writedatapackage()
-        {
-            datainfo_addr += TEMPHUMISENSOR_DATAPCK_LEN;
-
-            //if ((datainfo_addr + TEMPHUMISENSOR_DATAPCK_LEN) >= 
-
-
-            var started_timestamp = (uint)datapck_started_datetime.ToUnixTimeSeconds();
-
-            var buffer = BitConverter.GetBytes(started_timestamp)
-                .Concat(BitConverter.GetBytes(temphumisensor_config.readInterval))
-                .Concat(new byte[2])
-                .Concat(datapck_data)
-                .ToArray();
-
-
-
-            temphumisensor_datainfo_save();
-
-            hasPackageInitied = false;
-        }
-
-        private void temphumisensor_data_save()
-        {
-            // messages
-            // ler os dados do sector de next_free_slot
-            // solicitar pacotes, passar o primeiro sector e a quantidade a ler
-
-            // na função temphumisensor_resetall, se tiver pacote aberto, salvar e não abrir outro
-            // na função temphumisensor_set_timers tem q tratar se fecha o pacote aberto
-
-            if (!hasPackageInitied)
-            {
-                temphumisensor_createdatapackage();
-            }
-
-            var datapck_addr = datapck_pos * 5;
-            Array.Copy(moduleOne.data, 0, datapck_data, datapck_addr, 5);
-
-            datapck_pos++;
-
-            if (datapck_pos == TEMPHUMISENSOR_DATAPCK_COUNTS)
-            {
-                temphumisensor_writedatapackage();
-            }
-        }
-
         private void temphumisensor_timer_cb(object sender, ElapsedEventArgs e)
         {
             readInterval_timer.Stop();  // just in simulation
@@ -303,7 +239,7 @@ namespace AH.Module.Simulation
         private ushort _humi;
         private Random _rnd = new Random((int)DateTime.Now.Ticks);
 
-        private void dht_read()
+        public void dht_read()
         {
             moduleOne.success = true;
 
@@ -350,59 +286,6 @@ namespace AH.Module.Simulation
                     moduleOne.data = mem.ToArray().Reverse().ToArray();
                 }
             }
-        }
-
-        private const ushort TEMPHUMI_DATAINFO_SECTOR = 0x72;
-        private uint datainfo_id;
-        private uint datainfo_addr;
-        private ushort datainfo_pos;
-
-        private void temphumisensor_datainfo_load()
-        {
-            var infoSector = new byte[SPI_FLASH_SEC_SIZE];
-            uint sectorIniAddr = TEMPHUMI_DATAINFO_SECTOR * SPI_FLASH_SEC_SIZE;
-
-            spi_flash_read(sectorIniAddr, ref infoSector, SPI_FLASH_SEC_SIZE);
-
-            datainfo_id = 0;
-            datainfo_addr = 0;
-            datainfo_pos = 0;
-            for (var i = 0; i < SPI_FLASH_SEC_SIZE; i += 8)
-            {
-                var thisId = BitConverter.ToUInt32(infoSector, i);
-                if (thisId > datainfo_id)
-                {
-                    datainfo_id = thisId;
-                    datainfo_addr = BitConverter.ToUInt32(infoSector, i + 4);
-                    datainfo_pos = (ushort)i;
-
-                    // need checksum
-                }
-            }
-        }
-
-        private void temphumisensor_datainfo_save()
-        {
-            datainfo_id++;
-            if (datainfo_id == 0)
-            {
-                spi_flash_erase_sector(TEMPHUMI_DATAINFO_SECTOR);
-                datainfo_pos = 0;
-            }
-
-            datainfo_pos += 8;
-            if ((datainfo_pos + 8) >= SPI_FLASH_SEC_SIZE)
-            {
-                datainfo_pos = 0;
-            }
-
-            var buffer = BitConverter.GetBytes(datainfo_id)
-                .Concat(BitConverter.GetBytes(datainfo_addr))
-                .ToArray();
-
-            uint sectorIniAddr = TEMPHUMI_DATAINFO_SECTOR * SPI_FLASH_SEC_SIZE;
-
-            spi_flash_write(sectorIniAddr + datainfo_pos, buffer, 8);
         }
     }
 }
