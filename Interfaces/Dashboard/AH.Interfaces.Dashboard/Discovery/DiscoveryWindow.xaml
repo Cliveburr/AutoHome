@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AH.Interfaces.Dashboard.Discovery"
+        xmlns:Controls="clr-namespace:AH.Interfaces.Dashboard.Controls"
         mc:Ignorable="d"
         Title="Discovery Modules" Height="450" Width="800" WindowStartupLocation="CenterScreen">
     <DockPanel Background="#FFE5E5E5">
@@ -20,7 +21,7 @@
                 </DockPanel>
             </StackPanel>
         </GroupBox>
-        <GroupBox Header="List">
+        <GroupBox Header="List" Visibility="Collapsed">
             <DataGrid x:Name="dgModules" Margin="5" ItemsSource="{Binding ModuleList}" CanUserAddRows="False" CanUserDeleteRows="False" AutoGenerateColumns="False" SelectionMode="Single" GridLinesVisibility="None">
                 <DataGrid.Columns>
                     <DataGridTextColumn IsReadOnly="True" Header="UID" Width="50" Binding="{Binding UID}" />
@@ -30,5 +31,6 @@
                 </DataGrid.Columns>
             </DataGrid>
         </GroupBox>
+        <Controls:TempHumiSensorGraph></Controls:TempHumiSensorGraph>
     </DockPanel>
 </Window>
