@@ -7,8 +7,8 @@
              mc:Ignorable="d" d:DesignHeight="363.034" d:DesignWidth="989.101" Loaded="UserControl_Loaded">
     <DockPanel>
         <ScrollBar x:Name="scroll" DockPanel.Dock="Bottom" Orientation="Horizontal" ValueChanged="ScrollBar_ValueChanged" />
-        <Slider x:Name="slider" DockPanel.Dock="Right" Orientation="Vertical" Maximum="100" Minimum="10" Value="55" ValueChanged="Slider_ValueChanged" />
-        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" HorizontalAlignment="Center">
+        <Slider x:Name="slider" DockPanel.Dock="Right" Orientation="Vertical" Maximum="30" Minimum="1" Value="15" ValueChanged="Slider_ValueChanged" />
+        <StackPanel DockPanel.Dock="Bottom" Margin="0,10,0,20" Orientation="Horizontal" HorizontalAlignment="Center">
             <Label Margin="7,0,7,0">Date Time: </Label>
             <TextBox x:Name="tbDateTime" Margin="7,0,7,0" Width="150" IsReadOnly="True"></TextBox>
             <Label Margin="7,0,7,0">Temperature:</Label>
@@ -16,6 +16,6 @@
             <Label Margin="7,0,7,0">Humidity:</Label>
             <TextBox x:Name="tbHumi" Margin="7,0,7,0" Width="130" IsReadOnly="True" TextAlignment="Right"></TextBox>
         </StackPanel>
-        <Canvas x:Name="canvas" Margin="5" MouseDown="Canvas_MouseDown" Background="White"></Canvas>
+        <Canvas x:Name="canvas" Margin="5" MouseDown="Canvas_MouseDown" Background="White" Height="250"></Canvas>
     </DockPanel>
 </UserControl>

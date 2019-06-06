@@ -1,4 +1,5 @@
-﻿using AH.Protocol.Library.Messages.TempHumiSensor;
+﻿using AH.Interfaces.Dashboard.Controls;
+using AH.Protocol.Library.Messages.TempHumiSensor;
 using AH.Protocol.Library.Messages.TempHumiSensor.BitMappers;
 using System;
 using System.Collections.Generic;
@@ -35,6 +36,8 @@ namespace AH.Interfaces.Dashboard.ModuleView.TempHumiSensor
         {
             _context = new TempHumiSensorContext
             {
+                Skip = 0,
+                Take = 1
             };
             DataContext = _context;
         }
@@ -200,6 +203,83 @@ namespace AH.Interfaces.Dashboard.ModuleView.TempHumiSensor
                     var humidity = dht_data_to_humidity(data);
 
                 }
+            }
+            catch (Exception err)
+            {
+                App.Instance.ErrorHandler(err);
+            }
+        }
+
+        public void HistoryRead_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                using (var tcp = _connector.OpenTcpConnection())
+                {
+                    var receive = tcp.SendAndReceive(new HistoryReadRequest
+                    {
+                        Skip = (byte)_context.Skip,
+                        Take = (byte)_context.Take
+                    });
+
+                    var content = receive.ReadContent<HistoryReadResponse>();
+
+                    var data = new List<TempHumiSensorGraphModel>();
+
+                    if (content.UnSavedData != null)
+                    {
+                        data.AddRange(ExtractData(content.UnSavedData));
+                    }
+
+                    data.AddRange(content.Data
+                        .SelectMany(p => ExtractData(p)));
+
+                    graph.AddData(data);
+                }
+            }
+            catch (Exception err)
+            {
+                App.Instance.ErrorHandler(err);
+            }
+        }
+
+        private List<TempHumiSensorGraphModel> ExtractData(data_package_t package)
+        {
+            var result = new List<TempHumiSensorGraphModel>();
+
+            var dateTime = DateTimeOffset.FromUnixTimeSeconds(package.started_timestamp).DateTime;
+            var interval = package.readInterval;
+
+            for (var i = 0; i < package.data.Length; i += 5)
+            {
+                var thisData = new byte[5];
+                Array.Copy(package.data, i, thisData, 0, 5);
+
+                var temperature = dht_data_to_temperature(thisData);
+                var humidity = dht_data_to_humidity(thisData);
+
+                var switchs = new switchs_state_t { Value = thisData[4] };
+
+                result.Add(new TempHumiSensorGraphModel
+                {
+                    DateTime = dateTime,
+                    Temperature = temperature,
+                    TemperatureSwitch = switchs.tempSwtichState,
+                    Humidity = humidity,
+                    HumiditySwitch = switchs.humiSwtichState
+                });
+
+                dateTime.AddMilliseconds(interval);
+            }
+
+            return result;
+        }
+
+        public void HistoryClear_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                graph.ClearData();
             }
             catch (Exception err)
             {

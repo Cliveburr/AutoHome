@@ -15,6 +15,8 @@ namespace AH.Protocol.Library.Messages.TempHumiSensor
         OneShotReadRequest = 4,
         OneShotReadResponse = 5,
         DataReadRequest = 6,
-        DataReadResponse = 7
+        DataReadResponse = 7,
+        HistoryReadRequest = 8,
+        HistoryReadResponse = 9
     }
 }

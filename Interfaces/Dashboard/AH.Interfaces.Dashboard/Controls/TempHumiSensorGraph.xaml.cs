@@ -29,81 +29,81 @@ namespace AH.Interfaces.Dashboard.Controls
 
             _data = new List<TempHumiSensorGraphModel>();
 
-            _data.AddRange(new TempHumiSensorGraphModel[]
-            {
-                new TempHumiSensorGraphModel
-                {
-                    DateTime = DateTime.Now.AddMinutes(0),
-                    Temperature = 31,
-                    TemperatureSwitch = true,
-                    Humidity = 80,
-                    HumiditySwitch = true
-                },
-                new TempHumiSensorGraphModel
-                {
-                    DateTime = DateTime.Now.AddMinutes(1),
-                    Temperature = 28,
-                    TemperatureSwitch = true,
-                    Humidity = 85,
-                    HumiditySwitch = true
-                },
-                new TempHumiSensorGraphModel
-                {
-                    DateTime = DateTime.Now.AddMinutes(2),
-                    Temperature = 21,
-                    TemperatureSwitch = true,
-                    Humidity = 90,
-                    HumiditySwitch = false
-                },
-                new TempHumiSensorGraphModel
-                {
-                    DateTime = DateTime.Now.AddMinutes(3),
-                    Temperature = 15,
-                    TemperatureSwitch = true,
-                    Humidity = 92,
-                    HumiditySwitch = false
-                },
-                new TempHumiSensorGraphModel
-                {
-                    DateTime = DateTime.Now.AddMinutes(4),
-                    Temperature = 10,
-                    TemperatureSwitch = false,
-                    Humidity = 92,
-                    HumiditySwitch = false
-                },
-                new TempHumiSensorGraphModel
-                {
-                    DateTime = DateTime.Now.AddMinutes(5),
-                    Temperature = 11,
-                    TemperatureSwitch = false,
-                    Humidity = 90,
-                    HumiditySwitch = false
-                },
-                new TempHumiSensorGraphModel
-                {
-                    DateTime = DateTime.Now.AddMinutes(6),
-                    Temperature = 12,
-                    TemperatureSwitch = false,
-                    Humidity = 88,
-                    HumiditySwitch = false
-                },
-                new TempHumiSensorGraphModel
-                {
-                    DateTime = DateTime.Now.AddMinutes(7),
-                    Temperature = 14,
-                    TemperatureSwitch = true,
-                    Humidity = 85,
-                    HumiditySwitch = true
-                },
-                new TempHumiSensorGraphModel
-                {
-                    DateTime = DateTime.Now.AddMinutes(8),
-                    Temperature = 13,
-                    TemperatureSwitch = true,
-                    Humidity = 88,
-                    HumiditySwitch = true
-                }
-            });
+            //_data.AddRange(new TempHumiSensorGraphModel[]
+            //{
+            //    new TempHumiSensorGraphModel
+            //    {
+            //        DateTime = DateTime.Now.AddMinutes(0),
+            //        Temperature = 31,
+            //        TemperatureSwitch = true,
+            //        Humidity = 80,
+            //        HumiditySwitch = true
+            //    },
+            //    new TempHumiSensorGraphModel
+            //    {
+            //        DateTime = DateTime.Now.AddMinutes(1),
+            //        Temperature = 28,
+            //        TemperatureSwitch = true,
+            //        Humidity = 85,
+            //        HumiditySwitch = true
+            //    },
+            //    new TempHumiSensorGraphModel
+            //    {
+            //        DateTime = DateTime.Now.AddMinutes(2),
+            //        Temperature = 21,
+            //        TemperatureSwitch = true,
+            //        Humidity = 90,
+            //        HumiditySwitch = false
+            //    },
+            //    new TempHumiSensorGraphModel
+            //    {
+            //        DateTime = DateTime.Now.AddMinutes(3),
+            //        Temperature = 15,
+            //        TemperatureSwitch = true,
+            //        Humidity = 92,
+            //        HumiditySwitch = false
+            //    },
+            //    new TempHumiSensorGraphModel
+            //    {
+            //        DateTime = DateTime.Now.AddMinutes(4),
+            //        Temperature = 10,
+            //        TemperatureSwitch = false,
+            //        Humidity = 92,
+            //        HumiditySwitch = false
+            //    },
+            //    new TempHumiSensorGraphModel
+            //    {
+            //        DateTime = DateTime.Now.AddMinutes(5),
+            //        Temperature = 11,
+            //        TemperatureSwitch = false,
+            //        Humidity = 90,
+            //        HumiditySwitch = false
+            //    },
+            //    new TempHumiSensorGraphModel
+            //    {
+            //        DateTime = DateTime.Now.AddMinutes(6),
+            //        Temperature = 12,
+            //        TemperatureSwitch = false,
+            //        Humidity = 88,
+            //        HumiditySwitch = false
+            //    },
+            //    new TempHumiSensorGraphModel
+            //    {
+            //        DateTime = DateTime.Now.AddMinutes(7),
+            //        Temperature = 14,
+            //        TemperatureSwitch = true,
+            //        Humidity = 85,
+            //        HumiditySwitch = true
+            //    },
+            //    new TempHumiSensorGraphModel
+            //    {
+            //        DateTime = DateTime.Now.AddMinutes(8),
+            //        Temperature = 13,
+            //        TemperatureSwitch = true,
+            //        Humidity = 88,
+            //        HumiditySwitch = true
+            //    }
+            //});
         }
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
@@ -216,7 +216,7 @@ namespace AH.Interfaces.Dashboard.Controls
             var indexIni = Math.Abs(scroll.Value / slider.Value);
             var indexEnd = Math.Ceiling((scroll.Value + canvas.ActualWidth) / slider.Value);
 
-            var realIndexIni = (int)Math.Min(indexIni, 0);
+            var realIndexIni = (int)(uint)indexIni;
             var realIndexEnd = Math.Min(indexEnd, _data.Count);
 
             var itemCount = realIndexEnd - realIndexIni;

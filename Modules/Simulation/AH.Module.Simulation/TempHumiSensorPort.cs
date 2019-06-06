@@ -44,6 +44,7 @@ namespace AH.Module.Simulation
                 case (byte)TempHumiSensorMessageType.ConfigurationReadRequest: return HandleConfigurationRead(message);
                 case (byte)TempHumiSensorMessageType.ConfigurationSaveRequest: return HandleConfigurationSave(message);
                 case (byte)TempHumiSensorMessageType.OneShotReadRequest: return HandleOneShotRead(message);
+                case (byte)TempHumiSensorMessageType.HistoryReadRequest: return HandleHistoryRead(message);
                 default: return null;
             }
         }
@@ -94,6 +95,71 @@ namespace AH.Module.Simulation
             };
         }
 
+        public IContentMessage HandleHistoryRead(Message message)
+        {
+            Program.Log("HandleHistoryRead");
+
+            var content = message.ReadContent<HistoryReadRequest>();
+            var response = new HistoryReadResponse();
+
+            var skip = content.Skip;
+            var take = content.Take;
+            var moved = 0;
+            var taked = 0;
+
+            if (hasPackageInitied)
+            {
+                taked++;
+
+                response.UnSavedData = new Protocol.Library.Messages.TempHumiSensor.data_package_t
+                {
+                    started_timestamp = data_package.started_timestamp,
+                    readInterval = data_package.readInterval,
+                    data = data_package.data
+                };
+                response.UnSavedData.data = new byte[data_package_pos * 5];
+                Array.Copy(data_package.data, 0, response.UnSavedData.data, 0, response.UnSavedData.data.Length);
+            }
+
+            var datas = new List<Protocol.Library.Messages.TempHumiSensor.data_package_t>();
+            var addr = datainfo_addr;
+            while ((taked < 4 && taked < take) && (datainfo_addr > 0) && (moved < ushort.MaxValue))
+            {
+                if (addr < TEMPHUMISENSOR_DATA_SECTOR_INI_ADDR)
+                {
+                    addr = TEMPHUMISENSOR_DATA_SECTOR_END_ADDR;
+                }
+
+                if (moved >= skip)
+                {
+                    var buffer = new byte[TEMPHUMISENSOR_DATA_PACKAGE_LEN];
+                    spi_flash_read(addr, ref buffer, TEMPHUMISENSOR_DATA_PACKAGE_LEN);
+
+                    var started_timestamp = BitConverter.ToUInt32(buffer, 0);
+                    if (started_timestamp == 0)
+                    {
+                        break;
+                    }
+
+                    var readInterval = BitConverter.ToUInt16(buffer, 4);
+                    var data = new byte[250];
+                    Array.Copy(buffer, 6, data, 0, 250);
+
+                    datas.Add(new Protocol.Library.Messages.TempHumiSensor.data_package_t
+                    { 
+                        started_timestamp = started_timestamp,
+                        readInterval = readInterval,
+                        data = data
+                    });
+                }
+
+                moved++;
+                addr -= TEMPHUMISENSOR_DATA_PACKAGE_LEN;
+            }
+            response.Data = datas.ToArray();
+
+            return response;
+        }
 
         // working simulation
 

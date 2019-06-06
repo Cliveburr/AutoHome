@@ -21,5 +21,7 @@ namespace AH.Interfaces.Dashboard.ModuleView.TempHumiSensor
         public string TemperatureRelayState { get; set; }
         public string HumidityRelayState { get; set; }
         public bool SaveData { get; set; }
+        public int Skip { get; set; }
+        public int Take { get; set; }
     }
 }

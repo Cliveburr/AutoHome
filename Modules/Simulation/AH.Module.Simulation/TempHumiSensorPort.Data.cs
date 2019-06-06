@@ -43,7 +43,7 @@ namespace AH.Module.Simulation
                     {
                         datainfo_id = thisId;
                         datainfo_addr = thisAddr;
-                        datainfo_checksum = thisChecksum; // only to test
+                        datainfo_checksum = thisChecksum; // only to Tests project
                         datainfo_pos = (ushort)i;
                     }
                 }

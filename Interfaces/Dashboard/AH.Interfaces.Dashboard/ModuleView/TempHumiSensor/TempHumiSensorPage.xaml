@@ -3,87 +3,100 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:Controls="clr-namespace:AH.Interfaces.Dashboard.Controls"
       xmlns:local="clr-namespace:AH.Interfaces.Dashboard.ModuleView.TempHumiSensor"
       mc:Ignorable="d"
-      Title="TempHumiSensorPage" Background="#FFE5E5E5" Height="474.27" Width="829.326">
-    <DockPanel>
-        <GroupBox DockPanel.Dock="Top" Margin="5" Header="Configuration">
-            <DockPanel >
-                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
-                    <Button Margin="5" Width="100" Click="Configuration_Read_Click">Read</Button>
-                    <Button Margin="5" Width="100" Click="Configuration_Save_Click">Save</Button>
-                </StackPanel>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="130" />
-                        <ColumnDefinition />
-                        <ColumnDefinition Width="130" />
-                        <ColumnDefinition />
-                        <ColumnDefinition Width="130" />
-                        <ColumnDefinition />
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition />
-                        <RowDefinition />
-                        <RowDefinition />
-                        <RowDefinition />
-                    </Grid.RowDefinitions>
+      Title="TempHumiSensorPage" Background="#FFE5E5E5" d:DesignHeight="474.27" d:DesignWidth="829.326">
+    <TabControl Background="#FFE5E5E5" Margin="5">
+        <TabItem Header="Data">
+            <DockPanel>
+                <GroupBox DockPanel.Dock="Top" Margin="5" Header="Configuration">
+                    <DockPanel >
+                        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
+                            <Button Margin="5" Width="100" Click="Configuration_Read_Click">Read</Button>
+                            <Button Margin="5" Width="100" Click="Configuration_Save_Click">Save</Button>
+                        </StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="130" />
+                                <ColumnDefinition />
+                                <ColumnDefinition Width="130" />
+                                <ColumnDefinition />
+                                <ColumnDefinition Width="130" />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
 
-                    <Label Margin="5" Grid.Column="0" Grid.Row="0">Interval:</Label>
-                    <ToggleButton Margin="5" Grid.Column="1" Grid.Row="0" IsChecked="{Binding IntervalActive}" Checked="ToggleButton_ChangeText" Unchecked="ToggleButton_ChangeText">Active</ToggleButton>
+                            <Label Margin="5" Grid.Column="0" Grid.Row="0">Interval:</Label>
+                            <ToggleButton Margin="5" Grid.Column="1" Grid.Row="0" IsChecked="{Binding IntervalActive}" Checked="ToggleButton_ChangeText" Unchecked="ToggleButton_ChangeText">Active</ToggleButton>
 
-                    <Label Margin="5" Grid.Column="2" Grid.Row="0">Read Interval (ms):</Label>
-                    <TextBox Margin="5" Grid.Column="3" Grid.Row="0" Text="{Binding ReadInterval}"></TextBox>
+                            <Label Margin="5" Grid.Column="2" Grid.Row="0">Read Interval (ms):</Label>
+                            <TextBox Margin="5" Grid.Column="3" Grid.Row="0" Text="{Binding ReadInterval}"></TextBox>
 
-                    <Label Margin="5" Grid.Column="0" Grid.Row="1">Temperature Switch:</Label>
-                    <ToggleButton Margin="5" Grid.Column="1" Grid.Row="1" IsChecked="{Binding TemperatureSwitch}" Checked="ToggleButton_ChangeText" Unchecked="ToggleButton_ChangeText">Active</ToggleButton>
+                            <Label Margin="5" Grid.Column="0" Grid.Row="1">Temperature Switch:</Label>
+                            <ToggleButton Margin="5" Grid.Column="1" Grid.Row="1" IsChecked="{Binding TemperatureSwitch}" Checked="ToggleButton_ChangeText" Unchecked="ToggleButton_ChangeText">Active</ToggleButton>
 
-                    <Label Margin="5" Grid.Column="2" Grid.Row="1">Point to off C°:</Label>
-                    <TextBox Margin="5" Grid.Column="3" Grid.Row="1" Text="{Binding TempPointToOff}"></TextBox>
+                            <Label Margin="5" Grid.Column="2" Grid.Row="1">Point to off C°:</Label>
+                            <TextBox Margin="5" Grid.Column="3" Grid.Row="1" Text="{Binding TempPointToOff}"></TextBox>
 
-                    <Label Margin="5" Grid.Column="4" Grid.Row="1">Point to on C°:</Label>
-                    <TextBox Margin="5" Grid.Column="5" Grid.Row="1" Text="{Binding TempPointToOn}"></TextBox>
+                            <Label Margin="5" Grid.Column="4" Grid.Row="1">Point to on C°:</Label>
+                            <TextBox Margin="5" Grid.Column="5" Grid.Row="1" Text="{Binding TempPointToOn}"></TextBox>
 
-                    <Label Margin="5" Grid.Column="0" Grid.Row="2">Humidity Switch:</Label>
-                    <ToggleButton Margin="5" Grid.Column="1" Grid.Row="2" IsChecked="{Binding HumiditySwitch}" Checked="ToggleButton_ChangeText" Unchecked="ToggleButton_ChangeText">Active</ToggleButton>
+                            <Label Margin="5" Grid.Column="0" Grid.Row="2">Humidity Switch:</Label>
+                            <ToggleButton Margin="5" Grid.Column="1" Grid.Row="2" IsChecked="{Binding HumiditySwitch}" Checked="ToggleButton_ChangeText" Unchecked="ToggleButton_ChangeText">Active</ToggleButton>
 
-                    <Label Margin="5" Grid.Column="2" Grid.Row="2">Point to off %:</Label>
-                    <TextBox Margin="5" Grid.Column="3" Grid.Row="2" Text="{Binding HumiPointToOff}"></TextBox>
+                            <Label Margin="5" Grid.Column="2" Grid.Row="2">Point to off %:</Label>
+                            <TextBox Margin="5" Grid.Column="3" Grid.Row="2" Text="{Binding HumiPointToOff}"></TextBox>
 
-                    <Label Margin="5" Grid.Column="4" Grid.Row="2">Point to on %:</Label>
-                    <TextBox Margin="5" Grid.Column="5" Grid.Row="2" Text="{Binding HumiPointToOn}"></TextBox>
+                            <Label Margin="5" Grid.Column="4" Grid.Row="2">Point to on %:</Label>
+                            <TextBox Margin="5" Grid.Column="5" Grid.Row="2" Text="{Binding HumiPointToOn}"></TextBox>
 
-                    <Label Margin="5" Grid.Column="0" Grid.Row="3">Save Data:</Label>
-                    <ToggleButton Margin="5" Grid.Column="1" Grid.Row="3" IsChecked="{Binding SaveData}" Checked="ToggleButton_ChangeText" Unchecked="ToggleButton_ChangeText">Active</ToggleButton>
+                            <Label Margin="5" Grid.Column="0" Grid.Row="3">Save Data:</Label>
+                            <ToggleButton Margin="5" Grid.Column="1" Grid.Row="3" IsChecked="{Binding SaveData}" Checked="ToggleButton_ChangeText" Unchecked="ToggleButton_ChangeText">Active</ToggleButton>
+                        </Grid>
+                    </DockPanel>
+                </GroupBox>
+                <GroupBox DockPanel.Dock="Top" Margin="5" Header="One Shot Read">
+                    <DockPanel>
+                        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
+                            <Button Margin="5" Width="100" Click="OneShotRead_Click">Read</Button>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Label Margin="5">Temperature C°:</Label>
+                            <TextBox Margin="5" Width="100" IsReadOnly="True" Text="{Binding OneShotTemperature}"></TextBox>
+                            <Label Margin="5">Humidity %:</Label>
+                            <TextBox Margin="5" Width="100" IsReadOnly="True" Text="{Binding OneShotHumidity}"></TextBox>
+                            <Label Margin="5">Temprature Relay:</Label>
+                            <TextBox Margin="5" Width="100" IsReadOnly="True" Text="{Binding TemperatureRelayState}"></TextBox>
+                            <Label Margin="5">Humidity Relay:</Label>
+                            <TextBox Margin="5" Width="100" IsReadOnly="True" Text="{Binding HumidityRelayState}"></TextBox>
+                        </StackPanel>
+                    </DockPanel>
+                </GroupBox>
+                <Grid></Grid>
+            </DockPanel>
+        </TabItem>
+        <TabItem Header="History">
+            <DockPanel>
+                <Grid DockPanel.Dock="Top">
+                    <StackPanel Orientation="Horizontal">
+                        <Button Margin="5" Width="100" Click="HistoryRead_Click">Read</Button>
+                        <Label Margin="5">Skip:</Label>
+                        <TextBox Margin="5" Width="100" Text="{Binding Skip}"></TextBox>
+                        <Label Margin="5">Take:</Label>
+                        <TextBox Margin="5" Width="100" Text="{Binding Take}"></TextBox>
+                    </StackPanel>
+                    <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                        <Button Margin="5" Width="100" Click="HistoryClear_Click">Clear</Button>
+                    </StackPanel>
                 </Grid>
+                <Controls:TempHumiSensorGraph x:Name="graph"></Controls:TempHumiSensorGraph>
             </DockPanel>
-        </GroupBox>
-        <GroupBox DockPanel.Dock="Top" Margin="5" Header="One Shot Read">
-            <DockPanel>
-                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
-                    <Button Margin="5" Width="100" Click="OneShotRead_Click">Read</Button>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal">
-                    <Label Margin="5">Temperature C°:</Label>
-                    <TextBox Margin="5" Width="100" IsReadOnly="True" Text="{Binding OneShotTemperature}"></TextBox>
-                    <Label Margin="5">Humidity %:</Label>
-                    <TextBox Margin="5" Width="100" IsReadOnly="True" Text="{Binding OneShotHumidity}"></TextBox>
-                    <Label Margin="5">Temprature Relay:</Label>
-                    <TextBox Margin="5" Width="100" IsReadOnly="True" Text="{Binding TemperatureRelayState}"></TextBox>
-                    <Label Margin="5">Humidity Relay:</Label>
-                    <TextBox Margin="5" Width="100" IsReadOnly="True" Text="{Binding HumidityRelayState}"></TextBox>
-                </StackPanel>
-            </DockPanel>
-        </GroupBox>
-        <GroupBox Margin="5" Header="History">
-            <DockPanel>
-                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
-                    <Button Margin="5" Width="100" Click="DataRead_Click">Read</Button>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal">
-
-                </StackPanel>
-            </DockPanel>
-        </GroupBox>
-    </DockPanel>
+        </TabItem>
+    </TabControl>
 </Page>
