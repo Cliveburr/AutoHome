@@ -39,6 +39,9 @@ struct ConfigStruct {
 #define TEMPHUMI_DATA_PIN		    14
 #define TEMPHUMI_TEMPSWITCH_PIN		4
 #define TEMPHUMI_HUMISWITCH_PIN		5
+#define TEMPHUMI_DATAINFO_SECTOR    0x72
+#define TEMPHUMISENSOR_DATA_SECTOR_INI  0xEB
+#define TEMPHUMISENSOR_DATA_SECTOR_END  0x400
 /* *** end temphumisensor.h config *** */
 
 #endif

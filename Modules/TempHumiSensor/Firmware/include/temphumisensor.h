@@ -13,6 +13,17 @@
 
 */
 
+#define TEMPHUMISENSOR_DATA_PACKAGE_COUNTS         50
+#define TEMPHUMISENSOR_DATA_PACKAGE_LEN            256
+#define TEMPHUMISENSOR_DATA_SECTOR_INI_ADDR        TEMPHUMISENSOR_DATA_SECTOR_INI * SPI_FLASH_SEC_SIZE
+#define TEMPHUMISENSOR_DATA_SECTOR_END_ADDR        TEMPHUMISENSOR_DATA_SECTOR_END * SPI_FLASH_SEC_SIZE
+
+typedef struct {
+    uint32_t started_timestamp;
+    uint16_t readInterval;
+    uint8_t data[250];
+} data_package_t;
+
 typedef struct {
    uint8_t intervalActive : 1;
    uint8_t temperatureSwitch : 1;

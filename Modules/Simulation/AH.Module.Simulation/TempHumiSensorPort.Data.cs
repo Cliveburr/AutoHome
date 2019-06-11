@@ -53,13 +53,13 @@ namespace AH.Module.Simulation
         public void temphumisensor_datainfo_save(uint addr)
         {
             datainfo_id++;
+            datainfo_pos += 16;
             if (datainfo_id == 0)
             {
                 spi_flash_erase_sector(TEMPHUMI_DATAINFO_SECTOR);
                 datainfo_pos = 0;
             }
 
-            datainfo_pos += 16;
             if ((datainfo_pos + 16) >= SPI_FLASH_SEC_SIZE)
             {
                 datainfo_pos = 0;
