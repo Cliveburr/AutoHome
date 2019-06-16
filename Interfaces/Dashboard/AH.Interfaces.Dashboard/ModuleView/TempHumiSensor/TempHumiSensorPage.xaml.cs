@@ -258,6 +258,11 @@ namespace AH.Interfaces.Dashboard.ModuleView.TempHumiSensor
                 var temperature = dht_data_to_temperature(thisData);
                 var humidity = dht_data_to_humidity(thisData);
 
+                if (temperature == 0 && humidity == 0)
+                {
+                    continue;
+                }
+
                 var switchs = new switchs_state_t { Value = thisData[4] };
 
                 result.Add(new TempHumiSensorGraphModel
@@ -269,7 +274,7 @@ namespace AH.Interfaces.Dashboard.ModuleView.TempHumiSensor
                     HumiditySwitch = switchs.humiSwtichState
                 });
 
-                dateTime.AddMilliseconds(interval);
+                dateTime = dateTime.AddMilliseconds(interval);
             }
 
             return result;
