@@ -64,6 +64,7 @@
                 <GroupBox DockPanel.Dock="Top" Margin="5" Header="One Shot Read">
                     <DockPanel>
                         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
+                            <Button Margin="5" Width="100" Click="DataRead_Click">Data test</Button>
                             <Button Margin="5" Width="100" Click="OneShotRead_Click">Read</Button>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">

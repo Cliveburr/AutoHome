@@ -55,7 +55,7 @@ namespace AH.Interfaces.Dashboard.ModuleView.TempHumiSensor
                     _context.IntervalActive = content.GeneralConfig.intervalActive;
                     _context.RaiseNotify("IntervalActive");
                     _context.ReadInterval = content.ReadInverval;
-                    _context.RaiseNotify("ReadInverval");
+                    _context.RaiseNotify("ReadInterval");
                     _context.TemperatureSwitch = content.GeneralConfig.temperatureSwitch;
                     _context.RaiseNotify("TemperatureSwitch");
                     _context.TempPointToOff = content.TempPointToOff / 10;
