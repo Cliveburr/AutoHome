@@ -3,8 +3,10 @@
     public enum ModuleType : byte
     {
         Invalid = 0,
-        LedRibbonRgb = 1,
-        TempHumiSensor = 2,
-        IncandescentLamp = 3
+        Simulation = 1,
+        LedRibbonRgb = 2,
+        TempHumiSensor = 3,
+        IncandescentLamp = 4,
+        CellingFan = 5
     }
 }

@@ -20,4 +20,21 @@ namespace AH.Protocol.Library.Messages.Fota
             Chunk = stream.ReadBytes(ChunkSize);
         }
     }
+
+    public class FotaWriteResponse : IContentMessage
+    {
+        public PortType Port { get; } = PortType.Fota;
+        public byte Msg { get; } = (byte)FotaMessageType.WriteResponse;
+        public bool IsOver { get; set; }
+
+        public void Read(BinaryReader stream)
+        {
+            IsOver = stream.ReadByte() == 1;
+        }
+
+        public void Write(BinaryWriter stream)
+        {
+            stream.Write((byte)(IsOver ? 1 : 0));
+        }
+    }
 }

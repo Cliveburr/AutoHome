@@ -59,7 +59,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Discovery\DiscoveryWindow.xaml">
+    <Page Include="Main\Configuration\ConfigurationPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Main\Discovery\DiscoveryPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -74,11 +78,19 @@
       <DependentUpon>TempHumiSensorGraph.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\TempHumiSensorGraphModel.cs" />
-    <Compile Include="Discovery\DiscoveryContext.cs" />
-    <Compile Include="Discovery\DiscoveryWindow.xaml.cs">
-      <DependentUpon>DiscoveryWindow.xaml</DependentUpon>
+    <Compile Include="Main\Configuration\ConfigurationContext.cs" />
+    <Compile Include="Main\Configuration\ConfigurationPage.xaml.cs">
+      <DependentUpon>ConfigurationPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Main\Discovery\DiscoveryContext.cs" />
+    <Compile Include="Main\Discovery\DiscoveryPage.xaml.cs">
+      <DependentUpon>DiscoveryPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Main\MainWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="ModuleView\AutoHome\AutoHomePage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -97,6 +109,10 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Main\MainContext.cs" />
+    <Compile Include="Main\MainWindow.xaml.cs">
+      <DependentUpon>MainWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ModuleView\AutoHome\AutoHomeContext.cs" />
     <Compile Include="ModuleView\AutoHome\AutoHomePage.xaml.cs">
       <DependentUpon>AutoHomePage.xaml</DependentUpon>
@@ -105,7 +121,6 @@
     <Compile Include="ModuleView\Fota\FotaPage.xaml.cs">
       <DependentUpon>FotaPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ModuleView\ModuleViewConnector.cs" />
     <Compile Include="ModuleView\ModuleViewWindow.xaml.cs">
       <DependentUpon>ModuleViewWindow.xaml</DependentUpon>
     </Compile>

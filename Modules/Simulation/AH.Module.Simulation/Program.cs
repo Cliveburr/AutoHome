@@ -16,12 +16,12 @@ namespace AH.Module.Simulation
 
             Simulator = new AutoHomeSimulator
             {
-                SendPort = 15555,
-                ReceivePort = 15556,
-                UID = 6
+                SendPort = 15863,
+                ReceivePort = 15862
             };
+            AutoHomePort.Instance.UID = 6;
 
-            Log($"UID: {Simulator.UID}");
+            Log($"My_UID: {AutoHomePort.Instance.UID}");
 
             Simulator.Start();
 

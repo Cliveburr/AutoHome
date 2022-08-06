@@ -1,8 +1,23 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 namespace AH.Protocol.Library.Messages.Fota
 {
-    public class FotaStateReadResponse : IContentMessage
+    public class StateReadRequest : IContentMessage
+    {
+        public PortType Port { get; } = PortType.Fota;
+        public byte Msg { get; } = (byte)FotaMessageType.StateReadRequest;
+
+        public void Read(BinaryReader stream)
+        {
+        }
+
+        public void Write(BinaryWriter stream)
+        {
+        }
+    }
+
+    public class StateReadResponse : IContentMessage
     {
         public PortType Port { get; } = PortType.Fota;
         public byte Msg { get; } = (byte)FotaMessageType.StateReadResponse;

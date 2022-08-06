@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace AH.Protocol.Library.Messages.Fota
+﻿namespace AH.Protocol.Library.Messages.Fota
 {
     public enum FotaMessageType : byte
     {
@@ -12,7 +6,8 @@ namespace AH.Protocol.Library.Messages.Fota
         StateReadRequest = 1,
         StateReadResponse = 2,
         StartRequest = 3,
-        WriteRequest = 4,
-        WriteResponse = 5
+        StartResponse = 4,
+        WriteRequest = 5,
+        WriteResponse = 6
     }
 }

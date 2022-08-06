@@ -37,7 +37,7 @@ namespace AH.Module.Simulation
             readInterval_timer.Elapsed += temphumisensor_timer_cb;
         }
 
-        public IContentMessage OnTcpReceived(Message message)
+        public IContentMessage OnReceived(Message message)
         {
             switch (message.Msg)
             {

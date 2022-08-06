@@ -18,46 +18,55 @@ namespace AH.Interfaces.Dashboard.ModuleView.AutoHome
 {
     public partial class AutoHomePage : Page
     {
-        private ModuleViewConnector _connector;
         private AutoHomeContext _context;
 
-        public AutoHomePage(ModuleViewConnector connector)
+        public AutoHomePage()
         {
             InitializeComponent();
 
-            _connector = connector;
-
             SetContext();
+            SetModuleData();
+            App.Instance.SelectedChanged += Instance_SelectedChanged;
+        }
+
+        private void Instance_SelectedChanged()
+        {
+            SetModuleData();
         }
 
         private void SetContext()
         {
             _context = new AutoHomeContext
             {
-                UID = _connector.UID
             };
             DataContext = _context;
         }
 
-        private void Configuration_Read_Click(object sender, RoutedEventArgs e)
+        private void SetModuleData()
+        {
+            if (App.Instance.Selected != null)
+            {
+                _context.UID = App.Instance.Selected.UID;
+                _context.RaiseNotify("UID");
+                _context.Alias = App.Instance.Selected.Alias;
+                _context.RaiseNotify("Alias");
+                _context.HasSelected = true;
+                _context.RaiseNotify("HasSelected");
+            }
+        }
+
+        private async void Configuration_Read_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                using (var tcp = _connector.OpenTcpConnection())
-                {
-                    var receive = tcp.SendAndReceive(new ConfigurationReadRequest());
+                var content = await App.Instance.SendAndReceive<ConfigurationReadResponse>(new ConfigurationReadRequest());
 
-                    var content = receive.ReadContent<ConfigurationReadResponse>();
-
-                    _context.WifiName = content.WifiName;
-                    _context.RaiseNotify("WifiName");
-                    _context.WifiPassword = content.WifiPassword;
-                    _context.RaiseNotify("WifiPassword");
-                    _context.Alias = content.Alias;
-                    _context.RaiseNotify("Alias");
-                    _context.Category = content.Category;
-                    _context.RaiseNotify("Category");
-                }
+                _context.WifiName = content.WifiName;
+                _context.RaiseNotify("WifiName");
+                _context.WifiPassword = content.WifiPassword;
+                _context.RaiseNotify("WifiPassword");
+                _context.Alias = content.Alias;
+                _context.RaiseNotify("Alias");
             }
             catch (Exception err)
             {
@@ -65,20 +74,16 @@ namespace AH.Interfaces.Dashboard.ModuleView.AutoHome
             }
         }
 
-        private void Configuration_Save_Click(object sender, RoutedEventArgs e)
+        private async void Configuration_Save_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                using (var tcp = _connector.OpenTcpConnection())
+                var _ = await App.Instance.SendAndReceive<ConfigurationSaveResponse>(new ConfigurationSaveRequest
                 {
-                    tcp.Send(new ConfigurationSaveRequest
-                    {
-                        WifiName = _context.WifiName,
-                        WifiPassword = _context.WifiPassword,
-                        Alias = _context.Alias,
-                        Category = _context.Category
-                    });
-                }
+                    WifiName = _context.WifiName,
+                    WifiPassword = _context.WifiPassword,
+                    Alias = _context.Alias
+                });
             }
             catch (Exception err)
             {
@@ -86,17 +91,16 @@ namespace AH.Interfaces.Dashboard.ModuleView.AutoHome
             }
         }
 
-        private void UID_Save_Click(object sender, RoutedEventArgs e)
+        private async void UID_Save_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                using (var tcp = _connector.OpenTcpConnection())
+                var _ = await App.Instance.SendAndReceive<UIDSaveResponse>(new UIDSaveRequest
                 {
-                    tcp.Send(new UIDSaveRequest
-                    {
-                        UID = (byte)_context.UID
-                    });
-                }
+                    UID = (byte)_context.UID
+                });
+
+                App.Instance.Selected.UID = (byte)_context.UID;
             }
             catch (Exception err)
             {

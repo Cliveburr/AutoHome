@@ -7,7 +7,7 @@
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
       Title="FotaPage" Background="#FFE5E5E5">
-    <DockPanel>
+    <DockPanel IsEnabled="{Binding HasSelected}">
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
             <Button Margin="5" Width="100" Click="Read_Click">Read</Button>
             <Button Margin="5" Width="100" Click="Flash_Click">Flash</Button>

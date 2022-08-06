@@ -15,24 +15,26 @@ namespace AH.Module.Simulation
         private static AutoHomePort _instance;
         public static AutoHomePort Instance { get; } = _instance ?? new AutoHomePort();
 
+        public byte UID { get; set; }
         public string Alias { get; set; }
         public string WifiName { get; set; }
         public string WifiPassword { get; set; }
-        public string Category { get; set; }
 
         private AutoHomePort()
         {
             Alias = "Simulator";
             WifiName = "";
             WifiPassword = "";
-            Category = "";
         }
 
-        public IContentMessage OnUdpReceived(Message message)
+        public IContentMessage OnReceived(Message message)
         {
             switch (message.Msg)
             {
-                case (byte)AutoHomeMessageType.Ping: return HandlePing(message);
+                case (byte)AutoHomeMessageType.PingRequest: return HandlePing(message);
+                case (byte)AutoHomeMessageType.ConfigurationReadRequest: return HandleConfigurationRead(message);
+                case (byte)AutoHomeMessageType.ConfigurationSaveRequest: return HandleConfigurationSave(message);
+                case (byte)AutoHomeMessageType.UIDSaveRequest: return HandleUIDSave(message);
                 default: return null;
             }
         }
@@ -43,27 +45,16 @@ namespace AH.Module.Simulation
 
             var request = message.ReadContent<PingRequest>();
 
-            if (!request.IsValid)
+            if (request.Check != "PING")
             {
                 throw new Exception("Invalid ping request!");
             }
 
             return new PongResponse
             {
-                ModuleType = ModuleType.LedRibbonRgb,
+                ModuleType = ModuleType.Simulation,
                 Alias = Alias
             };
-        }
-
-        public IContentMessage OnTcpReceived(Message message)
-        {
-            switch (message.Msg)
-            {
-                case (byte)AutoHomeMessageType.ConfigurationReadRequest: return HandleConfigurationRead(message);
-                case (byte)AutoHomeMessageType.ConfigurationSaveRequest: return HandleConfigurationSave(message);
-                case (byte)AutoHomeMessageType.UIDSaveRequest: return HandleUIDSave(message);
-                default: return null;
-            }
         }
 
         private IContentMessage HandleConfigurationRead(Message message)
@@ -74,8 +65,7 @@ namespace AH.Module.Simulation
             {
                 Alias = Alias,
                 WifiName = WifiName,
-                WifiPassword = WifiPassword,
-                Category = Category
+                WifiPassword = WifiPassword
             };
         }
 
@@ -88,9 +78,8 @@ namespace AH.Module.Simulation
             Alias = content.Alias;
             WifiName = content.WifiName;
             WifiPassword = content.WifiPassword;
-            Category = content.Category;
 
-            return null;
+            return new ConfigurationSaveResponse();
         }
 
         private IContentMessage HandleUIDSave(Message message)
@@ -99,9 +88,10 @@ namespace AH.Module.Simulation
 
             var content = message.ReadContent<UIDSaveRequest>();
 
-            Program.Simulator.ChangeUID(content.UID);
+            UID = content.UID;
+            Program.Simulator.UdpConnection.My_UID = UID;
 
-            return null;
+            return new UIDSaveResponse();
         }
     }
 }

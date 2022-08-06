@@ -96,7 +96,7 @@
                         <Button Margin="5" Width="100" Click="HistoryClear_Click">Clear</Button>
                     </StackPanel>
                 </Grid>
-                <Controls:TempHumiSensorGraph x:Name="graph"></Controls:TempHumiSensorGraph>
+                <!--<Controls:TempHumiSensorGraph x:Name="graph"></Controls:TempHumiSensorGraph>-->
             </DockPanel>
         </TabItem>
     </TabControl>

@@ -23,4 +23,18 @@ namespace AH.Protocol.Library.Messages.AutoHome
             UID = stream.ReadByte();
         }
     }
+
+    public class UIDSaveResponse : IContentMessage
+    {
+        public PortType Port { get; } = PortType.AutoHome;
+        public byte Msg { get; } = (byte)AutoHomeMessageType.UIDSaveResponse;
+
+        public void Write(BinaryWriter stream)
+        {
+        }
+
+        public void Read(BinaryReader stream)
+        {
+        }
+    }
 }

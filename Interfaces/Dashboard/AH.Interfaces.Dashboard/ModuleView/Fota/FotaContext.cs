@@ -11,5 +11,6 @@ namespace AH.Interfaces.Dashboard.ModuleView.Fota
         public string User1bin { get; set; }
         public string User2bin { get; set; }
         public string NextUser { get; set; }
+        public bool HasSelected { get; set; }
     }
 }

@@ -41,23 +41,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Connection\TcpConnection.cs" />
     <Compile Include="Connection\UdpConnection.cs" />
+    <Compile Include="Helpers\BinaryExtension.cs" />
     <Compile Include="Helpers\BitFields.cs" />
     <Compile Include="IContentMessage.cs" />
     <Compile Include="Message.cs" />
     <Compile Include="Messages\AutoHome\AutoHomeMessageType.cs" />
-    <Compile Include="Messages\AutoHome\ConfigurationReadRequest.cs" />
-    <Compile Include="Messages\AutoHome\ConfigurationReadResponse.cs" />
-    <Compile Include="Messages\AutoHome\ConfigurationSaveRequest.cs" />
-    <Compile Include="Messages\AutoHome\PingRequest.cs" />
-    <Compile Include="Messages\AutoHome\PongResponse.cs" />
-    <Compile Include="Messages\AutoHome\UIDSaveRequest.cs" />
-    <Compile Include="Messages\Fota\FotaStartRequest.cs" />
-    <Compile Include="Messages\Fota\FotaStateReadRequest.cs" />
-    <Compile Include="Messages\Fota\FotaStateReadResponse.cs" />
-    <Compile Include="Messages\Fota\FotaWriteRequest.cs" />
-    <Compile Include="Messages\Fota\FotaWriteResponse.cs" />
+    <Compile Include="Messages\AutoHome\ConfigurationRead.cs" />
+    <Compile Include="Messages\AutoHome\ConfigurationSave.cs" />
+    <Compile Include="Messages\AutoHome\PingPong.cs" />
+    <Compile Include="Messages\AutoHome\UIDSave.cs" />
+    <Compile Include="Messages\Fota\Start.cs" />
+    <Compile Include="Messages\Fota\StateRead.cs" />
+    <Compile Include="Messages\Fota\WriteRequest.cs" />
     <Compile Include="Messages\Fota\FotaMessageType.cs" />
     <Compile Include="Messages\PortType.cs" />
     <Compile Include="Messages\RGBLedRibbon\RGBLedRibbon.cs" />

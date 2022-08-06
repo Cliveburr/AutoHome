@@ -1,6 +1,4 @@
-﻿using AH.Interfaces.Dashboard.Discovery;
-using AH.Protocol.Library.Connection;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,24 +16,23 @@ namespace AH.Interfaces.Dashboard.ModuleView
 {
     public partial class ModuleViewWindow : Window
     {
-        private ModuleViewConnector _connector;
+        //private ModuleViewConnector _connector;
 
-        public ModuleViewWindow(ModuleViewConnector connector)
+        public ModuleViewWindow()
         {
             InitializeComponent();
 
-            _connector = connector;
+           // _connector = connector;
 
-            Config.ConfigFile.Load();
 
             SetFrames();
         }
 
         private void SetFrames()
         {
-            frAutoHome.Navigate(new AutoHome.AutoHomePage(_connector));
-            frFota.Navigate(new Fota.FotaPage(_connector));
-            frTempHumiSensor.Navigate(new TempHumiSensor.TempHumiSensorPage(_connector));
+            //frAutoHome.Navigate(new AutoHome.AutoHomePage(_connector));
+            //frFota.Navigate(new Fota.FotaPage(_connector));
+            //frTempHumiSensor.Navigate(new TempHumiSensor.TempHumiSensorPage(_connector));
         }
 
         private void Window_Closed(object sender, EventArgs e)

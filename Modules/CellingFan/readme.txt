@@ -1,0 +1,46 @@
+
+<done> - fazer um esquema e entender como funciona o ventilador normal
+
+<done> - fazer esquema de como seria com os reles
+	ok - verificar diferença dos reles 5V 12V 24V e das fonte (pegar 3.3v)(não tem diferença de valor)
+
+- testar na protoboard o esquema
+	ok - testar os reles
+	ok - testar enviar tensão 3.3v por longa distancia
+	- testar a combinação do capacitor
+	- confirmar quantidade de gpio
+	- confirmar tamanhos do rele, adptadores, esp, modulo
+
+- comprar componentes faltantes
+
+- encomendar placas
+
+- codificar o modulo
+
+- testar o modulo na protoboard
+
+
+
+
+
+
+Tutorial sobre motores
+https://dicasdozebio.com/2014/12/31/dica-conheca-e-conserte-os-ventiladores-de-teto/
+
+
+
+
+Anuncios:
+
+Reles:
+https://www.aliexpress.com/item/1005004369723431.html?spm=a2g0o.productlist.0.0.28aabc9fAu3oYs&algo_pvid=c6808345-dea5-4abb-a438-33698d1c6e6f&aem_p4p_detail=202208041005149287400685414400040334791&algo_exp_id=c6808345-dea5-4abb-a438-33698d1c6e6f-19&pdp_ext_f=%7B%22sku_id%22%3A%2212000028935129332%22%7D&pdp_npi=2%40dis%21BRL%21206.58%21206.58%21%21%21%21%21%402101d68d16596327147606678e0d24%2112000028935129332%21sea&curPageLogUid=TwtUxvPsq7es
+
+Power:
+https://www.aliexpress.com/item/1005003391874818.html?spm=a2g0o.productlist.0.0.46673676scHkk9&algo_pvid=692d9f70-dfee-4de6-894a-8c492d8e5132&algo_exp_id=692d9f70-dfee-4de6-894a-8c492d8e5132-18&pdp_ext_f=%7B%22sku_id%22%3A%2212000025567503572%22%7D&pdp_npi=2%40dis%21BRL%21113.1%21113.1%21%21%21%21%21%402101d8b516596352553105835e1e46%2112000025567503572%21sea&curPageLogUid=8x6dzuFs7XmL
+
+Diodes:
+https://www.aliexpress.com/item/1005003540554760.html?spm=a2g0o.productlist.0.0.7f30719feelzoI&algo_pvid=528119de-2253-4914-9054-a5caf952d5ef&algo_exp_id=528119de-2253-4914-9054-a5caf952d5ef-0&pdp_ext_f=%7B%22sku_id%22%3A%2212000026223166882%22%7D&pdp_npi=2%40dis%21BRL%212.05%211.94%21%21%2123.34%21%21%402101e9d316596363177022185e987d%2112000026223166882%21sea&curPageLogUid=zrr8QwrxC3XB
+
+Transistor BC548:
+
+

@@ -16,77 +16,42 @@ namespace AH.Module.Simulation
     {
         public int SendPort { get; set; }
         public int ReceivePort { get; set; }
-        public int UID { get; set; }
         public UdpConnection UdpConnection { get; private set; }
-        public TcpConnection TcpConnection { get; private set; }
 
         public void Start()
         {
-            UdpConnection = new UdpConnection(UID);
+            UdpConnection = new UdpConnection(AutoHomePort.Instance.UID, SendPort, ReceivePort);
             UdpConnection.OnUdpReceived += UdpConnection_OnUdpReceived;
-            UdpConnection.StartSender(SendPort);
-            UdpConnection.StartReceiver(ReceivePort);
-
-            TcpConnection = new TcpConnection(UID);
-            TcpConnection.OnTcpReceived += TcpConnection_OnTcpReceived;
-            TcpConnection.StartReceiver(ReceivePort);
-        }
-
-        private void TcpConnection_OnTcpReceived(TcpClient client, Message message)
-        {
-            Program.Log("Tcp Received");
-
-            IContentMessage response = null;
-            try
-            {
-                switch (message.Port)
-                {
-                    case PortType.AutoHome: response = AutoHomePort.Instance.OnTcpReceived(message); break;
-                    case PortType.Fota: response = FotaPort.Instance.OnTcpReceived(message); break;
-                    case PortType.TempHumiSensor: response = TempHumiSensorPort.Instance.OnTcpReceived(message); break;
-                }
-
-                if (response != null)
-                {
-                    var msgResponse = new Message((byte)UID, response);
-                    var buffer = msgResponse.GetBytes();
-                    client.Client.Send(buffer, buffer.Length, SocketFlags.None);
-                }
-            }
-            catch (Exception err)
-            {
-                Console.WriteLine(err.ToString());
-                client.Close();
-            }
         }
 
         private void UdpConnection_OnUdpReceived(IPAddress address, Message message)
         {
-            Program.Log("Udp Received");
+            Program.Log("Received:");
 
-            IContentMessage response = null;
-
-            switch (message.Port)
-            {
-                case PortType.AutoHome: response = AutoHomePort.Instance.OnUdpReceived(message); break;
-            }
+            var response = RouteMessage(message);
 
             if (response != null)
             {
-                Program.Simulator.UdpConnection.Send(address, response);
+                UdpConnection.Send(address, message.From_UID, response);
             }
         }
 
-        public void ChangeUID(int UID)
+        private IContentMessage RouteMessage(Message message)
         {
-            UdpConnection.UID = UID;
-            TcpConnection.UID = UID;
+            switch (message.Port)
+            {
+                case PortType.AutoHome: return AutoHomePort.Instance.OnReceived(message);
+                case PortType.Fota: return FotaPort.Instance.OnReceived(message);
+                case PortType.TempHumiSensor: return TempHumiSensorPort.Instance.OnReceived(message);
+                default:
+                    Program.Log($"Invalid Port: {message.Port}");
+                    return null;
+            }
         }
 
         public void Dispose()
         {
             UdpConnection?.Dispose();
-            TcpConnection?.Dispose();
         }
     }
 }

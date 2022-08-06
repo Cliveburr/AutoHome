@@ -21,16 +21,20 @@ namespace AH.Interfaces.Dashboard.ModuleView.Fota
 {
     public partial class FotaPage : Page
     {
-        private ModuleViewConnector _connector;
         private FotaContext _context;
 
-        public FotaPage(ModuleViewConnector connector)
+        public FotaPage()
         {
             InitializeComponent();
 
-            _connector = connector;
-
             SetContext();
+            App.Instance.SelectedChanged += Instance_SelectedChanged;
+        }
+
+        private void Instance_SelectedChanged()
+        {
+            _context.HasSelected = true;
+            _context.RaiseNotify("HasSelected");
         }
 
         private void SetContext()
@@ -43,23 +47,18 @@ namespace AH.Interfaces.Dashboard.ModuleView.Fota
             DataContext = _context;
         }
 
-        private void Read_Click(object sender, RoutedEventArgs e)
+        private async void Read_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                using (var tcp = _connector.OpenTcpConnection())
-                {
-                    var receive = tcp.SendAndReceive(new FotaStateReadRequest());
+                var content = await App.Instance.SendAndReceive<StateReadResponse>(new StateReadRequest());
 
-                    var content = receive.ReadContent<FotaStateReadResponse>();
+                _context.NextUser = content.UserBin == 0 ?
+                    "User 2 bin" :
+                    "User 1 bin";
+                _context.RaiseNotify("NextUser");
 
-                    _context.NextUser = content.UserBin == 0 ?
-                        "User 2 bin" :
-                        "User 1 bin";
-                    _context.RaiseNotify("NextUser");
-
-                    SetUserEnabled(content.UserBin);
-                }
+                SetUserEnabled(content.UserBin);
             }
             catch (Exception err)
             {
@@ -80,65 +79,59 @@ namespace AH.Interfaces.Dashboard.ModuleView.Fota
                 Mouse.OverrideCursor = Cursors.Wait;
                 pbFotaWrite.Value = 0;
 
-                Task.Run(() =>
+                Task.Run(async () =>
                 {
-                    using (var tcp = _connector.OpenTcpConnection())
+                    var content = await App.Instance.SendAndReceive<StateReadResponse>(new StateReadRequest());
+
+                    var file = content.UserBin == 0 ?
+                        _context.User2bin :
+                        _context.User1bin;
+
+                    if (!File.Exists(file))
                     {
-                        var receive = tcp.SendAndReceive(new FotaStateReadRequest());
+                        throw new Exception("The file does not exist!");
+                    }
 
-                        var content = receive.ReadContent<FotaStateReadResponse>();
+                    var file_bytes = File.ReadAllBytes(file);
+                    var chunks = file_bytes
+                        .Select((x, i) => new { Index = i, Value = x })
+                        .GroupBy(x => x.Index / content.ChunkSize)
+                        .Select(x => x.Select(v => v.Value).ToList())
+                        .ToList();
 
-                        var file = content.UserBin == 0 ?
-                            _context.User2bin :
-                            _context.User1bin;
+                    Dispatcher.Invoke(() =>
+                    {
+                        pbFotaWrite.Maximum = chunks.Count;
+                    }, DispatcherPriority.Render);
 
-                        if (!File.Exists(file))
+                    var _ = await App.Instance.SendAndReceive<StartResponse>(new StartRequest
+                    {
+                        FileSize = (uint)file_bytes.Length
+                    });
+
+                    foreach (var chunk in chunks)
+                    {
+                        var writeContent = await App.Instance.SendAndReceive<FotaWriteResponse>(new FotaWriteRequest
                         {
-                            throw new Exception("The file does not exist!");
-                        }
-
-                        var file_bytes = File.ReadAllBytes(file);
-                        var chunks = file_bytes
-                            .Select((x, i) => new { Index = i, Value = x })
-                            .GroupBy(x => x.Index / content.ChunkSize)
-                            .Select(x => x.Select(v => v.Value).ToList())
-                            .ToList();
+                            Chunk = chunk.ToArray()
+                        });
 
                         Dispatcher.Invoke(() =>
                         {
-                            pbFotaWrite.Maximum = chunks.Count;
+                            pbFotaWrite.Value += 1;
+                            Console.WriteLine(pbFotaWrite.Value);
                         }, DispatcherPriority.Render);
 
-                        tcp.Send(new FotaStartRequest
+                        if (writeContent.IsOver)
                         {
-                            FileSize = (uint)file_bytes.Length
-                        });
+                            _context.NextUser = string.Empty;
+                            _context.RaiseNotify("NextUser");
+                            WriteSuccess();
 
-                        foreach (var chunk in chunks)
-                        {
-                            var writeReceive = tcp.SendAndReceive(new FotaWriteRequest
-                            {
-                                Chunk = chunk.ToArray()
-                            });
-
-                            var writeContent = writeReceive.ReadContent<FotaWriteResponse>();
-
-                            Dispatcher.Invoke(() =>
-                            {
-                                pbFotaWrite.Value += 1;
-                                Console.WriteLine(pbFotaWrite.Value);
-                            }, DispatcherPriority.Render);
-
-                            if (writeContent.IsOver)
-                            {
-                                _context.NextUser = string.Empty;
-                                _context.RaiseNotify("NextUser");
-                                WriteSuccess();
-
-                                break;
-                            }
+                            break;
                         }
                     }
+                    
 
                     Dispatcher.Invoke(() =>
                     {

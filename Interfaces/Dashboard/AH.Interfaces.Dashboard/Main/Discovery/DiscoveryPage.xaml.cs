@@ -19,67 +19,59 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace AH.Interfaces.Dashboard.Discovery
+namespace AH.Interfaces.Dashboard.Main.Discovery
 {
-    public partial class DiscoveryWindow : Window
+    public partial class DiscoveryPage : Page
     {
-        private UdpConnection _connection;
         private DiscoveryContext _context;
         private Dictionary<int, ModuleView.ModuleViewWindow> _modules;
 
-        public DiscoveryWindow()
+        public DiscoveryPage()
         {
             InitializeComponent();
 
             _modules = new Dictionary<int, ModuleView.ModuleViewWindow>();
 
             SetContext();
-            SetPorts_Click(null, null);
+            SetConnection();
         }
 
         private void SetContext()
         {
             _context = new DiscoveryContext
             {
-                SendPort = 15556,
-                ReceivePort = 15555,
                 ModuleList = new ObservableCollection<DiscoveryModuleModel>()
             };
             DataContext = _context;
         }
 
-        private void SetPorts_Click(object sender, RoutedEventArgs e)
+        private void SetConnection()
         {
-            if (_connection != null)
-            {
-                _connection.OnUdpReceived -= _connection_OnUdpReceived;
-                _connection.Dispose();
-            }
-
-            _connection = new UdpConnection(0);
-            _connection.OnUdpReceived += _connection_OnUdpReceived;
-            _connection.StartSender(_context.SendPort);
-            _connection.StartReceiver(_context.ReceivePort);
+            App.Instance.Connection.OnUdpReceived += AppConnection_OnUdpReceived;
         }
 
-        private void _connection_OnUdpReceived(IPAddress address, Message message)
+        private void AppConnection_OnUdpReceived(IPAddress address, Message message)
         {
-            if (message.Port != PortType.AutoHome || message.Msg != (byte)AutoHomeMessageType.Pong)
+            if (message.Port != PortType.AutoHome || message.Msg != (byte)AutoHomeMessageType.PongResponse)
+            {
                 return;
+            }
 
             var content = message.ReadContent<PongResponse>();
-
-            if (!content.IsValid)
+            if (content.Check != "PONG")
+            {
                 return;
+            }
 
             Dispatcher.Invoke(() =>
             {
                 _context.ModuleList.Add(new DiscoveryModuleModel
                 {
-                    UID = message.UID,
+                    UID = message.From_UID,
                     Alias = content.Alias,
-                    ModuleType = content.ModuleType.ToString(),
-                    Ip = address.ToString()
+                    ModuleType = content.ModuleType,
+                    IpString = address.ToString(),
+                    Ip = address
                 });
             });
         }
@@ -89,7 +81,7 @@ namespace AH.Interfaces.Dashboard.Discovery
             try
             {
                 _context.ModuleList.Clear();
-                _connection.Send(IPAddress.Broadcast, new PingRequest());
+                App.Instance.Connection.SendBroadcast(new PingRequest());
             }
             catch (Exception err)
             {
@@ -118,23 +110,30 @@ namespace AH.Interfaces.Dashboard.Discovery
 
         private void OpenWindowForUID(DiscoveryModuleModel module)
         {
-            if (_modules.ContainsKey(module.UID))
-            {
-                _modules[module.UID].Activate();
-            }
-            else
-            {
-                var newWindow = new ModuleView.ModuleViewWindow(new ModuleView.ModuleViewConnector
-                {
-                    UID = module.UID,
-                    SendPort = _context.SendPort,
-                    ReceivePort = _context.ReceivePort,
-                    Ip = module.Ip
-                });
-                _modules.Add(module.UID, newWindow);
-                newWindow.Closed += new EventHandler((sender, e) => _modules.Remove(module.UID));
-                newWindow.Show();
-            }
+            App.Instance.Selected = module;
+
+            //if (_modules.ContainsKey(module.UID))
+            //{
+            //    _modules[module.UID].Activate();
+            //}
+            //else
+            //{
+            //    var newWindow = new ModuleView.ModuleViewWindow(new ModuleView.ModuleViewConnector
+            //    {
+            //        UID = module.UID,
+            //        SendPort = _context.SendPort,
+            //        ReceivePort = _context.ReceivePort,
+            //        Ip = module.Ip
+            //    });
+            //    _modules.Add(module.UID, newWindow);
+            //    newWindow.Closed += new EventHandler((sender, e) => _modules.Remove(module.UID));
+            //    newWindow.Show();
+            //}
+        }
+
+        public void Modules_DoubleClick(object sender, RoutedEventArgs e)
+        {
+            Connect_Click(sender, e);
         }
     }
 }

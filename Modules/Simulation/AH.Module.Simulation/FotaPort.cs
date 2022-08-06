@@ -29,7 +29,7 @@ namespace AH.Module.Simulation
             UserBin = 1;
         }
 
-        public IContentMessage OnTcpReceived(Message message)
+        public IContentMessage OnReceived(Message message)
         {
             switch (message.Msg)
             {
@@ -44,7 +44,7 @@ namespace AH.Module.Simulation
         {
             Program.Log("Fota - HandleStateRead");
 
-            return new FotaStateReadResponse
+            return new StateReadResponse
             {
                 UserBin = UserBin,
                 ChunkSize = CHUNK_SIZE
@@ -55,7 +55,7 @@ namespace AH.Module.Simulation
         {
             Program.Log("Fota - HandleStart");
 
-            var content = message.ReadContent<FotaStartRequest>();
+            var content = message.ReadContent<StartRequest>();
 
             upgrade_buffer = new byte[SPI_FLASH_SEC_SIZE];
             upgrade_buffer_length = 0;
@@ -65,7 +65,7 @@ namespace AH.Module.Simulation
 
             file_content = new byte[upgrade_length];
 
-            return null;
+            return new StartResponse();
         }
 
         private IContentMessage HandleWrite(Message message)

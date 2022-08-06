@@ -6,7 +6,8 @@ namespace AH.Protocol.Library
 {
     public class Message
     {
-        public byte UID { get; set; }
+        public byte From_UID { get; set; }
+        public byte To_UID { get; set; }
         public PortType Port { get; set; }
         public byte Msg { get; set; }
         public IContentMessage Content { get; set; }
@@ -21,14 +22,16 @@ namespace AH.Protocol.Library
             _mem = new MemoryStream(_msg);
             _reader = new BinaryReader(_mem);
 
-            UID = _reader.ReadByte();
+            From_UID = _reader.ReadByte();
+            To_UID = _reader.ReadByte();
             Port = (PortType)_reader.ReadByte();
             Msg = _reader.ReadByte();
         }
 
-        public Message(byte UID, IContentMessage content)
+        public Message(byte fromUID, byte toUID, IContentMessage content)
         {
-            this.UID = UID;
+            From_UID = fromUID;
+            To_UID = toUID;
             Port = content.Port;
             Msg = content.Msg;
             Content = content;
@@ -58,14 +61,11 @@ namespace AH.Protocol.Library
             using (var mem = new MemoryStream())
             using (var writer = new BinaryWriter(mem))
             {
-                writer.Write(UID);
-
+                writer.Write(From_UID);
+                writer.Write(To_UID);
                 writer.Write((byte)Port);
-
                 writer.Write(Msg);
-
                 Content.Write(writer);
-
                 return mem.ToArray();
             }
         }
