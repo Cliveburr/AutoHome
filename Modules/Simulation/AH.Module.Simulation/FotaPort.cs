@@ -16,7 +16,7 @@ namespace AH.Module.Simulation
 
         public byte UserBin { get; set; }
 
-        private const ushort CHUNK_SIZE = 1358;
+        private const ushort CHUNK_SIZE = 1456;
         private const int SPI_FLASH_SEC_SIZE = 4096;
         private uint upgrade_length;          // total de bytes a ser gravado 
         private byte[] upgrade_buffer;        // buffer para gravar
@@ -26,7 +26,7 @@ namespace AH.Module.Simulation
 
         private FotaPort()
         {
-            UserBin = 1;
+            UserBin = 0;
         }
 
         public IContentMessage OnReceived(Message message)

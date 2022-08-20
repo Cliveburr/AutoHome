@@ -24,5 +24,18 @@ namespace AH.Protocol.Library.Helpers
                 value &= (byte)~(1 << pos);
             }
         }
+
+        public static byte ReadTwoBitsAsByte(byte value, int pos)
+        {
+            var btlow = (value & (1 << pos)) != 0 ? 1 : 0;
+            var bthigh = (value & (1 << (pos + 1))) != 0 ? 1 : 0;
+            return (byte)(btlow + (bthigh * 2));
+        }
+
+        public static void SetByteIntoTwoBits(ref byte value, int pos, byte bt)
+        {
+            SetBool(ref value, pos, (bt & 1) != 0);
+            SetBool(ref value, pos + 1, (bt & 2) != 0);
+        }
     }
 }

@@ -17,7 +17,8 @@ namespace AH.Module.Simulation
             Simulator = new AutoHomeSimulator
             {
                 SendPort = 15863,
-                ReceivePort = 15862
+                ReceivePort = 15862,
+                ModuleType = Protocol.Library.ModuleType.CellingFan
             };
             AutoHomePort.Instance.UID = 6;
 

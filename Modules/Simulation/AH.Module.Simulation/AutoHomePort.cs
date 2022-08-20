@@ -52,7 +52,7 @@ namespace AH.Module.Simulation
 
             return new PongResponse
             {
-                ModuleType = ModuleType.Simulation,
+                ModuleType = Program.Simulator.ModuleType,
                 Alias = Alias
             };
         }

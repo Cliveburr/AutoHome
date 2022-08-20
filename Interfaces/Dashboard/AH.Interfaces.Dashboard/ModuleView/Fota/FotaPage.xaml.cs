@@ -51,14 +51,17 @@ namespace AH.Interfaces.Dashboard.ModuleView.Fota
         {
             try
             {
-                var content = await App.Instance.SendAndReceive<StateReadResponse>(new StateReadRequest());
+                using (var tcp = App.Instance.ConnectTCP())
+                {
+                    var content = await tcp.SendAndReceive<StateReadResponse>(new StateReadRequest());
 
-                _context.NextUser = content.UserBin == 0 ?
-                    "User 2 bin" :
-                    "User 1 bin";
-                _context.RaiseNotify("NextUser");
+                    _context.NextUser = content.UserBin == 0 ?
+                        "User 2 bin" :
+                        "User 1 bin";
+                    _context.RaiseNotify("NextUser");
 
-                SetUserEnabled(content.UserBin);
+                    SetUserEnabled(content.UserBin);
+                }
             }
             catch (Exception err)
             {
@@ -81,62 +84,65 @@ namespace AH.Interfaces.Dashboard.ModuleView.Fota
 
                 Task.Run(async () =>
                 {
-                    var content = await App.Instance.SendAndReceive<StateReadResponse>(new StateReadRequest());
-
-                    var file = content.UserBin == 0 ?
-                        _context.User2bin :
-                        _context.User1bin;
-
-                    if (!File.Exists(file))
+                    using (var tcp = App.Instance.ConnectTCP())
                     {
-                        throw new Exception("The file does not exist!");
-                    }
 
-                    var file_bytes = File.ReadAllBytes(file);
-                    var chunks = file_bytes
-                        .Select((x, i) => new { Index = i, Value = x })
-                        .GroupBy(x => x.Index / content.ChunkSize)
-                        .Select(x => x.Select(v => v.Value).ToList())
-                        .ToList();
+                        var content = await tcp.SendAndReceive<StateReadResponse>(new StateReadRequest());
 
-                    Dispatcher.Invoke(() =>
-                    {
-                        pbFotaWrite.Maximum = chunks.Count;
-                    }, DispatcherPriority.Render);
+                        var file = content.UserBin == 0 ?
+                            _context.User2bin :
+                            _context.User1bin;
 
-                    var _ = await App.Instance.SendAndReceive<StartResponse>(new StartRequest
-                    {
-                        FileSize = (uint)file_bytes.Length
-                    });
-
-                    foreach (var chunk in chunks)
-                    {
-                        var writeContent = await App.Instance.SendAndReceive<FotaWriteResponse>(new FotaWriteRequest
+                        if (!File.Exists(file))
                         {
-                            Chunk = chunk.ToArray()
-                        });
+                            throw new Exception("The file does not exist!");
+                        }
+
+                        var file_bytes = File.ReadAllBytes(file);
+                        var chunks = file_bytes
+                            .Select((x, i) => new { Index = i, Value = x })
+                            .GroupBy(x => x.Index / content.ChunkSize)
+                            .Select(x => x.Select(v => v.Value).ToList())
+                            .ToList();
 
                         Dispatcher.Invoke(() =>
                         {
-                            pbFotaWrite.Value += 1;
-                            Console.WriteLine(pbFotaWrite.Value);
+                            pbFotaWrite.Maximum = chunks.Count;
                         }, DispatcherPriority.Render);
 
-                        if (writeContent.IsOver)
+                        await tcp.Send(new StartRequest
                         {
-                            _context.NextUser = string.Empty;
-                            _context.RaiseNotify("NextUser");
-                            WriteSuccess();
+                            FileSize = (uint)file_bytes.Length
+                        });
 
-                            break;
+                        foreach (var chunk in chunks)
+                        {
+                            var writeContent = await tcp.SendAndReceive<FotaWriteResponse>(new FotaWriteRequest
+                            {
+                                Chunk = chunk.ToArray()
+                            });
+
+                            Dispatcher.Invoke(() =>
+                            {
+                                pbFotaWrite.Value += 1;
+                                Console.WriteLine(pbFotaWrite.Value);
+                            }, DispatcherPriority.Render);
+
+                            if (writeContent.IsOver)
+                            {
+                                _context.NextUser = string.Empty;
+                                _context.RaiseNotify("NextUser");
+                                WriteSuccess();
+
+                                break;
+                            }
                         }
-                    }
-                    
 
-                    Dispatcher.Invoke(() =>
-                    {
-                        Mouse.OverrideCursor = defaultCursor;
-                    }, DispatcherPriority.Render);
+                        Dispatcher.Invoke(() =>
+                        {
+                            Mouse.OverrideCursor = defaultCursor;
+                        }, DispatcherPriority.Render);
+                    }
                 });
             }
             catch (Exception err)

@@ -10,8 +10,11 @@
 	- testar a combinação do capacitor
 	- confirmar quantidade de gpio
 	- confirmar tamanhos do rele, adptadores, esp, modulo
+	---- rele tamanho errado
+	
+	-- adicionar resistor 10k no en e no gpio15
 
-- comprar componentes faltantes
+<done> - comprar componentes faltantes
 
 - encomendar placas
 
@@ -40,7 +43,10 @@ https://www.aliexpress.com/item/1005003391874818.html?spm=a2g0o.productlist.0.0.
 
 Diodes:
 https://www.aliexpress.com/item/1005003540554760.html?spm=a2g0o.productlist.0.0.7f30719feelzoI&algo_pvid=528119de-2253-4914-9054-a5caf952d5ef&algo_exp_id=528119de-2253-4914-9054-a5caf952d5ef-0&pdp_ext_f=%7B%22sku_id%22%3A%2212000026223166882%22%7D&pdp_npi=2%40dis%21BRL%212.05%211.94%21%21%2123.34%21%21%402101e9d316596363177022185e987d%2112000026223166882%21sea&curPageLogUid=zrr8QwrxC3XB
+user o 1N4007
+
 
 Transistor BC548:
 
 
+Block 3:

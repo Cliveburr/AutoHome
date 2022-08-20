@@ -8,8 +8,6 @@
         ConfigurationReadRequest = 3,
         ConfigurationReadResponse = 4,
         ConfigurationSaveRequest = 5,
-        ConfigurationSaveResponse = 6,
-        UIDSaveRequest = 7,
-        UIDSaveResponse = 8
+        UIDSaveRequest = 6
     }
 }

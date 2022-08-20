@@ -42,6 +42,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Helpers\BitFieldsTests.cs" />
     <Compile Include="TempHumiSensor\DataInfoTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TempHumiSensor\DataTests.cs" />
@@ -55,6 +56,10 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Framework\DOTnet\AH.Protocol.Library\AH.Protocol.Library.csproj">
+      <Project>{B4AA6E2C-9DFC-4DD8-83C5-CD9924C9148E}</Project>
+      <Name>AH.Protocol.Library</Name>
+    </ProjectReference>
     <ProjectReference Include="..\AH.Module.Simulation\AH.Module.Simulation.csproj">
       <Project>{10e38f5d-d515-479e-a2ce-d7ffe5cf99ae}</Project>
       <Name>AH.Module.Simulation</Name>

@@ -17,6 +17,7 @@ namespace AH.Module.Simulation
         public int SendPort { get; set; }
         public int ReceivePort { get; set; }
         public UdpConnection UdpConnection { get; private set; }
+        public ModuleType ModuleType { get; set; }
 
         public void Start()
         {
@@ -43,6 +44,7 @@ namespace AH.Module.Simulation
                 case PortType.AutoHome: return AutoHomePort.Instance.OnReceived(message);
                 case PortType.Fota: return FotaPort.Instance.OnReceived(message);
                 case PortType.TempHumiSensor: return TempHumiSensorPort.Instance.OnReceived(message);
+                case PortType.CellingFan: return CellingFanPort.Instance.OnReceived(message);
                 default:
                     Program.Log($"Invalid Port: {message.Port}");
                     return null;

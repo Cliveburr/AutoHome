@@ -64,6 +64,14 @@ packages
 *.pwi
 *.dbk
 *.sdf
+**/Schematic/*.zip
+**/Schematic/*.pdsbak
+**/Schematic/*.pdf
+**/Schematic/*.7z
+**/Schematic/*.jpg
+**/Schematic/*.svg
+**/Schematic/*.log
+**/Schematic/*.workspace
 
 
 
@@ -82,4 +90,3 @@ Control/**/*.exe
 # C project
 *.obj
 *.bin
-Modules/TempHumiSensor/Firmware/.vscode

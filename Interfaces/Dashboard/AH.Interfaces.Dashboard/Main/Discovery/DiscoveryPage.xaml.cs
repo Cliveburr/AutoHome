@@ -47,7 +47,7 @@ namespace AH.Interfaces.Dashboard.Main.Discovery
 
         private void SetConnection()
         {
-            App.Instance.Connection.OnUdpReceived += AppConnection_OnUdpReceived;
+            App.Instance.UdpConnection.OnUdpReceived += AppConnection_OnUdpReceived;
         }
 
         private void AppConnection_OnUdpReceived(IPAddress address, Message message)
@@ -81,7 +81,7 @@ namespace AH.Interfaces.Dashboard.Main.Discovery
             try
             {
                 _context.ModuleList.Clear();
-                App.Instance.Connection.SendBroadcast(new PingRequest());
+                App.Instance.UdpConnection.SendBroadcast(new PingRequest());
             }
             catch (Exception err)
             {

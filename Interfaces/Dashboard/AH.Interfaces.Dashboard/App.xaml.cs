@@ -17,16 +17,19 @@ namespace AH.Interfaces.Dashboard
         public event SelectedChangedDelegate SelectedChanged;
 
         public static App Instance { get; private set; }
-        public UdpConnection Connection { get; private set; }
+        public UdpConnection UdpConnection { get; private set; }
         
         private DiscoveryModuleModel _selected;
+        private const int _my_uid = 0;
+        private const int _send_port = 15862;
+        private const int _receive_port = 15863;
 
         public App()
         {
             Instance = this;
 
             Config.ConfigFile.Load();
-            Connection = new UdpConnection(0, 15862, 15863);
+            UdpConnection = new UdpConnection(_my_uid, _send_port, _receive_port);
         }
 
         public DiscoveryModuleModel Selected
@@ -55,13 +58,22 @@ namespace AH.Interfaces.Dashboard
             });
         }
 
-        public Task<T> SendAndReceive<T>(IContentMessage content) where T : IContentMessage
+        public Task<T> SendAndReceiveUDP<T>(IContentMessage content) where T : IContentMessage
         {
             if (Selected == null)
             {
                 throw new NullReferenceException("App.Selected not set!");
             }
-            return Connection.SendAndReceive<T>(Selected.Ip, Selected.UID, content);
+            return UdpConnection.SendAndReceive<T>(Selected.Ip, Selected.UID, content);
+        }
+
+        public TcpConnection ConnectTCP()
+        {
+            if (Selected == null)
+            {
+                throw new NullReferenceException("App.Selected not set!");
+            }
+            return new TcpConnection(_my_uid, Selected.UID, Selected.Ip, _send_port);
         }
     }
 }

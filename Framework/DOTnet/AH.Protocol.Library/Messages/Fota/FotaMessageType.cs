@@ -6,8 +6,7 @@
         StateReadRequest = 1,
         StateReadResponse = 2,
         StartRequest = 3,
-        StartResponse = 4,
-        WriteRequest = 5,
-        WriteResponse = 6
+        WriteRequest = 4,
+        WriteResponse = 5
     }
 }

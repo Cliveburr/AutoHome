@@ -33,18 +33,4 @@ namespace AH.Protocol.Library.Messages.AutoHome
             Alias = stream.ReadString();
         }
     }
-
-    public class ConfigurationSaveResponse : IContentMessage
-    {
-        public PortType Port { get; } = PortType.AutoHome;
-        public byte Msg { get; } = (byte)AutoHomeMessageType.ConfigurationSaveResponse;
-
-        public void Read(BinaryReader stream)
-        {
-        }
-
-        public void Write(BinaryWriter stream)
-        {
-        }
-    }
 }

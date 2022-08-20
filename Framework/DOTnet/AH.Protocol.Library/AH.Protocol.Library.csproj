@@ -41,6 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Connection\TcpConnection.cs" />
     <Compile Include="Connection\UdpConnection.cs" />
     <Compile Include="Helpers\BinaryExtension.cs" />
     <Compile Include="Helpers\BitFields.cs" />
@@ -51,6 +52,10 @@
     <Compile Include="Messages\AutoHome\ConfigurationSave.cs" />
     <Compile Include="Messages\AutoHome\PingPong.cs" />
     <Compile Include="Messages\AutoHome\UIDSave.cs" />
+    <Compile Include="Messages\CellingFan\CellingFanMessageType.cs" />
+    <Compile Include="Messages\CellingFan\FanSpeedEnum.cs" />
+    <Compile Include="Messages\CellingFan\StateRead.cs" />
+    <Compile Include="Messages\CellingFan\StateSave.cs" />
     <Compile Include="Messages\Fota\Start.cs" />
     <Compile Include="Messages\Fota\StateRead.cs" />
     <Compile Include="Messages\Fota\WriteRequest.cs" />

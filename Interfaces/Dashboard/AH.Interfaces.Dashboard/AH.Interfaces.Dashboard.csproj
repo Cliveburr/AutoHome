@@ -95,6 +95,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="ModuleView\CellingFan\CellingFanPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="ModuleView\Fota\FotaPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -116,6 +120,10 @@
     <Compile Include="ModuleView\AutoHome\AutoHomeContext.cs" />
     <Compile Include="ModuleView\AutoHome\AutoHomePage.xaml.cs">
       <DependentUpon>AutoHomePage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ModuleView\CellingFan\CellingFanContext.cs" />
+    <Compile Include="ModuleView\CellingFan\CellingFanPage.xaml.cs">
+      <DependentUpon>CellingFanPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="ModuleView\Fota\FotaContext.cs" />
     <Compile Include="ModuleView\Fota\FotaPage.xaml.cs">

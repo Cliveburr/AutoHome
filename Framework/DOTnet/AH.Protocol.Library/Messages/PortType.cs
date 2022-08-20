@@ -12,6 +12,7 @@ namespace AH.Protocol.Library.Messages
         AutoHome = 1,
         Fota = 2,
         RGBLedRibbon = 3,
-        TempHumiSensor = 4
+        TempHumiSensor = 4,
+        CellingFan = 5
     }
 }

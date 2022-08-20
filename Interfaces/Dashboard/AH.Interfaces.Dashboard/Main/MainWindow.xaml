@@ -5,10 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AH.Interfaces.Dashboard.Main"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800" WindowStartupLocation="CenterScreen">
+        Title="MainWindow" Height="700" Width="1024" WindowStartupLocation="CenterScreen">
     <Grid>
         <TabControl Margin="5">
-            <TabItem Header="Home"></TabItem>
+            <TabItem Header="Home">
+                <Frame x:Name="frHome" NavigationUIVisibility="Hidden"></Frame>
+            </TabItem>
             <TabItem Header="Discovery">
                 <Frame Source="/Main/Discovery/DiscoveryPage.xaml"></Frame>
             </TabItem>

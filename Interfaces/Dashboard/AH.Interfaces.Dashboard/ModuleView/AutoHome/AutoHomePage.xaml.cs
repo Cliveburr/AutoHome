@@ -59,14 +59,17 @@ namespace AH.Interfaces.Dashboard.ModuleView.AutoHome
         {
             try
             {
-                var content = await App.Instance.SendAndReceive<ConfigurationReadResponse>(new ConfigurationReadRequest());
+                using (var tcp = App.Instance.ConnectTCP())
+                {
+                    var content = await tcp.SendAndReceive<ConfigurationReadResponse>(new ConfigurationReadRequest());
 
-                _context.WifiName = content.WifiName;
-                _context.RaiseNotify("WifiName");
-                _context.WifiPassword = content.WifiPassword;
-                _context.RaiseNotify("WifiPassword");
-                _context.Alias = content.Alias;
-                _context.RaiseNotify("Alias");
+                    _context.WifiName = content.WifiName;
+                    _context.RaiseNotify("WifiName");
+                    _context.WifiPassword = content.WifiPassword;
+                    _context.RaiseNotify("WifiPassword");
+                    _context.Alias = content.Alias;
+                    _context.RaiseNotify("Alias");
+                }
             }
             catch (Exception err)
             {
@@ -78,12 +81,15 @@ namespace AH.Interfaces.Dashboard.ModuleView.AutoHome
         {
             try
             {
-                var _ = await App.Instance.SendAndReceive<ConfigurationSaveResponse>(new ConfigurationSaveRequest
+                using (var tcp = App.Instance.ConnectTCP())
                 {
-                    WifiName = _context.WifiName,
-                    WifiPassword = _context.WifiPassword,
-                    Alias = _context.Alias
-                });
+                    await tcp.Send(new ConfigurationSaveRequest
+                    {
+                        WifiName = _context.WifiName,
+                        WifiPassword = _context.WifiPassword,
+                        Alias = _context.Alias
+                    });
+                }
             }
             catch (Exception err)
             {
@@ -95,12 +101,15 @@ namespace AH.Interfaces.Dashboard.ModuleView.AutoHome
         {
             try
             {
-                var _ = await App.Instance.SendAndReceive<UIDSaveResponse>(new UIDSaveRequest
+                using (var tcp = App.Instance.ConnectTCP())
                 {
-                    UID = (byte)_context.UID
-                });
+                    await tcp.Send(new UIDSaveRequest
+                    {
+                        UID = (byte)_context.UID
+                    });
 
-                App.Instance.Selected.UID = (byte)_context.UID;
+                    App.Instance.Selected.UID = (byte)_context.UID;
+                }
             }
             catch (Exception err)
             {

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AH.Interfaces.Dashboard.ModuleView.CellingFan;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,6 +20,23 @@ namespace AH.Interfaces.Dashboard.Main
         public MainWindow()
         {
             InitializeComponent();
+
+            App.Instance.SelectedChanged += Instance_SelectedChanged;
+        }
+
+        private void Instance_SelectedChanged()
+        {
+            if (frHome.CanGoBack)
+            {
+                frHome.GoBack();
+            }
+
+            switch (App.Instance.Selected.ModuleType)
+            {
+                case Protocol.Library.ModuleType.CellingFan:
+                    frHome.Navigate(new CellingFanPage());
+                    break;
+            }
         }
     }
 }

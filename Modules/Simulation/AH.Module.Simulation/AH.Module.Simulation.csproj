@@ -45,6 +45,7 @@
   <ItemGroup>
     <Compile Include="AutoHomePort.cs" />
     <Compile Include="AutoHomeSimulator.cs" />
+    <Compile Include="CellingFanPort.cs" />
     <Compile Include="FotaPort.cs" />
     <Compile Include="PortBase.cs" />
     <Compile Include="Program.cs" />
