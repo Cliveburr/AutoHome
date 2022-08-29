@@ -111,7 +111,7 @@ void autohome_port_handler(array_builder_t* req, array_builder_t* res)
 	uint8 touid = array_read_uchar(req);
 
 	#ifdef DEBUG
-		os_printf("autohome_port_handler fromuid: %d, touid: %d ", fromuid, touid);
+		os_printf("autohome_port_handler from uid: %d, touid: %d ", fromuid, touid);
 	#endif
 	if (!(touid == autohome_configuration->uid || touid == 0))
 	{

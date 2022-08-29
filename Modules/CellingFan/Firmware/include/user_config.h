@@ -22,12 +22,12 @@
 /* *** end fota config *** */
 
 /* *** cellingfan.h config *** */
-#define CELLINGFAN_LIGHT_PIN              15
-#define CELLINGFAN_FAN_PIN                05
-#define CELLINGFAN_FAN_DIRECTION_PIN      13
+#define CELLINGFAN_LIGHT_PIN              16
+#define CELLINGFAN_FAN_PIN                15
+#define CELLINGFAN_FAN_DIRECTION_PIN      02
 #define CELLINGFAN_FAN_SPEED_MIX_PIN      04
-#define CELLINGFAN_FAN_SPEED_MAX_PIN      16
-//#define CELLINGFAN_LIGHT_BUTTON_PIN       xx
+#define CELLINGFAN_FAN_SPEED_MAX_PIN      05
+#define CELLINGFAN_LIGHT_BUTTON_PIN       13
 #define CELLINGFAN_FAN_BUTTON_PIN         12
 #define CELLINGFAN_FAN_SPEED_BUTTON_PIN   14
 /* *** end cellingfan.h config *** */

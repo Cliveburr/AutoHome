@@ -9,7 +9,7 @@
 	ok - testar enviar tensão 3.3v por longa distancia
 	- testar a combinação do capacitor
 	ok - confirmar quantidade de gpio
-	- confirmar tamanhos do rele, adptadores, esp, modulo
+	ok - confirmar tamanhos do rele, adptadores, esp, modulo
 	ok - confirmar o acionamento do rele com 3.3v e o resitor de 1k
 	ok - os buracos da pcb são metalizados, pode colocar component PTH na top layer
 	ok - adicionar resistor 10k no en e no gpio15

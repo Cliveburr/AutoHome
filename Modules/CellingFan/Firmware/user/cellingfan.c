@@ -2,7 +2,7 @@
 
 #include "gpio.h"
 
-#include "gpios.h"
+#include "helpers/gpios.h"
 #include "cellingfan.h"
 
 /*
@@ -29,7 +29,7 @@ typedef struct {
 
 LOCAL cellingfan_state_t cellingfan_state;
 
-ICACHE_FLASH_ATTR
+LOCAL ICACHE_FLASH_ATTR
 void cellingfan_state_read(array_builder_t* req, array_builder_t* res)
 {
 	#ifdef DEBUG
@@ -51,7 +51,7 @@ typedef struct {
    uint8_t fanSpeed : 2;
 } cellingfan_state_save_t;
 
-ICACHE_FLASH_ATTR
+LOCAL ICACHE_FLASH_ATTR
 void cellingfan_set_fanspeed_state(void)
 {
     switch (cellingfan_state.fanSpeed)
@@ -71,7 +71,7 @@ void cellingfan_set_fanspeed_state(void)
     }
 }
 
-ICACHE_FLASH_ATTR
+LOCAL ICACHE_FLASH_ATTR
 void cellingfan_state_save(array_builder_t* req, array_builder_t* res)
 {
 	#ifdef DEBUG
@@ -109,7 +109,22 @@ void cellingfan_state_save(array_builder_t* req, array_builder_t* res)
 }
 
 LOCAL ICACHE_FLASH_ATTR
-void cellingfan_fan_button_cb(uint8_t state)
+void cellingfan_light_button_cb()
+{
+    if (cellingfan_state.light)
+    {
+        cellingfan_state.light = 0;
+        gpios_set_output_low(CELLINGFAN_LIGHT_PIN);
+    }
+    else
+    {
+        cellingfan_state.light = 1;
+        gpios_set_output_high(CELLINGFAN_LIGHT_PIN);
+    }
+}
+
+LOCAL ICACHE_FLASH_ATTR
+void cellingfan_fan_button_cb()
 {
     if (cellingfan_state.fan)
     {
@@ -124,7 +139,7 @@ void cellingfan_fan_button_cb(uint8_t state)
 }
 
 LOCAL ICACHE_FLASH_ATTR
-void cellingfan_fanspeed_button_cb(uint8_t state)
+void cellingfan_fanspeed_button_cb()
 {
     cellingfan_state.fanSpeed++;
     if (cellingfan_state.fanSpeed == 3)
@@ -145,6 +160,7 @@ void cellingfan_init_gpios(void)
     gpios_set_output_mode(CELLINGFAN_FAN_SPEED_MIX_PIN, 0);
     gpios_set_output_mode(CELLINGFAN_FAN_SPEED_MAX_PIN, 0);
 
+    gpios_set_button_intr(CELLINGFAN_LIGHT_BUTTON_PIN, cellingfan_light_button_cb);
     gpios_set_button_intr(CELLINGFAN_FAN_BUTTON_PIN, cellingfan_fan_button_cb);
     gpios_set_button_pulsar(CELLINGFAN_FAN_SPEED_BUTTON_PIN, cellingfan_fanspeed_button_cb);
 }

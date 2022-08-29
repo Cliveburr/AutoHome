@@ -1,0 +1,43 @@
+<ion-content color="primary">
+    <form class="h100" #form="ngForm" (ngSubmit)="enter(form)">
+        <ion-grid class="h100">
+            <ion-row color="primary" class="h100 f-col vh-center">
+                <h3 class="font-50">Auto Home</h3>
+                <div class="pt">
+                    <ion-item>
+                        <ion-input name="password" type="text" placeholder="Password" ngModel required></ion-input>
+                    </ion-item>
+                </div>
+                <div class="pt">
+                    <ion-button color="secondary" size="large" type="submit" [disabled]="form.invalid" expand="block">Enter</ion-button> 
+                </div>
+            </ion-row>
+        </ion-grid>
+    </form>
+    <!-- <ion-grid style="height: 100%">
+        <ion-row color="primary" justify-content-center align-items-center style="height: 100%">
+            <ion-col align-self-center size-md="6" size-lg="5" size-xs="12">
+            <div text-center>
+                <h3>Auto Home</h3>
+            </div>
+            <div padding>
+                <ion-item>
+                <ion-input  name="name" type="text" placeholder="Name" ngModel required></ion-input>
+                </ion-item>
+                <ion-item>
+                <ion-input name="email" type="email" placeholder="your@email.com" ngModel required></ion-input>
+                </ion-item>
+                <ion-item>
+                <ion-input name="password" type="password" placeholder="Password" ngModel required></ion-input>
+                </ion-item>
+                <ion-item>
+                <ion-input name="confirm" type="password" placeholder="Password again" ngModel required></ion-input>
+                </ion-item>
+            </div>
+            <div padding>
+                <ion-button  size="large" type="submit" [disabled]="form.invalid" expand="block">Register</ion-button> 
+            </div>
+            </ion-col>
+        </ion-row>
+    </ion-grid> -->
+  </ion-content>

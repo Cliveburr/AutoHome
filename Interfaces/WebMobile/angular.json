@@ -14,9 +14,9 @@
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
             "outputPath": "www",
-            "index": "src/index.html",
-            "main": "src/main.ts",
-            "polyfills": "src/polyfills.ts",
+            "index": "src/main/index.html",
+            "main": "src/main/main.ts",
+            "polyfills": "src/main/polyfills.ts",
             "tsConfig": "tsconfig.app.json",
             "assets": [
               {
@@ -30,7 +30,7 @@
                 "output": "./svg"
               }
             ],
-            "styles": ["src/theme/variables.scss", "src/global.scss"],
+            "styles": ["src/style/variables.scss", "src/style/global.scss"],
             "scripts": [],
             "aot": false,
             "vendorChunk": true,
