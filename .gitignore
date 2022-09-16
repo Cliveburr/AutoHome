@@ -74,13 +74,7 @@ packages
 **/Schematic/*.workspace
 
 
-
-# Interface - WebUI
-Interface/WebUI/node_modules
-Interface/WebUI/app/**/*.js
-Interface/WebUI/app/**/*.js.map
-
-
+**/appsettings.Development.json
 **/project.lock.json
 **/Solutions/Components
 
