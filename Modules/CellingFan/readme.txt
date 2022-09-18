@@ -16,7 +16,7 @@
 
 <done> - comprar componentes faltantes
 
-- encomendar placas
+<done> - encomendar placas
 
 <done> - codificar o modulo
 

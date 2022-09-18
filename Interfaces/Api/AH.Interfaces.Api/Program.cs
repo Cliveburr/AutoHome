@@ -1,3 +1,4 @@
+using AH.Interfaces.Api.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -46,9 +47,12 @@ builder.Services
             });
     });
 
+builder.Services
+    .AddSingleton<ConnectionService>();
+
 var app = builder.Build();
 
-if (builder.Configuration.GetValue<bool>("Https", false))
+if (builder.Configuration.GetValue("Https", false))
 {
     app.UseHttpsRedirection();
 }

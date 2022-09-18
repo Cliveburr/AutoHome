@@ -79,7 +79,7 @@ namespace AH.Module.Simulation
             WifiName = content.WifiName;
             WifiPassword = content.WifiPassword;
 
-            return new ConfigurationSaveResponse();
+            return null;
         }
 
         private IContentMessage HandleUIDSave(Message message)
@@ -91,7 +91,7 @@ namespace AH.Module.Simulation
             UID = content.UID;
             Program.Simulator.UdpConnection.My_UID = UID;
 
-            return new UIDSaveResponse();
+            return null;
         }
     }
 }

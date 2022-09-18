@@ -1,0 +1,35 @@
+<ion-list>
+    <ion-item>
+        <ion-label (click)="lightClick()">Light</ion-label>
+        <ion-toggle [(ngModel)]="model.light" (ionChange)="lightChange()"></ion-toggle>
+    </ion-item>
+  
+    <ion-item>
+        <ion-label (click)="fanClick()">Fan</ion-label>
+        <ion-toggle [(ngModel)]="model.fan" (ionChange)="fanChange()"></ion-toggle>
+    </ion-item>
+  
+    <ion-item>
+        <ion-label (click)="fanUpClick()">Orientation</ion-label>
+        <ion-toggle [(ngModel)]="model.fanUp" (ionChange)="fanUpChange()"></ion-toggle>
+    </ion-item>
+</ion-list>
+<ion-list>
+    <ion-radio-group [(ngModel)]="model.fanSpeed" (ionChange)="fanSpeedChange()">
+      <ion-list-header>
+        <ion-label>Fan Speed</ion-label>
+      </ion-list-header>
+      <ion-item>
+        <ion-label>Minimum</ion-label>
+        <ion-radio slot="start" [value]="0"></ion-radio>
+      </ion-item>
+      <ion-item>
+        <ion-label>Medium</ion-label>
+        <ion-radio slot="start" [value]="1"></ion-radio>
+      </ion-item>
+      <ion-item>
+        <ion-label>Maximum</ion-label>
+        <ion-radio slot="start" [value]="2"></ion-radio>
+      </ion-item>
+    </ion-radio-group>
+  </ion-list>

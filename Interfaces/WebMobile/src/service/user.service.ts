@@ -1,4 +1,5 @@
 import { Injectable } from "@angular/core";
+import { LoginRequest, LoginResponse } from "src/model";
 import { ApiPrefixService, ApiService } from "./api.service";
 
 @Injectable()
@@ -12,9 +13,7 @@ export class UserService {
         this.api = apiService.setApi('/user');
     }
 
-    public enter(password: string) {
-        return this.api.post('/enter', {
-            password
-        })
+    public login(request: LoginRequest) {
+        return this.api.post<LoginResponse>('/login', request)
     }
 }

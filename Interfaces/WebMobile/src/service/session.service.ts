@@ -1,29 +1,50 @@
 import { Injectable } from "@angular/core";
+import { LoginResponse } from "src/model";
 import { StoreService } from "./store.service";
 
 @Injectable()
 export class SessionService {
 
-    private TOKEN_KEY = 'USERTOKEN';
+    private LOGIN_KEY = 'USERLOGIN';
+    private UNIQUE_ID_KEY = 'UNIQUEID';
 
-    public token?: string;
+    public login?: LoginResponse;
 
     public constructor(
         public store: StoreService
     ) {
     }
 
-    public initialize(): void {
-        this.token = this.store.read<string>(this.TOKEN_KEY);
+    public get isLogged(): boolean {
+        return typeof(this.login?.token) !== 'undefined';
     }
 
-    public setToken(token: string): void {
-        this.token = token;
-        this.store.save(this.TOKEN_KEY, token);
+    public get isAdmin(): boolean {
+        return this.login?.isAdmin ?? false;
+    }
+
+    public initialize(): void {
+        this.login = this.store.read<LoginResponse>(this.LOGIN_KEY);
+    }
+
+    public setLogin(login: LoginResponse): void {
+        this.login = login;
+        this.store.save(this.LOGIN_KEY, login);
     }
 
     public clearToken(): void {
-        delete this.token;
-        this.store.delete(this.TOKEN_KEY);
+        delete this.login;
+        this.store.delete(this.LOGIN_KEY);
+    }
+
+    public getUniqueId(): string {
+        const id = window.localStorage.getItem(this.UNIQUE_ID_KEY);
+        if (id) {
+            return id;
+        } else {
+            const newId = btoa(new Date().toString());
+            window.localStorage.setItem(this.UNIQUE_ID_KEY, newId);
+            return newId;
+        }
     }
 }

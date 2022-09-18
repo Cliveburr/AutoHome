@@ -13,7 +13,7 @@ export class LoggedGuardService implements CanActivateChild  {
     }
 
     public canActivateChild(childRoute: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> | Promise<boolean> | boolean {
-        if (this.sessionService.token) {
+        if (this.sessionService.isLogged) {
             return true;
         }
         else {

@@ -65,7 +65,7 @@ namespace AH.Module.Simulation
 
             file_content = new byte[upgrade_length];
 
-            return new StartResponse();
+            return null;
         }
 
         private IContentMessage HandleWrite(Message message)

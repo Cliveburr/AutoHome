@@ -37,9 +37,9 @@ export class ApiService {
         const headers = <any>{
             "Content-Type": "application/json"
         };
-        if (this.sessionService.token)
+        if (this.sessionService.login?.token)
         {
-            headers.Authorization = 'Bearer ' + this.sessionService.token;
+            headers.Authorization = 'Bearer ' + this.sessionService.login.token;
         }
         return headers;
     }
@@ -51,6 +51,7 @@ export class ApiService {
                 this.router.navigateByUrl('/login');
             }
         }
+        throw error;
     }
 }
 

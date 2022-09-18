@@ -1,10 +1,9 @@
 import { Component } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
-import { SessionService, UserService } from 'src/service';
+import { BaseService, SessionService, UserService } from 'src/service';
 
-interface IProfileLoginModel {
-    login: string;
+interface IUserLoginModel {
     password: string;
 }
 
@@ -13,25 +12,23 @@ interface IProfileLoginModel {
 })
 export class UserLoginComponent {
 
-    public model: IProfileLoginModel;
-
     public constructor(
+        private base: BaseService,
         private userService: UserService,
         private sessionService: SessionService,
         private router: Router
     ) {
-        this.model = <any>{};
     }
 
     public async enter(form: NgForm): Promise<void> {
-        const res = await <any>this.userService.enter(form.form.value.password);
-        this.sessionService.setToken(res.token);
+        const model = <IUserLoginModel>form.form.value;
+        const res = await this.base.withLoading(
+            this.userService.login({
+                password: model.password,
+                uniqueId: this.sessionService.getUniqueId()
+            })
+        );
+        this.sessionService.setLogin(res);
         this.router.navigateByUrl('/home');
-        // this.loginService.base.withLoadingNav(
-        //     this.loginService.authenticationByLogin(
-        //         this.model.login,
-        //         this.model.password),
-        //         '/site'
-        // );
     }
 }

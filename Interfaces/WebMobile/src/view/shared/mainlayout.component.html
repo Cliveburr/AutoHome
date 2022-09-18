@@ -1,3 +1,28 @@
 <ion-app>
-  <ion-router-outlet></ion-router-outlet>
+    <ion-router-outlet *ngIf="!sessionService.isLogged; else loggedElse"></ion-router-outlet>
+    <ng-template #loggedElse>
+        <ion-tabs>
+            <ion-tab-bar slot="bottom">
+                <ion-tab-button tab="home">
+                    <ion-icon name="calendar"></ion-icon>
+                    <ion-label>Home</ion-label>
+                </ion-tab-button>
+
+                <ion-tab-button tab="discovery">
+                    <ion-icon name="person-circle"></ion-icon>
+                    <ion-label>Discovery</ion-label>
+                </ion-tab-button>
+
+                <ion-tab-button tab="options">
+                    <ion-icon name="map"></ion-icon>
+                    <ion-label>Options</ion-label>
+                </ion-tab-button>
+
+                <ion-tab-button *ngIf="sessionService.isAdmin" tab="config">
+                    <ion-icon name="information-circle"></ion-icon>
+                    <ion-label>Config</ion-label>
+                </ion-tab-button>
+            </ion-tab-bar>
+        </ion-tabs>
+    </ng-template>
 </ion-app>

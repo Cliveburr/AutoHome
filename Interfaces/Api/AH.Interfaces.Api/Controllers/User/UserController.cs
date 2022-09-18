@@ -17,37 +17,37 @@ namespace AH.Interfaces.Api.Controllers.User
             _config = config;
         }
 
-        [HttpGet("test")]
-        public async Task<ActionResult<string>> Test()
-        {
-            return Ok("testando");
-        }
-
         [AllowAnonymous]
-        [HttpPost("enter")]
-        public async Task<ActionResult<EnterResponse>> Enter(EnterRequest request)
+        [HttpPost("login")]
+        public async Task<ActionResult<LoginResponse>> Login(LoginRequest request)
         {
-            var globalPassword = _config.GetValue<string>("GlobalPassword");
-            if (request.Password != globalPassword)
+            var userLogin = _config.GetValue<string>("UserLogin");
+            var adminLogin = _config.GetValue<string>("AdminLogin");
+
+            if (!(request.Password == userLogin || request.Password == adminLogin))
             {
-                return BadRequest();
+                return BadRequest(); ;
             }
 
-            var token = GenerateToken();
+            var isAdmin = request.Password == adminLogin;
 
-            return new EnterResponse
+            var token = GenerateToken(request.UniqueId, isAdmin);
+
+            return new LoginResponse
             {
-                Token = token
+                Token = token,
+                IsAdmin = isAdmin
             };
         }
 
-        private string GenerateToken()
+        private string GenerateToken(string uniqueId, bool isAdmin)
         {
             var key = Encoding.ASCII.GetBytes(_config.GetSection("SecurityKey").Value);
 
             var claims = new Claim[]
             {
-                new Claim(ClaimTypes.NameIdentifier, "TRUE")
+                new Claim(ClaimTypes.NameIdentifier, uniqueId),
+                new Claim("AH_ISADMIN", isAdmin.ToString())
             };
 
             var tokenHandler = new JwtSecurityTokenHandler();

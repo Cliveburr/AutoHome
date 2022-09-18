@@ -6,9 +6,10 @@ import * as view from '../view';
 export const routes: Routes = [
     { path: '', redirectTo: 'home', pathMatch: 'full' },
     { path: 'login', component: view.UserLoginComponent },
-    { path: '', component: view.TabsComponent, canActivateChild: [LoggedGuardService], children: [
+    { path: '', canActivateChild: [LoggedGuardService], children: [
         { path: 'home', component: view.HomeComponent },
-        { path: 'discovery', component: view.DiscoveryComponent }
+        { path: 'discovery', component: view.DiscoveryComponent },
+        { path: 'options', component: view.OptionsComponent }
     ] },
     { path: '**', redirectTo: '/home' }
 ]

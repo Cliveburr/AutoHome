@@ -1,4 +1,6 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
+import { ModuleModel } from 'src/model';
+import { ModuleService } from 'src/service';
 //import { LoginService } from '../../service';
 
 @Component({
@@ -6,9 +8,8 @@ import { Component } from '@angular/core';
 })
 export class HomeComponent {
 
-
     public constructor(
-        //private loginService: LoginService
+        public moduleService: ModuleService
     ) {
         //this.model = <any>{};
     }

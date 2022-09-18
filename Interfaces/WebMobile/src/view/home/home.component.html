@@ -1,1 +1,13 @@
-home
+<ion-content>
+    <ion-header>
+        <ion-toolbar>
+            <ion-title size="large">Options</ion-title>
+        </ion-toolbar>
+    </ion-header>
+    <ng-container [ngSwitch]="moduleService.selected?.moduleType">
+        <cellingFan *ngSwitchCase="'CellingFan'"></cellingFan>
+        <div *ngSwitchDefault>
+            default
+        </div>
+    </ng-container>
+</ion-content>

@@ -3,7 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31919.166
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AH.Interfaces.Api", "AH.Interfaces.Api\AH.Interfaces.Api.csproj", "{13E78450-476B-4ECA-9120-4EE0D6C5E054}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AH.Interfaces.Api", "AH.Interfaces.Api\AH.Interfaces.Api.csproj", "{13E78450-476B-4ECA-9120-4EE0D6C5E054}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "01 - Api", "01 - Api", "{B0287856-4992-4CC2-A843-7A46AD9ADD03}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "02 - Protocol", "02 - Protocol", "{9DEF5E44-8D95-4FFE-982D-64CD1A97ED60}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AH.Protocol.Library", "..\..\Framework\DOTnet\AH.Protocol.Library\AH.Protocol.Library.csproj", "{B4AA6E2C-9DFC-4DD8-83C5-CD9924C9148E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,9 +21,17 @@ Global
 		{13E78450-476B-4ECA-9120-4EE0D6C5E054}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{13E78450-476B-4ECA-9120-4EE0D6C5E054}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{13E78450-476B-4ECA-9120-4EE0D6C5E054}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B4AA6E2C-9DFC-4DD8-83C5-CD9924C9148E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B4AA6E2C-9DFC-4DD8-83C5-CD9924C9148E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B4AA6E2C-9DFC-4DD8-83C5-CD9924C9148E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B4AA6E2C-9DFC-4DD8-83C5-CD9924C9148E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{13E78450-476B-4ECA-9120-4EE0D6C5E054} = {B0287856-4992-4CC2-A843-7A46AD9ADD03}
+		{B4AA6E2C-9DFC-4DD8-83C5-CD9924C9148E} = {9DEF5E44-8D95-4FFE-982D-64CD1A97ED60}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7EEE64EF-56A8-4520-8617-CF4855CD5C30}

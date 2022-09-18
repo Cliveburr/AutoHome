@@ -76,7 +76,7 @@ namespace AH.Module.Simulation
                 FanSpeed = content.FanSpeed;
             }
 
-            return new StateSaveResponse();
+            return null;
         }
     }
 }
