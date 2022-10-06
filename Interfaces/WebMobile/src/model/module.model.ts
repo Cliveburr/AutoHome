@@ -4,7 +4,7 @@ export interface ModuleListRequest {
 }
 
 export interface ModuleModel {
-    UID: string;
+    uid: string;
     alias: string;
     moduleType: string;
 }
@@ -17,4 +17,8 @@ export interface BolleanRequest {
 export interface UintRequest {
     model: ModuleModel;
     value: number;
+}
+
+export interface UidRequest {
+    uid: string;
 }

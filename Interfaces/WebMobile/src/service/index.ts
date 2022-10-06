@@ -9,6 +9,7 @@ export * from './user.service';
 export * from './modules/module.service';
 export * from './modules/cellingFan.service';
 export * from './base.service';
+export * from './home.service';
 
 import { ApiService } from './api.service';
 import { LoggedGuardService } from './logged-guard.service';
@@ -18,6 +19,7 @@ import { UserService } from './user.service';
 import { ModuleService } from './modules/module.service';
 import { CellingFanService } from './modules/cellingFan.service';
 import { BaseService } from './base.service';
+import { HomeService } from './home.service';
 export const ALL_SERVICE = [
     ApiService,
     LoggedGuardService,
@@ -26,5 +28,6 @@ export const ALL_SERVICE = [
     UserService,
     ModuleService,
     CellingFanService,
-    BaseService
+    BaseService,
+    HomeService
 ]

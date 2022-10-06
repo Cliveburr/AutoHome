@@ -37,6 +37,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -87,6 +88,10 @@
       <DependentUpon>DiscoveryPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Main\HomeProject\HomeProject.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Main\MainWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -113,6 +118,11 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Main\HomeProject\HomeImageDescription.cs" />
+    <Compile Include="Main\HomeProject\HomeImageDescriptionBuilder.cs" />
+    <Compile Include="Main\HomeProject\HomeProject.xaml.cs">
+      <DependentUpon>HomeProject.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Main\MainContext.cs" />
     <Compile Include="Main\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
@@ -166,6 +176,11 @@
       <Project>{B4AA6E2C-9DFC-4DD8-83C5-CD9924C9148E}</Project>
       <Name>AH.Protocol.Library</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json">
+      <Version>13.0.1</Version>
+    </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

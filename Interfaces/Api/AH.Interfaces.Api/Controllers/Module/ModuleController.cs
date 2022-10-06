@@ -36,5 +36,33 @@ namespace AH.Interfaces.Api.Controllers.Module
                 })
                 .ToList());
         }
+
+
+        [HttpGet("getmodule/{uid}")]
+        public async Task<ActionResult<ModuleModel?>> GetModule(byte uid)
+        {
+            var retMod = _connectionService.Modules
+                .FirstOrDefault(m => m.UID == uid);
+            if (retMod == null)
+            {
+                retMod = await _connectionService
+                    .RefreshModulesAndWaitFor(uid);
+            }
+
+            if (retMod == null)
+            {
+                return Ok(null);
+            }
+            else
+            {
+                return Ok(new ModuleModel
+                {
+                    UID = retMod.UID,
+                    Alias = retMod.Alias,
+                    Ip = retMod.IpString,
+                    ModuleType = retMod.ModuleType.ToString()
+                });
+            }
+        }
     }
 }

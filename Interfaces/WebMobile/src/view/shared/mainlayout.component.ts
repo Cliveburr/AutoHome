@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { SessionService } from 'src/service';
+import { ModuleService, SessionService } from 'src/service';
 
 @Component({
     selector: 'body',
@@ -8,7 +8,12 @@ import { SessionService } from 'src/service';
 export class MainLayoutComponent {
 
     public constructor(
-        public sessionService: SessionService
+        public sessionService: SessionService,
+        public moduleService: ModuleService
     ) {
+    }
+
+    public homeClick(): void {
+        this.moduleService.selected = undefined;
     }
 }

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { StateReadResponse } from 'src/model';
+import { CellingFanState } from 'src/model';
 import { ModuleService, CellingFanService } from 'src/service';
 
 @Component({
@@ -8,17 +8,17 @@ import { ModuleService, CellingFanService } from 'src/service';
 })
 export class CellingFanModuleComponent {
 
-    public model: StateReadResponse;
+    public model: CellingFanState;
 
     public constructor(
         public moduleService: ModuleService,
         public cellingFanService: CellingFanService
     ) {
-        this.model = <any>{
+        this.model = {
             light: false,
             fan: false,
             fanUp: false,
-            fanSpeed: 0
+            fanSpeed: -1
         };
     }
 
@@ -60,5 +60,11 @@ export class CellingFanModuleComponent {
             model: this.moduleService.selected!,
             value: this.model.fanSpeed
         });
+    }
+
+    public async refresh(): Promise<void> {
+        this.model = await this.cellingFanService.getState({
+            uid: this.moduleService.selected!.uid
+        })
     }
 }

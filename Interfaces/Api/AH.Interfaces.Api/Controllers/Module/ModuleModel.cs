@@ -26,4 +26,9 @@ namespace AH.Interfaces.Api.Controllers.Module
         public ModuleModel Model { get; set; }
         public uint Value { get; set; }
     }
+
+    public class UidRequest
+    {
+        public byte UID { get; set; }
+    }
 }

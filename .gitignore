@@ -84,3 +84,5 @@ Control/**/*.exe
 # C project
 *.obj
 *.bin
+
+/Interfaces/Api/AH.Interfaces.Api/Images/home

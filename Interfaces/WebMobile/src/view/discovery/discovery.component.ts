@@ -33,6 +33,7 @@ export class DiscoveryComponent implements OnDestroy {
 
     public async refresh(): Promise<void> {
         this.fromTime = new Date(0);
+        this.model = [];
         this.stopCouting = 0;
         await this.base.withLoading(
             this.moduleService.refreshDiscovery()

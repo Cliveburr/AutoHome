@@ -1,6 +1,7 @@
 ﻿using AH.Interfaces.Api.Service;
 using AH.Protocol.Library.Messages.CellingFan;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics.Eventing.Reader;
 
 namespace AH.Interfaces.Api.Controllers.Module
 {
@@ -71,6 +72,22 @@ namespace AH.Interfaces.Api.Controllers.Module
                 });
             }
             return Ok();
+        }
+
+        [HttpPost("getstate")]
+        public async Task<ActionResult<CellingFanState>> GetState(UidRequest request)
+        {
+            using (var tcp = _connectionService.ConnectTCP(request.UID))
+            {
+                var state = await tcp.SendAndReceive<StateReadResponse>(new StateReadRequest());
+                return Ok(new CellingFanState
+                {
+                    Light = state.Light,
+                    Fan = state.Fan,
+                    FanUp = state.FanUp,
+                    FanSpeed = state.FanSpeed
+                });
+            }
         }
     }
 }

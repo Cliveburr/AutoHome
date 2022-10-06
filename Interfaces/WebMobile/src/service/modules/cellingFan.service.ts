@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { BolleanRequest, ModuleModel, UintRequest } from "src/model";
+import { BolleanRequest, CellingFanState, ModuleModel, UidRequest, UintRequest } from "src/model";
 import { ApiPrefixService, ApiService } from "../api.service";
 
 @Injectable()
@@ -31,5 +31,9 @@ export class CellingFanService {
 
     public setFanSpeed(req: UintRequest) {
         return this.api.post<void>('/setfanspeed', req)
+    }
+
+    public getState(req: UidRequest) {
+        return this.api.post<CellingFanState>('/getstate', req);
     }
 }

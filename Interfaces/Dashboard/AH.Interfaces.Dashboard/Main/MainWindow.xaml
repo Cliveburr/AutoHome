@@ -17,6 +17,9 @@
             <TabItem Header="Configuration">
                 <Frame Source="/Main/Configuration/ConfigurationPage.xaml"></Frame>
             </TabItem>
+            <TabItem Header="Home Project">
+                <Frame Margin="5" Source="/Main/HomeProject/HomeProject.xaml"></Frame>
+            </TabItem>
         </TabControl>
     </Grid>
 </Window>
