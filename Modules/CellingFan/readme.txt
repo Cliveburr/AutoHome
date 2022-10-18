@@ -54,3 +54,26 @@ Transistor BC548:
 
 
 Block 3:
+
+
+
+
+Instalação no teto:
+	- Identificar fase e neutro
+	- Ligar o neutro no comum do ventilador
+	- Conectar a fase e o neutro na placa conforme indicação (Live = fase, Ground = neutro)
+	- Conectar os dois retornos do ventilador na placa no FW1 e FW2
+	- Conectar o capacitor na placa sendo (R = fio vermelho commum, G = fio verde menor valor, B = fio preto maior valor) (atenção para os menor e maior valor idenpendente de cores)
+
+	Luz:
+	- Ligar o neutro em um dos fios da luz
+	- Conectar o outro fio da luz na placa no LO
+
+	Interruptores:
+	- Ligar terra (não o neutro, o terra mesmo) no centro dos interruptores
+	- Conectar o interruptor da luz no LI
+	- Conectar o interruptor de on/off do ventilador no FI1
+	- Conectar o interruptor (push) de velocidade no FI2
+	
+
+
