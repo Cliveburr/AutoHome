@@ -28,6 +28,8 @@ typedef struct {
 } cellingfan_state_t;
 
 LOCAL cellingfan_state_t cellingfan_state;
+LOCAL os_timer_t cellingfan_block_intr_timer;
+LOCAL uint8_t cellingfan_block_intr;
 
 LOCAL ICACHE_FLASH_ATTR
 void cellingfan_state_read(array_builder_t* req, array_builder_t* res)
@@ -52,6 +54,13 @@ typedef struct {
 } cellingfan_state_save_t;
 
 LOCAL ICACHE_FLASH_ATTR
+void cellingfan_set_block_intr()
+{
+    cellingfan_block_intr = 1;
+    os_timer_arm(&cellingfan_block_intr_timer, 200, 0);
+}
+
+LOCAL ICACHE_FLASH_ATTR
 void cellingfan_set_fanspeed_state(void)
 {
     switch (cellingfan_state.fanSpeed)
@@ -65,7 +74,7 @@ void cellingfan_set_fanspeed_state(void)
             gpios_set_output_low(CELLINGFAN_FAN_SPEED_MAX_PIN);
             break;
         case cellingfan_state_fanSpeed_max:
-            gpios_set_output_high(CELLINGFAN_FAN_SPEED_MIX_PIN);
+            gpios_set_output_low(CELLINGFAN_FAN_SPEED_MIX_PIN);
             gpios_set_output_high(CELLINGFAN_FAN_SPEED_MAX_PIN);
             break;
     }
@@ -82,6 +91,8 @@ void cellingfan_state_save(array_builder_t* req, array_builder_t* res)
 
     uint8_t state_value = array_read_uchar(req);
     cellingfan_state_save_t state = *(cellingfan_state_save_t*)&state_value;
+
+    cellingfan_set_block_intr();
 
     if (state.setlight)
     {
@@ -111,6 +122,13 @@ void cellingfan_state_save(array_builder_t* req, array_builder_t* res)
 LOCAL ICACHE_FLASH_ATTR
 void cellingfan_light_button_cb()
 {
+    if (cellingfan_block_intr)
+    {
+        return;
+    }
+
+    cellingfan_set_block_intr();
+
     if (cellingfan_state.light)
     {
         cellingfan_state.light = 0;
@@ -126,6 +144,13 @@ void cellingfan_light_button_cb()
 LOCAL ICACHE_FLASH_ATTR
 void cellingfan_fan_button_cb()
 {
+    if (cellingfan_block_intr)
+    {
+        return;
+    }
+    
+    cellingfan_set_block_intr();
+
     if (cellingfan_state.fan)
     {
         cellingfan_state.fan = 0;
@@ -141,12 +166,26 @@ void cellingfan_fan_button_cb()
 LOCAL ICACHE_FLASH_ATTR
 void cellingfan_fanspeed_button_cb()
 {
+    if (cellingfan_block_intr)
+    {
+        return;
+    }
+
+    cellingfan_set_block_intr();
+
     cellingfan_state.fanSpeed++;
     if (cellingfan_state.fanSpeed == 3)
     {
         cellingfan_state.fanSpeed = 0;
     }
     cellingfan_set_fanspeed_state();
+}
+
+LOCAL ICACHE_FLASH_ATTR
+void cellingfan_block_intr_event_cb(void *arg)
+{
+    cellingfan_block_intr = 0;
+    os_timer_disarm(&cellingfan_block_intr_timer);
 }
 
 /******************************* PUBLIC METHODS *************************************/
@@ -172,6 +211,7 @@ void cellingfan_init(void)
 		os_printf("cellingfan_init...\n");
 	#endif
 
+    os_timer_setfn(&cellingfan_block_intr_timer, (os_timer_func_t*)cellingfan_block_intr_event_cb, NULL);
 }
 
 ICACHE_FLASH_ATTR

@@ -255,7 +255,7 @@ export class HomeComponent {
             image.onload = () => {
                 e(image);
             };
-            image.src = '/assets/' + name;
+            image.src = document.baseURI + 'assets/' + name;
         });
     }
 }

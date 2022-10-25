@@ -1,0 +1,29 @@
+{
+    "name": "autohome-api",
+    "version": "0.0.1",
+    "description": "",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "scripts": {
+      "build": "rmdir /s /q bin && mkdir bin && npm run settings && tsc --watch",
+      "package": "rmdir /s /q dist && tsc --build tsconfig-package.json",
+      "settings": "copy /y \"src\\appsettings-debug.json\" \"bin\\appsettings.json\""
+    },
+    "keywords": [
+      "autohome"
+    ],
+    "author": "Adilson Manzoli junior",
+    "license": "ISC",
+    "repository": "Cliveburr/AutoHome",
+    "dependencies": {
+      "providerjs": "^0.0.15",
+      "webhost": "file:../../../WebHost/http",
+      "webhost-mvc": "file:../../../WebHost/mvc",
+      "jsonwebtoken": "^8.5.1"
+    },
+    "devDependencies": {
+      "@types/node": "^18.11.3",
+      "typescript": "^4.8.4"
+    }
+  }
+  

@@ -50,6 +50,11 @@ https://www.aliexpress.com/item/1005003540554760.html?spm=a2g0o.productlist.0.0.
 user o 1N4007
 
 
+
+Projeto super parecido:
+https://github.com/jjsch-dev/ceiling-fan-iot
+
+
 Transistor BC548:
 
 
@@ -75,5 +80,13 @@ Instalação no teto:
 	- Conectar o interruptor de on/off do ventilador no FI1
 	- Conectar o interruptor (push) de velocidade no FI2
 	
+
+Snubber:
+100nF 400V
+R: 100ohms 2W
+entre ground e fw1
+
+
+
 
 

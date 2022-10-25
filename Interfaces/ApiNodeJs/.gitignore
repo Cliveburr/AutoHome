@@ -1,0 +1,4 @@
+bin
+node_modules
+src/appsettings-debug.json
+src/wwwroot/images/home
