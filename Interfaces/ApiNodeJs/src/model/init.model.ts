@@ -1,17 +1,17 @@
 
 export interface InitRequest {
-    cacheDate?: number;
+    cacheDate?: string | number;
 }
 
 export interface InitResponse {
     cacheDate: number;
-    fullImage: Uint8Array;
+    fullImage: string;
     globalMargin: number;
     areas: InitResponseArea[];
 }
 
 export interface InitResponseArea {
-    UID: number;
+    uid: number;
     name?: string;
     image?: string;
     x: number;

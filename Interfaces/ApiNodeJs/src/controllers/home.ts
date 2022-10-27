@@ -25,8 +25,13 @@ export default class HomeController extends ControllerBase {
             HomeController.initResponseCache = this.buildInitResponse();
         }
 
+        var requestCacheDate = request.cacheDate ?
+            typeof request.cacheDate === 'string' ?
+                Date.parse(request.cacheDate) :
+                request.cacheDate :
+            0;
 
-        if ((request.cacheDate || 0) < HomeController.initResponseCache.cacheDate)
+        if (requestCacheDate < HomeController.initResponseCache.cacheDate)
         {
             return HomeController.initResponseCache;
         }
@@ -43,7 +48,7 @@ export default class HomeController extends ControllerBase {
         const imageFullPath = path.resolve(path.join(wwwroot, 'images', 'home', 'home_full.png'));
 
         const imageDescription = <HomeImageDescription>JSON.parse(fs.readFileSync(imageDescriptionPath, 'utf8'));
-        const fullImage = fs.readFileSync(imageFullPath);
+        const fullImage = fs.readFileSync(imageFullPath).toString('base64');
 
         return {
             cacheDate: Date.now(),
@@ -52,7 +57,7 @@ export default class HomeController extends ControllerBase {
             areas: imageDescription.Areas
                 .map(a => {
                     return {
-                        UID: a.UID,
+                        uid: a.UID,
                         name: a.Name,
                         image: a.Image,
                         x: a.PointX,
