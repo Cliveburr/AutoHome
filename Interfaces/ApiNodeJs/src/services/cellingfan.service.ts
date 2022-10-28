@@ -1,6 +1,6 @@
 import { Injectable } from "providerjs";
-import { BinaryWriter, BitFieldsWriter } from "../helpers";
-import { CellingFanMessageType, FanSpeedEnum, ModuleModel, PortType, StateSaveRequest } from "../model";
+import { BinaryWriter, BitFieldsReader, BitFieldsWriter } from "../helpers";
+import { CellingFanMessageType, CellingFanState, FanSpeedEnum, ModuleModel, PortType, StateSaveRequest } from "../model";
 import { ConnectionService } from "./connection.service";
 
 @Injectable()
@@ -32,5 +32,28 @@ export class CellingFanService {
         writer.writeFields(vl);
 
         return this.connectionService.connectTCP(moduleModel, (client) => client.send(writer));
+    }
+
+    public getState(moduleModel: ModuleModel): Promise<CellingFanState> {
+
+        const writer = this.initWriter(CellingFanMessageType.StateReadRequest);
+     
+        return this.connectionService.connectTCP(moduleModel, async (client) => {
+            
+            const pck = await client.sendAndWaiting(writer, PortType.CellingFan, CellingFanMessageType.StateReadResponse);
+            
+            const vl = pck.reader.readFields();
+            const light = vl.readBool(0);
+            const fan = vl.readBool(1);
+            const fanUp = vl.readBool(2);
+            const fanSpeed = <FanSpeedEnum>vl.readTwoBitsAsByte(3);
+
+            return <CellingFanState>{
+                light,
+                fan,
+                fanUp,
+                fanSpeed
+            };
+        });
     }
 }

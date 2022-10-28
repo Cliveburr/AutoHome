@@ -1,9 +1,10 @@
-import { Controller, HttpGet, HttpPost } from "webhost-mvc";
+import { Authorization, Controller, HttpGet, HttpPost } from "webhost-mvc";
 import { AutoHomeMessageType, DiscoveryModuleModel, ModuleListRequest, ModuleModel, ModuleType, PortType } from "../model";
 import { AutoHomeService } from "../services";
 import { ControllerBase } from "./controller-base";
 
 @Controller()
+@Authorization()
 export default class ModuleController extends ControllerBase {
 
     public constructor(

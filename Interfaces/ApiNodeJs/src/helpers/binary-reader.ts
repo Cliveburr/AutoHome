@@ -1,3 +1,4 @@
+import { BitFieldsReader } from "./bitfields-reader";
 
 export class BinaryReader {
     
@@ -27,5 +28,10 @@ export class BinaryReader {
         const value = this.buffer.toString('utf8', this.index, this.index + count);
         this.index += count;
         return value;
+    }
+
+    public readFields(): BitFieldsReader {
+        const vl = this.readByte();
+        return new BitFieldsReader(vl);
     }
 }

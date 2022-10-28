@@ -1,6 +1,7 @@
 import { Controller, HttpPost } from "webhost-mvc";
 var jwt = require('jsonwebtoken');
 import { LoginRequest, LoginResponse } from "../model";
+import { JwtService } from "../security/jwt-security";
 import { AppSettings } from "../settings/app-settings";
 import { ControllerBase } from "./controller-base";
 
@@ -8,6 +9,7 @@ import { ControllerBase } from "./controller-base";
 export default class UserController extends ControllerBase {
 
     public constructor(
+        private authenticationService: JwtService,
         private appSettings: AppSettings
     ) {
         super();
@@ -23,23 +25,14 @@ export default class UserController extends ControllerBase {
 
         var isAdmin = request.password == this.appSettings.adminLogin;
 
-        var token = this.generateToken(request.uniqueId, isAdmin);
+        var token = this.authenticationService.generateToken({
+            id: request.uniqueId,
+            isAdmin
+        });
 
         return {
             token,
             isAdmin
         };
-    }
-
-    private generateToken(uniqueId: string, isAdmin: boolean): string {
-        
-        const claim = {
-            id: uniqueId,
-            isAdmin
-        }
-
-        const token = jwt.sign(claim, this.appSettings.securityKey, { algorithm: 'HS256'});
-
-        return token;
     }
 }

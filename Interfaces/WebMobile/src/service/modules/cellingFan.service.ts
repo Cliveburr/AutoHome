@@ -33,7 +33,7 @@ export class CellingFanService {
         return this.api.post<void>('/setfanspeed', req)
     }
 
-    public getState(req: UidRequest) {
-        return this.api.post<CellingFanState>('/getstate', req);
+    public getState(moduleModel: ModuleModel) {
+        return this.api.post<CellingFanState>('/getstate', moduleModel);
     }
 }

@@ -53,7 +53,7 @@ export class AutoHomeService {
         if (has) {
             has.alias = alias;
             has.moduleType = moduleType;
-            has.address = pck.rinfo.address;
+            has.address = pck.address;
             has.onTime = Date.now();
         }
         else {
@@ -61,7 +61,7 @@ export class AutoHomeService {
                 UID: pck.header.fromUID,
                 alias,
                 moduleType,
-                address: pck.rinfo.address,
+                address: pck.address,
                 onTime: Date.now()
             });
         }

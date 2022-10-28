@@ -4,6 +4,8 @@ import { DefinedProvider, IProvider } from "providerjs"
 
 export class AppSettings {
     public constructor(
+        public apiPort: number,
+        public timeout: number | undefined,
         public https: boolean,
         public allowedHosts: string,
         public allowOrigins: string,

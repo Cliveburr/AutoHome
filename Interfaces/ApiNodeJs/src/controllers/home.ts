@@ -1,4 +1,4 @@
-import { Controller, HttpPost } from "webhost-mvc";
+import { Authorization, Controller, HttpPost } from "webhost-mvc";
 import * as fs from 'fs';
 import * as path from 'path';
 import { InitRequest, InitResponse } from "../model/init.model";
@@ -7,6 +7,7 @@ import { ControllerBase } from "./controller-base";
 import { HomeImageDescription } from "../model/homeImageDescription";
 
 @Controller()
+@Authorization()
 export default class HomeController extends ControllerBase {
 
     private static initResponseCache?: InitResponse;

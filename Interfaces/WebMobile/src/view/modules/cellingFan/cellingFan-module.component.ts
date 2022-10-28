@@ -63,8 +63,6 @@ export class CellingFanModuleComponent {
     }
 
     public async refresh(): Promise<void> {
-        this.model = await this.cellingFanService.getState({
-            uid: this.moduleService.selected!.uid
-        })
+        this.model = await this.cellingFanService.getState(this.moduleService.selected!);
     }
 }

@@ -22,3 +22,10 @@ export interface StateSaveRequest {
     fanUp?: boolean;
     fanSpeed?: FanSpeedEnum;
 }
+
+export interface CellingFanState {
+    light: boolean;
+    fan: boolean;
+    fanUp: boolean;
+    fanSpeed: FanSpeedEnum;
+}

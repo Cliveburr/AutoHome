@@ -5,8 +5,9 @@
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "scripts": {
-      "build": "rmdir /s /q bin && mkdir bin && npm run settings && tsc --watch",
-      "package": "rmdir /s /q dist && tsc --build tsconfig-package.json",
+      "build": "npm run build-clean && mkdir bin && npm run settings && tsc --watch",
+      "tsc": "tsc --watch",
+      "build-clean": "if exist \"bin\" (rmdir /s /q bin)",
       "settings": "copy /y \"src\\appsettings-debug.json\" \"bin\\appsettings.json\""
     },
     "keywords": [
@@ -17,8 +18,8 @@
     "repository": "Cliveburr/AutoHome",
     "dependencies": {
       "providerjs": "^0.0.15",
-      "webhost": "file:../../../WebHost/http",
-      "webhost-mvc": "file:../../../WebHost/mvc",
+      "webhost": "^0.1.2",
+      "webhost-mvc": "^0.0.1",
       "jsonwebtoken": "^8.5.1"
     },
     "devDependencies": {

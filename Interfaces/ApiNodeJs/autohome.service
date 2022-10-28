@@ -1,0 +1,8 @@
+[Unit]
+Description=AutoHome WebApi Service
+After=multi-user.target
+[Service]
+ExecStart=/usr/local/bin/node /home/pi/autohome/app.js
+User=pi
+[Install]
+WantedBy=multi-user.target

@@ -69,7 +69,7 @@ export class ConnectionService {
             const pck = <MessagePackage>{
                 header,
                 reader,
-                rinfo
+                address: rinfo.address
             };
             this.messages.fire(pck);
         }
@@ -133,27 +133,28 @@ export class ConnectionService {
         return writer;
     }
 
-    public connectTCP(moduleModel: ModuleModel, usign: (client: TCPClient) => Promise<void>): Promise<void> {
-        const client = new TCPClient(moduleModel, usign);
-        return client.execute(this.appSettings.sendPort);
+    public connectTCP<T>(moduleModel: ModuleModel, usign: (client: TCPClient) => Promise<T>): Promise<T> {
+        const client = new TCPClient(this, moduleModel, usign);
+        return client.execute<T>(this.appSettings.sendPort);
     }
 }
 
 export class TCPClient {
 
     private socket: net.Socket;
-    private promiseExecute?: () => void;
+    private promiseExecute?: (value: any) => void;
     private promiseReject?: (reason?: any) => void;
 
     public constructor(
+        private connectionService: ConnectionService,
         private moduleModel: ModuleModel,
-        private usign: (client: TCPClient) => Promise<void>
+        private usign: (client: TCPClient) => Promise<any>
     ) {
         this.socket = new net.Socket();
     }
 
-    public execute(port: number): Promise<void> {
-        return new Promise<void>((e, r) => {
+    public execute<T>(port: number): Promise<T> {
+        return new Promise<T>((e, r) => {
             this.socket.on('data', this.onData.bind(this));
             this.socket.on('close', this.onClose.bind(this));
             this.socket.on('error', this.onError.bind(this))
@@ -165,9 +166,9 @@ export class TCPClient {
 
     private connected(): void {
         this.usign(this)
-            .then(_ => {
+            .then(value => {
                 if (this.promiseExecute) {
-                    this.promiseExecute();
+                    this.promiseExecute(value);
                     delete this.promiseReject;
                     delete this.promiseExecute;
                 }
@@ -184,13 +185,35 @@ export class TCPClient {
             });
     }
 
-    private onData(): void {
+    private onData(buffer: Buffer): void {
 
+        const reader = new BinaryReader(buffer);
+
+        const fromUID = reader.readByte();
+        const toUID = reader.readByte();
+        const port = reader.readByte();
+        const msg = reader.readByte();
+        const header = <MessageHeader>{
+            fromUID,
+            toUID,
+            port,
+            msg
+        };
+
+        if (header.toUID == 0 || header.toUID == this.moduleModel.UID) {
+
+            const pck = <MessagePackage>{
+                header,
+                reader,
+                address: this.moduleModel.ip
+            };
+            this.connectionService.messages.fire(pck);
+        }
     }
 
     private onClose(): void {
         if (this.promiseExecute) {
-            this.promiseExecute();
+            this.promiseExecute(undefined);
             delete this.promiseReject;
             delete this.promiseExecute;
         }
@@ -213,6 +236,31 @@ export class TCPClient {
                 }
                 else {
                     e();
+                }
+            });
+        });
+    }
+
+    public sendAndWaiting(writer: BinaryWriter, portResponse: PortType, msgResponse: number): Promise<MessagePackage> {
+        return new Promise<MessagePackage>((e, r) => {
+            const data = new Uint8Array(writer.buffer.buffer.slice(0, writer.index));
+            this.connectionService.messages.subscribe({
+                fromUID: this.moduleModel.UID,
+                port: portResponse,
+                msg: msgResponse,
+                callBack: (pck) => {
+                    if (pck) {
+                        e(pck);
+                    }
+                    else {
+                        r('Timeout!');
+                    }
+                },
+                onetime: true
+            })
+            this.socket.write(data, (err) => {
+                if (err) {
+                    r(err);
                 }
             });
         });

@@ -2,17 +2,19 @@ import { HttpApplication, IHttpApplication, IConfigureServices, IConfigure, Stat
 import { MvcModule, Mvc, configureMvc, Authentication, SecurityModule } from 'webhost-mvc';
 import { ALL_SERVICES } from './services';
 import { loadAppSettings } from './settings/app-settings';
-//import { SessionServiceProvider } from './service/session-security.service';
+import { JwtServiceProvider } from './security/jwt-security';
+import { SpaPipe } from './http/spa.pipe';
 
 const { provider, appSettings } = loadAppSettings(__dirname);
 
 @HttpApplication({
     imports: [MvcModule, FileModule, SecurityModule],
-    providers: [provider, ALL_SERVICES],
-    exports: [provider, ALL_SERVICES],
-    port: 5254,
+    providers: [provider, ALL_SERVICES, JwtServiceProvider, SpaPipe],
+    exports: [provider, ALL_SERVICES, JwtServiceProvider],
+    port: appSettings.apiPort,
     approot: __dirname,
-    wwwroot: __dirname + appSettings.wwwroot
+    wwwroot: __dirname + appSettings.wwwroot,
+    timeout: appSettings.timeout
 })
 export class AllMvcTests implements IHttpApplication {
     
@@ -31,10 +33,10 @@ export class AllMvcTests implements IHttpApplication {
 
     public configure(app: IConfigure): void {
      
-        app.use(DefaultFiles);
+        app.use(SpaPipe);
         app.use(StaticFiles);
 
-        //app.use(Authentication);
+        app.use(Authentication);
         app.use(Mvc);
 
         app.use(NotFound);

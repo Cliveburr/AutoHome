@@ -5,7 +5,7 @@ import { BinaryReader } from "./binary-reader";
 export interface MessagePackage {
     header: MessageHeader;
     reader: BinaryReader;
-    rinfo: dgram.RemoteInfo;
+    address: string;
 }
 
 export interface MessageSubscribe {
