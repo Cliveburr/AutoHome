@@ -8,6 +8,7 @@
 #include "user_config.h"
 #include "net.h"
 #include "autohome.h"
+#include "helpers/storage.h"
 
 struct espconn udp_espconnv;
 struct espconn tcp_espconnv;
@@ -90,7 +91,7 @@ LOCAL ICACHE_FLASH_ATTR void wifi_event_cb(System_Event_t* evt);
 os_timer_t* scan_schedule_timer = NULL;
 
 ICACHE_FLASH_ATTR
-void test_start_station_in_recovery(void)
+void test_start_station_in_recovery(uint8_t wifiPref, autohome_configuration_wifi_t* wifi)
 {
 	struct station_config stationConf;
 
@@ -98,9 +99,10 @@ void test_start_station_in_recovery(void)
 		os_printf("test_start_station_in_recovery...\n");
 	#endif
 
+	autohome_configuration->wifiPref = wifiPref;
 	os_memset(&stationConf, 0, sizeof(struct station_config));
-	os_memcpy(stationConf.ssid, autohome_configuration->net_ssid, os_strlen(autohome_configuration->net_ssid));
-	os_memcpy(stationConf.password, autohome_configuration->net_password, os_strlen(autohome_configuration->net_password));
+	os_memcpy(stationConf.ssid, wifi->net_ssid, os_strlen(wifi->net_ssid));
+	os_memcpy(stationConf.password, wifi->net_password, os_strlen(wifi->net_password));
 
 	#ifdef DEBUG
 		os_printf("stationConf.ssid: %s\n", stationConf.ssid);
@@ -141,6 +143,7 @@ void set_schedule_timer(void)
 ICACHE_FLASH_ATTR
 void net_scan_result(void *arg, STATUS status)
 {
+	uint8_t i;
     if (status == OK)
     {
         struct bss_info *bss_link = (struct bss_info*)arg;
@@ -151,11 +154,14 @@ void net_scan_result(void *arg, STATUS status)
                 os_printf("Wifi scan: %s\n", bss_link->ssid);
             #endif
 
-            if (strcmp(bss_link->ssid, autohome_configuration->net_ssid) == 0)
-            {
-                test_start_station_in_recovery();
-                return;
-            }
+			for (i = 0; i < autohome_configuration->wifiCount; i++)
+			{
+				if (strcmp(bss_link->ssid, autohome_configuration->wifis[i].net_ssid) == 0)
+				{
+					test_start_station_in_recovery(i, &autohome_configuration->wifis[i]);
+					return;
+				}
+			}
 
             bss_link = bss_link->next.stqe_next;
         }
@@ -176,6 +182,7 @@ void wifi_recovery_event_cb(System_Event_t* evt)
 			#ifdef DEBUG
 				os_printf("wifi_recovery_event_cb, evt: GOT_IP\n");
 			#endif
+			storage_write("autohome", autohome_configuration);
 			net_stop_all();
 			net_start_station();
 			break;
@@ -230,6 +237,10 @@ void start_recovery_mode(void)
 LOCAL ICACHE_FLASH_ATTR
 void wifi_event_cb(System_Event_t* evt)
 {
+	#ifdef DEBUG
+		os_printf("wifi_event_cb: %d...\n", evt->event);
+	#endif
+
 	switch (evt->event) {
 		case EVENT_STAMODE_CONNECTED:
 			#ifdef DEBUG
@@ -268,7 +279,6 @@ void net_init(void)
 		os_printf("net_init...\n");
 	#endif
 
-	//start_espconnv_udp_tcp();
     net_stop_all();
     net_start_station();
 }
@@ -312,31 +322,43 @@ ICACHE_FLASH_ATTR
 void net_start_station(void)
 {
 	struct station_config stationConf;
+	int32_t ssidLen, passLen;
 
 	#ifdef DEBUG
-		os_printf("net_start_station...\n");
+		os_printf("net_start_station, wifiPref: %d...\n", autohome_configuration->wifiPref);
 	#endif
 
-	wifi_set_opmode_current(STATION_MODE);
-
-	os_memset(&stationConf, 0, sizeof(struct station_config));
-	os_memcpy(stationConf.ssid, autohome_configuration->net_ssid, os_strlen(autohome_configuration->net_ssid));
-	os_memcpy(stationConf.password, autohome_configuration->net_password, os_strlen(autohome_configuration->net_password));
-
-	#ifdef DEBUG
-		os_printf("stationConf.ssid: %s\n", stationConf.ssid);
-		os_printf("stationConf.password: %s\n", stationConf.password);
-	#endif
-
-	if (wifi_station_set_config_current(&stationConf))
+	if (autohome_configuration->wifiPref >= 0 && autohome_configuration->wifiPref < autohome_configuration->wifiCount && autohome_configuration->wifiPref < 10)
 	{
-		wifi_set_event_handler_cb(wifi_event_cb);
-		wifi_station_disconnect();
-		wifi_station_set_reconnect_policy(0);
-		wifi_station_set_auto_connect(0);
-		wifi_station_connect();
-		wifi_set_sleep_type(LIGHT_SLEEP_T);
+		ssidLen = os_strlen(autohome_configuration->wifis[autohome_configuration->wifiPref].net_ssid);
+		passLen = os_strlen(autohome_configuration->wifis[autohome_configuration->wifiPref].net_password);
+		//os_printf("ssidLen: %d, passLen: %d\n", ssidLen, passLen);
+		if (ssidLen > 0 && ssidLen < 32 && passLen > 0 && passLen < 64)
+		{
+			wifi_set_opmode_current(STATION_MODE);
+
+			os_memset(&stationConf, 0, sizeof(struct station_config));
+			os_memcpy(stationConf.ssid, autohome_configuration->wifis[autohome_configuration->wifiPref].net_ssid, ssidLen);
+			os_memcpy(stationConf.password, autohome_configuration->wifis[autohome_configuration->wifiPref].net_password, passLen);
+
+			#ifdef DEBUG
+				os_printf("stationConf.ssid: %s\n", stationConf.ssid);
+				os_printf("stationConf.password: %s\n", stationConf.password);
+			#endif
+
+			if (wifi_station_set_config_current(&stationConf))
+			{
+				wifi_set_event_handler_cb(wifi_event_cb);
+				wifi_station_disconnect();
+				wifi_station_set_reconnect_policy(0);
+				wifi_station_set_auto_connect(0);
+				wifi_station_connect();
+				wifi_set_sleep_type(LIGHT_SLEEP_T);
+				return;
+			}
+		}
 	}
+	start_recovery_mode();
 }
 
 ICACHE_FLASH_ATTR

@@ -17,5 +17,9 @@ namespace AH.Interfaces.Dashboard.ModuleView.CellingFan
         public bool SpeedMin { get; set; }
         public bool SpeedMedium { get; set; }
         public bool SpeedMax { get; set; }
+
+        public bool ConfigInterruptionsOnOff { get; set; }
+        public bool ConfigFW1FW2Inversion { get; set; }
+        public bool ConfigFI1FI2Inversion { get; set; }
     }
 }

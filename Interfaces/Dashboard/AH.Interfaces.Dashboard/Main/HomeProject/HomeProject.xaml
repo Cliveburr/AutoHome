@@ -8,7 +8,28 @@
       d:DesignHeight="450" d:DesignWidth="800"
       Title="HomeProject">
 
-    <Grid>
+    <DockPanel>
+        <StackPanel DockPanel.Dock="Top">
+            <DockPanel>
+                <Label Margin="5" DockPanel.Dock="Left">Home file:</Label>
+                <TextBox Margin="5" Text="{Binding HomeFilePath}"></TextBox>
+            </DockPanel>
+            <DockPanel>
+                <Label Margin="5" DockPanel.Dock="Left">Mask file:</Label>
+                <TextBox Margin="5" Text="{Binding MaskFilePath}"></TextBox>
+            </DockPanel>
+            <DockPanel>
+                <Label Margin="5" DockPanel.Dock="Left">From json file:</Label>
+                <TextBox Margin="5" Text="{Binding FromJsonPath}"></TextBox>
+            </DockPanel>
+            <DockPanel>
+                <Label Margin="5" DockPanel.Dock="Left">To json file:</Label>
+                <TextBox Margin="5" Text="{Binding ToJsonPath}"></TextBox>
+            </DockPanel>
+        </StackPanel>
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
+            <Button Margin="5" Width="100" Click="Build_Click">Build</Button>
+        </StackPanel>
         <Image x:Name="image" MouseDown="image_MouseDown"></Image>
-    </Grid>
+    </DockPanel>
 </Page>

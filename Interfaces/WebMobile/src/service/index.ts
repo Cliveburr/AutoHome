@@ -10,9 +10,10 @@ export * from './modules/module.service';
 export * from './modules/cellingFan.service';
 export * from './base.service';
 export * from './home.service';
+export * from './with-module-guard.service';
 
 import { ApiService } from './api.service';
-import { LoggedGuardService } from './logged-guard.service';
+import { LoggedGuardService, NotLoggedGuardService } from './logged-guard.service';
 import { SessionService } from './session.service';
 import { StoreService } from './store.service';
 import { UserService } from './user.service';
@@ -20,14 +21,16 @@ import { ModuleService } from './modules/module.service';
 import { CellingFanService } from './modules/cellingFan.service';
 import { BaseService } from './base.service';
 import { HomeService } from './home.service';
+import { WithModuleGuardService } from './with-module-guard.service';
 export const ALL_SERVICE = [
     ApiService,
-    LoggedGuardService,
+    LoggedGuardService, NotLoggedGuardService,
     SessionService,
     StoreService,
     UserService,
     ModuleService,
     CellingFanService,
     BaseService,
-    HomeService
+    HomeService,
+    WithModuleGuardService
 ]

@@ -16,6 +16,7 @@ namespace AH.Interfaces.Dashboard.Main.HomeProject
     {
         public byte? UID { get; set; }
         public string Name { get; set; }
+        public string Image { get; set; }
         public int Red { get; set; }
         public int Blue { get; set; }
         public int Green { get; set; }

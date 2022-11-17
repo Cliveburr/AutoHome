@@ -57,19 +57,29 @@ void set_pin_to_gpio_mode(uint8_t gpio_id)
 ICACHE_FLASH_ATTR
 void set_pin_intr(gpios_intr_t* intr)
 {
-    switch (intr->type)
-    {
-        case gpios_type_intr:
-        {
-            gpio_pin_intr_state_set(GPIO_ID_PIN(intr->gpio_id), GPIO_PIN_INTR_ANYEDGE);
-            break;
-        }
-        case gpios_type_pulsar:
-        {
-            gpio_pin_intr_state_set(GPIO_ID_PIN(intr->gpio_id), GPIO_PIN_INTR_NEGEDGE);
-            break;
-        }
-    }
+    // switch (intr->type)
+    // {
+    //     case gpios_type_pulsar:
+    //     case gpios_type_intr:
+    //     {
+            //os_printf("gpios_type_intr: - pin: %d, intr->state: %d\n", intr->gpio_id, intr->state);
+            if (intr->state)
+            {
+                gpio_pin_intr_state_set(GPIO_ID_PIN(intr->gpio_id), GPIO_PIN_INTR_LOLEVEL);
+            }
+            else
+            {
+                gpio_pin_intr_state_set(GPIO_ID_PIN(intr->gpio_id), GPIO_PIN_INTR_HILEVEL);
+            }
+            //break;
+        // }
+        // case gpios_type_pulsar:
+        // {
+        //     os_printf("gpios_type_pulsar: - pin: %d, intr->state: %d\n", intr->gpio_id, intr->state);
+        //     gpio_pin_intr_state_set(GPIO_ID_PIN(intr->gpio_id), GPIO_PIN_INTR_LOLEVEL);
+        //     break;
+        // }
+    // }
 }
 
 
@@ -79,10 +89,22 @@ void gpios_timer_event_cb(void *arg)
     gpios_intr_t* intr = (gpios_intr_t*)arg;
     os_timer_disarm(&intr->timer);
 
-    // os_printf("event - pin: %d, intr->state: %d\n", intr->gpio_id, intr->state);
+    uint8_t state = GPIO_INPUT_GET(GPIO_ID_PIN(intr->gpio_id));
+    os_printf("event - pin: %d, intr->state: %d\n", intr->gpio_id, intr->state);
+    if (intr->type == gpios_type_pulsar)
+    {
+        if (state == 0 && state != intr->state) {
+            intr->intr_cb();
+        }
+    }
+    else
+    {
+        if (state != intr->state) {
+            intr->intr_cb();
+        }
+    }
 
-    intr->intr_cb();
-
+    intr->state = state;
     set_pin_intr(intr);
 }
 
@@ -104,12 +126,12 @@ void gpios_intr_handler(void *arg)
             {
                 case gpios_type_intr:
                 {
-                    os_timer_arm(&intr->timer, 50, 0);
+                    os_timer_arm(&intr->timer, 150, 0);
                     break;
                 }
                 case gpios_type_pulsar:
                 {
-                    os_timer_arm(&intr->timer, 100, 0);
+                    os_timer_arm(&intr->timer, 30, 0);
                     break;
                 }
             }
@@ -155,6 +177,7 @@ void gpios_set_button(gpios_intr_type_t type, uint8_t gpio_id, gpios_intr_functi
     intr->gpio_id = gpio_id;
     intr->type = type;
     intr->intr_cb = intr_cb;
+    intr->state = GPIO_INPUT_GET(GPIO_ID_PIN(gpio_id));
     os_timer_setfn(&intr->timer, (os_timer_func_t*)gpios_timer_event_cb, intr);
     set_pin_intr(intr);
 

@@ -56,6 +56,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="Controls\DoubleToggleButton.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Controls\TempHumiSensorGraph.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -75,6 +79,9 @@
     <Compile Include="BaseContext.cs" />
     <Compile Include="Config\ConfigData.cs" />
     <Compile Include="Config\ConfigFile.cs" />
+    <Compile Include="Controls\DoubleToggleButton.xaml.cs">
+      <DependentUpon>DoubleToggleButton.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\TempHumiSensorGraph.xaml.cs">
       <DependentUpon>TempHumiSensorGraph.xaml</DependentUpon>
     </Compile>

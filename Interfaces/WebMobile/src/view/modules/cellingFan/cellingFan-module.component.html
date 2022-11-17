@@ -1,4 +1,20 @@
-<ion-button color="secondary" size="large" type="submit" expand="block" (click)="refresh()">Refresh</ion-button>
+<ion-content>
+    <ion-header>
+        <ion-toolbar>
+            <ion-title size="large">{{moduleService.selected!.alias}}</ion-title>
+        </ion-toolbar>
+    </ion-header>
+
+<!-- <ion-grid>
+  <ion-row class="ion-align-items-center">
+    <ion-col>
+      <h1>{{moduleService.selected!.alias}}</h1>
+    </ion-col>
+    <ion-col size="auto">
+      <ion-button color="secondary" shape="round" expand="block" (click)="refresh()"><ion-icon name="refresh-outline"></ion-icon></ion-button>
+    </ion-col>
+  </ion-row>
+</ion-grid> -->
 <ion-list>
     <ion-item>
         <ion-label (click)="lightClick()">Light</ion-label>
@@ -34,3 +50,16 @@
       </ion-item>
     </ion-radio-group>
   </ion-list>
+
+  <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+    <ion-fab-button>
+      <ion-icon name="chevron-back-circle"></ion-icon>
+    </ion-fab-button>
+    <ion-fab-list side="start">
+      <ion-fab-button>
+        <ion-icon name="refresh-outline" (click)="refresh()"></ion-icon>
+      </ion-fab-button>
+    </ion-fab-list>
+  </ion-fab>
+
+</ion-content>

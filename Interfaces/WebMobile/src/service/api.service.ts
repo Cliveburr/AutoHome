@@ -4,6 +4,7 @@ import { firstValueFrom } from "rxjs";
 import { environment } from "src/environments/environment";
 import { Router } from "@angular/router";
 import { SessionService } from "./session.service";
+import { BaseService } from "./base.service";
 
 @Injectable()
 export class ApiService {
@@ -11,7 +12,8 @@ export class ApiService {
     public constructor(
         private httpClient: HttpClient,
         private router: Router,
-        private sessionService: SessionService
+        private sessionService: SessionService,
+        public baseService: BaseService
     ) {
     }
 
@@ -19,17 +21,31 @@ export class ApiService {
         return new ApiPrefixService(this, environment.api, prefix);
     }
 
-    public get<T>(url: string): Promise<T> {
+    public getnl<T>(url: string): Promise<T> {
         return firstValueFrom(this.httpClient.get<T>(url, {
             headers: this.makeHeaders()
         }))
         .catch<any>(this.catchUnauthorizedError.bind(this));
     }
 
-    public post<T>(url: string, data: any): Promise<T> {
+    public postnl<T>(url: string, data: any): Promise<T> {
         return firstValueFrom(this.httpClient.post<T>(url, data, {
             headers: this.makeHeaders()
         }))
+        .catch<any>(this.catchUnauthorizedError.bind(this));
+    }
+
+    public get<T>(url: string): Promise<T> {
+        return this.baseService.withLoading(firstValueFrom(this.httpClient.get<T>(url, {
+            headers: this.makeHeaders()
+        })))
+        .catch<any>(this.catchUnauthorizedError.bind(this));
+    }
+
+    public post<T>(url: string, data: any): Promise<T> {
+        return this.baseService.withLoading(firstValueFrom(this.httpClient.post<T>(url, data, {
+            headers: this.makeHeaders()
+        })))
         .catch<any>(this.catchUnauthorizedError.bind(this));
     }
 
@@ -75,7 +91,15 @@ export class ApiPrefixService {
         return this.apiClient.get<T>(this.prefixUrl + url);
     }
 
+    public getnl<T>(url: string): Promise<T> {
+        return this.apiClient.getnl<T>(this.prefixUrl + url);
+    }
+
     public post<T>(url: string, data: any): Promise<T> {
         return this.apiClient.post<T>(this.prefixUrl + url, data);
+    }
+
+    public postnl<T>(url: string, data: any): Promise<T> {
+        return this.apiClient.postnl<T>(this.prefixUrl + url, data);
     }
 }

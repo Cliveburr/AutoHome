@@ -26,18 +26,15 @@ namespace AH.Interfaces.Dashboard.Main.HomeProject
 
     public partial class HomeProject : Page
     {
-        private string homeFilePath = @"C:\Users\Clivedurr\Desktop\moveis planejamento\home_full.PNG";
-        private string maskFilePath = @"C:\Users\Clivedurr\Desktop\moveis planejamento\home_full_mask2.PNG";
-        private string fromJsonPath = @"C:\Users\Clivedurr\Desktop\moveis planejamento\home_description.json";
-        private string toJsonFilePath = @"C:\Users\Clivedurr\Desktop\moveis planejamento\home_description2.json";
+        public string HomeFilePath { get; set; } = @"C:\Users\Clivedurr\Desktop\moveis planejamento\home_full.PNG";
+        public string MaskFilePath { get; set; } = @"C:\Users\Clivedurr\Desktop\moveis planejamento\home_full_mask2.PNG";
+        public string FromJsonPath { get; set; } = @"C:\Users\Clivedurr\Desktop\moveis planejamento\home_description.json";
+        public string ToJsonPath { get; set; } = @"C:\Users\Clivedurr\Desktop\moveis planejamento\home_description2.json";
         private Bitmap homeFile;
 
         public HomeProject()
         {
             InitializeComponent();
-
-            var descriptionBuilder = new HomeImageDescriptionBuilder(maskFilePath, fromJsonPath, toJsonFilePath);
-            descriptionBuilder.Build();
 
             //homeFile = new Bitmap(homeFilePath);
             //image.Source = BitmapToImageSource(homeFile);
@@ -49,6 +46,7 @@ namespace AH.Interfaces.Dashboard.Main.HomeProject
 
             //    image.Source = BitmapToImageSource(blackArea);
             //}
+            DataContext = this;
         }
 
         private BitmapImage BitmapToImageSource(Bitmap bitmap)
@@ -185,7 +183,7 @@ namespace AH.Interfaces.Dashboard.Main.HomeProject
             var point = e.GetPosition(image);
             var mousePoint = new Point((int)Math.Floor(point.X * image.Source.Width / image.ActualWidth), (int)Math.Floor(point.Y * image.Source.Height / image.ActualHeight));
 
-            var maskFile = new Bitmap(maskFilePath);
+            var maskFile = new Bitmap(MaskFilePath);
             var pixelColor = maskFile.GetPixel((int)mousePoint.X, (int)mousePoint.Y);
 
             if (alreadyZoom)
@@ -198,6 +196,19 @@ namespace AH.Interfaces.Dashboard.Main.HomeProject
                 var focusArea = CopyArea(homeFile, clickedArea.Value);
                 image.Source = BitmapToImageSource(focusArea);
                 alreadyZoom = true;
+            }
+        }
+
+        private void Build_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            try
+            {
+                var descriptionBuilder = new HomeImageDescriptionBuilder(MaskFilePath, FromJsonPath, ToJsonPath);
+                descriptionBuilder.Build();
+            }
+            catch (Exception err)
+            {
+                App.Instance.ErrorHandler(err);
             }
         }
     }

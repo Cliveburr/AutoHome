@@ -1,4 +1,5 @@
 import { EventEmitter, Injectable } from "@angular/core";
+import { Router } from "@angular/router";
 import { ModuleListRequest, ModuleModel } from "src/model";
 import { ApiPrefixService, ApiService } from "../api.service";
 
@@ -10,6 +11,7 @@ export class ModuleService {
     private api: ApiPrefixService;
 
     public constructor(
+        private router: Router,
         apiService: ApiService
     ) {
         this.api = apiService.setApi('/module');
@@ -24,12 +26,23 @@ export class ModuleService {
         this.selectedEvent.emit(value);
     }
 
+    public navigateToModuleHome(model: ModuleModel): void {
+        switch (model.moduleType) {
+            case 'CellingFan':
+                this.inSelected = model;
+                this.router.navigateByUrl('/cellingfan');
+                break;
+            default:
+                throw 'Invalid module type: ' + model.moduleType;
+        }
+    }
+
     public refreshDiscovery() {
         return this.api.get('/refreshdiscovery')
     }
 
     public getModuleList(req: ModuleListRequest) {
-        return this.api.post<ModuleModel[]>('/modules', req)
+        return this.api.postnl<ModuleModel[]>('/modules', req)
     }
 
     public getModuleByUID(uid: number) {

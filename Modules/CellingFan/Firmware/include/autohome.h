@@ -15,9 +15,15 @@
 */
 
 typedef struct {
-    uint8_t uid;
     char net_ssid[32];
     char net_password[64];
+} autohome_configuration_wifi_t;
+
+typedef struct {
+    uint8_t uid;
+    autohome_configuration_wifi_t wifis[10];
+    uint8_t wifiCount;
+    uint8_t wifiPref;
     char alias[30];
 } autohome_configuration_t;
 

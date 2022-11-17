@@ -11,25 +11,34 @@ namespace AH.Protocol.Library.Messages.AutoHome
     {
         public PortType Port { get; } = PortType.AutoHome;
         public byte Msg { get; } = (byte)AutoHomeMessageType.ConfigurationSaveRequest;
-        public string WifiName { get; set; }
-        public string WifiPassword { get; set; }
         public string Alias { get; set; }
+        public List<ConfigurationWifi> Wifis { get; set; }
 
         public void Write(BinaryWriter stream)
         {
-            stream.WriteString(WifiName);
-
-            stream.WriteString(WifiPassword);
-
+            stream.Write((byte)Wifis.Count);
+            foreach (var wifi in Wifis)
+            {
+                stream.WriteString(wifi.Name);
+                stream.WriteString(wifi.Password);
+            }
             stream.WriteString(Alias);
         }
 
         public void Read(BinaryReader stream)
         {
-            WifiName = stream.ReadString();
-
-            WifiPassword = stream.ReadString();
-
+            Wifis = new List<ConfigurationWifi>();
+            var count = stream.ReadByte();
+            for (var i = 0; i < count; i++)
+            {
+                var name = stream.ReadString();
+                var password = stream.ReadString();
+                Wifis.Add(new ConfigurationWifi
+                {
+                    Name = name,
+                    Password = password
+                });
+            }
             Alias = stream.ReadString();
         }
     }

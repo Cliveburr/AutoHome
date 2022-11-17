@@ -7,7 +7,7 @@
 - testar na protoboard o esquema
 	ok - testar os reles
 	ok - testar enviar tensão 3.3v por longa distancia
-	- testar a combinação do capacitor
+	ok - testar a combinação do capacitor
 	ok - confirmar quantidade de gpio
 	ok - confirmar tamanhos do rele, adptadores, esp, modulo
 	ok - confirmar o acionamento do rele com 3.3v e o resitor de 1k
@@ -22,13 +22,13 @@
 
 <done> - testar o modulo na protoboard
 
-- criar WebMobile
-	- criar intro
-	- criar discovery
-	- criar apis
+<done> - criar WebMobile
+	<done> - criar intro
+	<done> - criar discovery
+	<done> - criar apis
 	
 
-
+- adicionar snubber na placa
 
 
 Tutorial sobre motores

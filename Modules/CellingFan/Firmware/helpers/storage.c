@@ -41,6 +41,7 @@ void storage_init(storage_partition_t* partition_table, uint8_t partition_count,
         datas[i].total_size = storage_table[i].size;
         datas[i].parts = (storage_data_part_t*)os_zalloc(0);
         datas[i].parts_len = 0;
+        //os_printf("storage_table[%d].size = %d\n", i, storage_table[i].size);
 
         uint32_t this_left = storage_table[i].size;
         while (this_left > 0)

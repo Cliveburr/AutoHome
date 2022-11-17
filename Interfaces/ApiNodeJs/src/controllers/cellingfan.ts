@@ -40,11 +40,7 @@ export default class CellingFanController extends ControllerBase {
     @HttpPost('setfanspeed')
     public setFanSpeed(request: UintRequest): Promise<void> {
         return this.cellingFanService.saveState({
-            fanSpeed: request.value == 0 ?
-            FanSpeedEnum.Min :
-            request.value == 1 ?
-            FanSpeedEnum.Medium :
-            FanSpeedEnum.Max
+            fanSpeed: request.value
         }, request.model);
     }
 

@@ -10,10 +10,17 @@
     <StackPanel IsEnabled="{Binding HasSelected}">
         <GroupBox DockPanel.Dock="Top" Margin="5" Header="Configuration">
             <DockPanel >
-                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
-                    <Button Margin="5" Width="100" Click="Configuration_Read_Click">Read</Button>
-                    <Button Margin="5" Width="100" Click="Configuration_Save_Click">Save</Button>
-                </StackPanel>
+                <DockPanel DockPanel.Dock="Top">
+                    <Button Margin="5" Width="100" DockPanel.Dock="Left" Click="Configuration_Read_Click">Read</Button>
+                    <Button Margin="5" Width="100" DockPanel.Dock="Left" Click="Configuration_Save_Click">Save</Button>
+                    <Button Margin="5" Width="100" HorizontalAlignment="Right" Click="Configuration_Restart_Click">Restart</Button>
+                </DockPanel>
+                <DataGrid DockPanel.Dock="Top" MinHeight="100" Margin="5" ItemsSource="{Binding Wifis}" CanUserAddRows="True" CanUserDeleteRows="True" AutoGenerateColumns="False" SelectionMode="Single" GridLinesVisibility="None">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Name" Width="200" Binding="{Binding Name}" />
+                        <DataGridTextColumn Header="Password" Width="300" Binding="{Binding Password}" />
+                    </DataGrid.Columns>
+                </DataGrid>
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="110" />
@@ -22,17 +29,13 @@
                     <Grid.RowDefinitions>
                         <RowDefinition />
                         <RowDefinition />
-                        <RowDefinition />
                     </Grid.RowDefinitions>
 
-                    <Label Margin="5" Grid.Column="0" Grid.Row="0">Wifie Name:</Label>
-                    <TextBox Margin="5" Grid.Column="1" Grid.Row="0" Text="{Binding WifiName}"></TextBox>
+                    <Label Margin="5" Grid.Column="0" Grid.Row="0">Firmware Version:</Label>
+                    <Label Margin="5" Grid.Column="1" Grid.Row="0" Content="{Binding FirmwareVersion}"></Label>
 
-                    <Label Margin="5" Grid.Column="0" Grid.Row="1">Wifie Password:</Label>
-                    <TextBox Margin="5" Grid.Column="1" Grid.Row="1" Text="{Binding WifiPassword}"></TextBox>
-
-                    <Label Margin="5" Grid.Column="0" Grid.Row="2">Alias:</Label>
-                    <TextBox Margin="5" Grid.Column="1" Grid.Row="2" Text="{Binding Alias}"></TextBox>
+                    <Label Margin="5" Grid.Column="0" Grid.Row="1">Alias:</Label>
+                    <TextBox Margin="5" Grid.Column="1" Grid.Row="1" Text="{Binding Alias}"></TextBox>
                 </Grid>
             </DockPanel>
         </GroupBox>

@@ -23,7 +23,8 @@ namespace AH.Protocol.Library.Connection
             To_UID = touid;
 
             _send = new TcpClient();
-            _send.SendTimeout = 3000;
+            _send.SendTimeout = 500;
+            _send.ReceiveTimeout = 500;
             _send.Connect(new IPEndPoint(address, port));
         }
 

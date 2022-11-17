@@ -11,7 +11,9 @@
         "mem.h": "c",
         "storage.h": "c",
         "gpios.h": "c",
-        "gpio.h": "c"
+        "gpio.h": "c",
+        "user_config.h": "c",
+        "net.h": "c"
     },
     "C_Cpp.intelliSenseEngineFallback": "Disabled"
 }

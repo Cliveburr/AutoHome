@@ -57,16 +57,25 @@ export class DiscoveryComponent implements OnDestroy {
             this.stopCouting++;
         }
         else {
-            this.model.push(...newModules);
+            for (const newMod of newModules) {
+                const hasMod = this.model
+                    .find(m => m.UID == newMod.UID);
+                if (hasMod) {
+                    hasMod.alias = newMod.alias;
+                    hasMod.moduleType = newMod.moduleType;
+                }
+                else {
+                    this.model.push(newMod);
+                }
+            }
         }
         this.fromTime = newFromTime;
-        if (this.stopCouting < 30) {
+        if (this.stopCouting < 5) {
             this.startTimeout();
         }
     }
 
     public selectModule(mod: ModuleModel): void {
-        this.moduleService.selected = mod;
-        this.router.navigateByUrl('/home');
+        this.moduleService.navigateToModuleHome(mod);
     }
 }

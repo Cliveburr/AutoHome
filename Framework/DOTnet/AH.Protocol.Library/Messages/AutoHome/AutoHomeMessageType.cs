@@ -8,6 +8,7 @@
         ConfigurationReadRequest = 3,
         ConfigurationReadResponse = 4,
         ConfigurationSaveRequest = 5,
-        UIDSaveRequest = 6
+        UIDSaveRequest = 6,
+        SystemRestartRequest = 7
     }
 }

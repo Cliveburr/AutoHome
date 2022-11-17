@@ -27,7 +27,7 @@ export class CellingFanService {
         vl.setBool(3, request.fan || false);
         vl.setBool(4, request.setFanUp || false);
         vl.setBool(5, request.fanUp || false);
-        vl.setByteIntoTwoBits(6, request.fanSpeed || FanSpeedEnum.NotSet);
+        vl.setByteIntoTwoBits(6, typeof request.fanSpeed === 'undefined' ? FanSpeedEnum.NotSet: request.fanSpeed);
 
         writer.writeFields(vl);
 

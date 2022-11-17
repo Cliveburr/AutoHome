@@ -1,12 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CellingFanState } from 'src/model';
 import { ModuleService, CellingFanService } from 'src/service';
 
 @Component({
-    selector: 'cellingFan',
     templateUrl: './cellingFan-module.component.html'
 })
-export class CellingFanModuleComponent {
+export class CellingFanModuleComponent implements OnInit {
 
     public model: CellingFanState;
 
@@ -22,8 +21,12 @@ export class CellingFanModuleComponent {
         };
     }
 
+    public ngOnInit(): Promise<void> {
+        return this.refresh()
+    }
+
     public async lightChange(): Promise<void> {
-        await this.cellingFanService.setLight({
+        this.model = await this.cellingFanService.setLight({
             model: this.moduleService.selected!,
             value: this.model.light
         });
@@ -34,7 +37,7 @@ export class CellingFanModuleComponent {
     }
 
     public async fanChange(): Promise<void> {
-        await this.cellingFanService.setFan({
+        this.model = await this.cellingFanService.setFan({
             model: this.moduleService.selected!,
             value: this.model.fan
         });
@@ -45,7 +48,7 @@ export class CellingFanModuleComponent {
     }
 
     public async fanUpChange(): Promise<void> {
-        await this.cellingFanService.setFanUp({
+        this.model = await this.cellingFanService.setFanUp({
             model: this.moduleService.selected!,
             value: this.model.fanUp
         });
@@ -56,7 +59,7 @@ export class CellingFanModuleComponent {
     }
 
     public async fanSpeedChange(): Promise<void> {
-        await this.cellingFanService.setFanSpeed({
+        this.model = await this.cellingFanService.setFanSpeed({
             model: this.moduleService.selected!,
             value: this.model.fanSpeed
         });

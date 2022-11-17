@@ -51,8 +51,11 @@
     <Compile Include="Messages\AutoHome\ConfigurationRead.cs" />
     <Compile Include="Messages\AutoHome\ConfigurationSave.cs" />
     <Compile Include="Messages\AutoHome\PingPong.cs" />
+    <Compile Include="Messages\AutoHome\SystemRestart.cs" />
     <Compile Include="Messages\AutoHome\UIDSave.cs" />
     <Compile Include="Messages\CellingFan\CellingFanMessageType.cs" />
+    <Compile Include="Messages\CellingFan\ConfigRead.cs" />
+    <Compile Include="Messages\CellingFan\ConfigSave.cs" />
     <Compile Include="Messages\CellingFan\FanSpeedEnum.cs" />
     <Compile Include="Messages\CellingFan\StateRead.cs" />
     <Compile Include="Messages\CellingFan\StateSave.cs" />

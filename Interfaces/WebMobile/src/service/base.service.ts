@@ -9,7 +9,6 @@ export class BaseService {
         private loadingController: LoadingController,
         private toastController: ToastController
     ) {
-
     }
 
     private getFriendlyErrorMessage(err: any): string {

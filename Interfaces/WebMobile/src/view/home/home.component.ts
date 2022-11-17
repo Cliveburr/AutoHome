@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { AfterViewInit, Component } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { InitResponseArea, InitResponse } from 'src/model';
 import { ModuleService, HomeService } from 'src/service';
@@ -23,10 +23,9 @@ interface Box {
 @Component({
     templateUrl: './home.component.html'
 })
-export class HomeComponent {
+export class HomeComponent implements AfterViewInit {
 
     public isOnFocus: boolean;
-    public header: string = 'Home';
 
     private data: InitResponse;
     private fullImage: HTMLImageElement;
@@ -45,7 +44,7 @@ export class HomeComponent {
     ) {
         this.isOnFocus = false;
         this.images = {};
-        this.moduleSelectedEventSubscription = this.moduleService.selectedEvent.subscribe(this.ngAfterViewInit.bind(this));
+        //this.moduleSelectedEventSubscription = this.moduleService.selectedEvent.subscribe(this.ngAfterViewInit.bind(this));
     }
 
     public ngOnDestroy() {
@@ -53,9 +52,9 @@ export class HomeComponent {
     }
 
     public async ngAfterViewInit() {
-        if (this.moduleService.selected?.moduleType) {
-            return;
-        }
+        // if (this.moduleService.selected?.moduleType) {
+        //     return;
+        // }
 
         this.data = await this.homeService.init();
         await this.createFullImage();
@@ -148,40 +147,22 @@ export class HomeComponent {
         let canvasX = ev.clientX - rect.left;
         let canvasY = ev.clientY - rect.top;
         return {x:canvasX, y:canvasY}
-
-        // let currentElement = <any>ev.target;
-        // let totalOffsetX = 0;
-        // let totalOffsetY = 0;
-        // let canvasX = 0;
-        // let canvasY = 0;
-    
-        // do{
-        //     totalOffsetX += currentElement.offsetLeft - currentElement.scrollLeft;
-        //     totalOffsetY += currentElement.offsetTop - currentElement.scrollTop;
-        // }
-        // while(currentElement = currentElement.offsetParent)
-    
-        // canvasX = ev.pageX - totalOffsetX;
-        // canvasY = ev.pageY - totalOffsetY;
-    
-        // return {x:canvasX, y:canvasY}
     }
 
     public async img_click(ev: MouseEvent): Promise<void> {
         
+        debugger;
         const mouse = this.relMouseCoords(ev);
         mouse.x -= this.imageBox.x;
         mouse.y -= this.imageBox.y;
 
-        if (this.isOnFocus) {
-            if (this.areaInExpanded) {
-                const onModule = this.getAreaIn(this.areaInExpanded.x + (mouse.x / this.viewRating), this.areaInExpanded.y + (mouse.y / this.viewRating));
-                if (onModule) {
-                    const getMod = await this.moduleService.getModuleByUID(onModule.uid);
-                    if (getMod) {
-                        this.moduleService.selected = getMod;
-                        return;
-                    }
+        if (this.isOnFocus && this.areaInExpanded) {
+            const onModule = this.getAreaIn(this.areaInExpanded.x + (mouse.x / this.viewRating), this.areaInExpanded.y + (mouse.y / this.viewRating));
+            if (onModule) {
+                const getMod = await this.moduleService.getModuleByUID(onModule.uid);
+                if (getMod) {
+                    this.moduleService.navigateToModuleHome(getMod);
+                    return;
                 }
             }
 

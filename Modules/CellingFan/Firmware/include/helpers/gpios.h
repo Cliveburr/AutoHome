@@ -13,6 +13,7 @@ typedef struct single_key_param {
     gpios_intr_type_t type;
     os_timer_t timer;
     gpios_intr_function intr_cb;
+    uint8_t state;
 } gpios_intr_t;
 
 void gpios_set_output_mode(uint8_t gpio_id, uint8_t state);

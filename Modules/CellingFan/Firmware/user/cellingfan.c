@@ -3,6 +3,7 @@
 #include "gpio.h"
 
 #include "helpers/gpios.h"
+#include "helpers/storage.h"
 #include "cellingfan.h"
 
 /*
@@ -28,8 +29,37 @@ typedef struct {
 } cellingfan_state_t;
 
 LOCAL cellingfan_state_t cellingfan_state;
-LOCAL os_timer_t cellingfan_block_intr_timer;
-LOCAL uint8_t cellingfan_block_intr;
+LOCAL os_timer_t cellingfan_block_inversion_timer;
+LOCAL uint8_t cellingfan_inversion_intr;
+LOCAL os_timer_t cellingfan_block_fanonof_timer;
+LOCAL uint8_t cellingfan_block_fanonof;
+
+LOCAL ICACHE_FLASH_ATTR
+void cellingfan_config_read(array_builder_t* req, array_builder_t* res)
+{
+	#ifdef DEBUG
+		os_printf("cellingfan_config_read...\n");
+	#endif
+
+	array_write_uchar(res, 5); // config_read response
+
+    uint8_t pins;
+    os_memcpy(&pins, &cellingfan_config->pins, 1);
+    array_write_uchar(res, pins);
+}
+
+LOCAL ICACHE_FLASH_ATTR
+void cellingfan_config_save(array_builder_t* req, array_builder_t* res)
+{
+	#ifdef DEBUG
+		os_printf("cellingfan_config_save...\n");
+	#endif
+
+    uint8_t pins = array_read_uchar(req);
+    os_memcpy(&cellingfan_config->pins, &pins, 1);
+
+    storage_write("cellingfan", cellingfan_config);
+}
 
 LOCAL ICACHE_FLASH_ATTR
 void cellingfan_state_read(array_builder_t* req, array_builder_t* res)
@@ -54,15 +84,58 @@ typedef struct {
 } cellingfan_state_save_t;
 
 LOCAL ICACHE_FLASH_ATTR
-void cellingfan_set_block_intr()
+void cellingfan_set_light_state(uint8_t value)
 {
-    cellingfan_block_intr = 1;
-    os_timer_arm(&cellingfan_block_intr_timer, 200, 0);
+    if (cellingfan_state.light == value)
+    {
+        return;
+    }
+
+    cellingfan_state.light = value;
+    gpios_set_output_state(CELLINGFAN_LIGHT_PIN, cellingfan_state.light);
 }
 
 LOCAL ICACHE_FLASH_ATTR
-void cellingfan_set_fanspeed_state(void)
+void cellingfan_set_fan_state(uint8_t value)
 {
+    if (cellingfan_state.fan == value || cellingfan_block_fanonof)
+    {
+        return;
+    }
+
+    cellingfan_state.fan = value;
+    gpios_set_output_state(CELLINGFAN_FAN_PIN, cellingfan_state.fan);
+    
+    cellingfan_block_fanonof = 1;
+    os_timer_arm(&cellingfan_block_fanonof_timer, 3000, 0);
+
+    if (cellingfan_state.fan == 0) {
+        cellingfan_inversion_intr = 1;
+        os_timer_arm(&cellingfan_block_inversion_timer, 30000, 0);
+    }
+}
+
+LOCAL ICACHE_FLASH_ATTR
+void cellingfan_set_fanUp_state(uint8_t value)
+{
+    if (cellingfan_state.fanUp == value || cellingfan_state.fan || cellingfan_inversion_intr)
+    {
+        return;
+    }
+
+    cellingfan_state.fanUp = value;
+    gpios_set_output_state(CELLINGFAN_FAN_DIRECTION_PIN, cellingfan_state.fanUp ^ cellingfan_config->pins.FW1FW2Inversion);
+}
+
+LOCAL ICACHE_FLASH_ATTR
+void cellingfan_set_fanspeed_state(uint8_t value)
+{
+    if (cellingfan_state.fanSpeed == value || cellingfan_state.fan)
+    {
+        return;
+    }
+
+    cellingfan_state.fanSpeed = value;
     switch (cellingfan_state.fanSpeed)
     {
         case cellingfan_state_fanSpeed_min:
@@ -92,117 +165,82 @@ void cellingfan_state_save(array_builder_t* req, array_builder_t* res)
     uint8_t state_value = array_read_uchar(req);
     cellingfan_state_save_t state = *(cellingfan_state_save_t*)&state_value;
 
-    cellingfan_set_block_intr();
-
     if (state.setlight)
     {
-        cellingfan_state.light = state.light;
-        gpios_set_output_state(CELLINGFAN_LIGHT_PIN, cellingfan_state.light);
-    }
-
-    if (state.setfan)
-    {
-        cellingfan_state.fan = state.fan;
-        gpios_set_output_state(CELLINGFAN_FAN_PIN, cellingfan_state.fan);
+        cellingfan_set_light_state(state.light);
     }
 
     if (state.setfanUp)
     {
-        cellingfan_state.fanUp = state.fanUp;
-        gpios_set_output_state(CELLINGFAN_FAN_DIRECTION_PIN, cellingfan_state.fanUp);
+        cellingfan_set_fanUp_state(state.fanUp);
     }
 
     if (state.fanSpeed != cellingfan_state_fanSpeed_notset)
     {
-        cellingfan_state.fanSpeed = state.fanSpeed;
-        cellingfan_set_fanspeed_state();
+        cellingfan_set_fanspeed_state(state.fanSpeed);
+    }
+
+    if (state.setfan)
+    {
+        cellingfan_set_fan_state(state.fan);
     }
 }
 
 LOCAL ICACHE_FLASH_ATTR
 void cellingfan_light_button_cb()
 {
-    if (cellingfan_block_intr)
+    if (!cellingfan_config->pins.interruptionsOnOff)
     {
         return;
     }
 
-    cellingfan_set_block_intr();
-
-    if (cellingfan_state.light)
-    {
-        cellingfan_state.light = 0;
-        gpios_set_output_low(CELLINGFAN_LIGHT_PIN);
-    }
-    else
-    {
-        cellingfan_state.light = 1;
-        gpios_set_output_high(CELLINGFAN_LIGHT_PIN);
-    }
+    cellingfan_set_light_state(cellingfan_state.light ^ 1);
 }
 
 LOCAL ICACHE_FLASH_ATTR
 void cellingfan_fan_button_cb()
 {
-    if (cellingfan_block_intr)
+    if (!cellingfan_config->pins.interruptionsOnOff)
     {
         return;
     }
     
-    cellingfan_set_block_intr();
-
-    if (cellingfan_state.fan)
-    {
-        cellingfan_state.fan = 0;
-        gpios_set_output_low(CELLINGFAN_FAN_PIN);
-    }
-    else
-    {
-        cellingfan_state.fan = 1;
-        gpios_set_output_high(CELLINGFAN_FAN_PIN);
-    }
+    cellingfan_set_fan_state(cellingfan_state.fan ^ 1);
 }
 
 LOCAL ICACHE_FLASH_ATTR
 void cellingfan_fanspeed_button_cb()
 {
-    if (cellingfan_block_intr)
+    if (!cellingfan_config->pins.interruptionsOnOff)
     {
         return;
     }
 
-    cellingfan_set_block_intr();
-
-    cellingfan_state.fanSpeed++;
-    if (cellingfan_state.fanSpeed == 3)
+    if (cellingfan_state.fanSpeed < 2)
     {
-        cellingfan_state.fanSpeed = 0;
+        cellingfan_set_fanspeed_state(cellingfan_state.fanSpeed + 1);
     }
-    cellingfan_set_fanspeed_state();
+    else
+    {
+        cellingfan_set_fanspeed_state(0);
+    }
 }
 
 LOCAL ICACHE_FLASH_ATTR
-void cellingfan_block_intr_event_cb(void *arg)
+void cellingfan_block_invert_event_cb(void *arg)
 {
-    cellingfan_block_intr = 0;
-    os_timer_disarm(&cellingfan_block_intr_timer);
+    cellingfan_inversion_intr = 0;
+    os_timer_disarm(&cellingfan_block_inversion_timer);
+}
+
+LOCAL ICACHE_FLASH_ATTR
+void cellingfan_block_fanonof_event_cb()
+{
+    cellingfan_block_fanonof = 0;
+    os_timer_disarm(&cellingfan_block_fanonof_timer);
 }
 
 /******************************* PUBLIC METHODS *************************************/
-
-ICACHE_FLASH_ATTR
-void cellingfan_init_gpios(void)
-{
-    gpios_set_output_mode(CELLINGFAN_LIGHT_PIN, 0);
-    gpios_set_output_mode(CELLINGFAN_FAN_PIN, 0);
-    gpios_set_output_mode(CELLINGFAN_FAN_DIRECTION_PIN, 0);
-    gpios_set_output_mode(CELLINGFAN_FAN_SPEED_MIX_PIN, 0);
-    gpios_set_output_mode(CELLINGFAN_FAN_SPEED_MAX_PIN, 0);
-
-    gpios_set_button_intr(CELLINGFAN_LIGHT_BUTTON_PIN, cellingfan_light_button_cb);
-    gpios_set_button_intr(CELLINGFAN_FAN_BUTTON_PIN, cellingfan_fan_button_cb);
-    gpios_set_button_pulsar(CELLINGFAN_FAN_SPEED_BUTTON_PIN, cellingfan_fanspeed_button_cb);
-}
 
 ICACHE_FLASH_ATTR
 void cellingfan_init(void)
@@ -211,7 +249,28 @@ void cellingfan_init(void)
 		os_printf("cellingfan_init...\n");
 	#endif
 
-    os_timer_setfn(&cellingfan_block_intr_timer, (os_timer_func_t*)cellingfan_block_intr_event_cb, NULL);
+    cellingfan_config = storage_read("cellingfan");
+
+    gpios_set_output_mode(CELLINGFAN_LIGHT_PIN, 0);
+    gpios_set_output_mode(CELLINGFAN_FAN_PIN, 0);
+    gpios_set_output_mode(CELLINGFAN_FAN_DIRECTION_PIN, 0 ^ cellingfan_config->pins.FW1FW2Inversion);
+    gpios_set_output_mode(CELLINGFAN_FAN_SPEED_MIX_PIN, 0);
+    gpios_set_output_mode(CELLINGFAN_FAN_SPEED_MAX_PIN, 0);
+
+    gpios_set_button_intr(CELLINGFAN_LIGHT_BUTTON_PIN, cellingfan_light_button_cb);
+    if (cellingfan_config->pins.FI1FI2Inversion)
+    {
+        gpios_set_button_intr(CELLINGFAN_FAN_SPEED_BUTTON_PIN, cellingfan_fan_button_cb);
+        gpios_set_button_pulsar(CELLINGFAN_FAN_BUTTON_PIN, cellingfan_fanspeed_button_cb);
+    }
+    else
+    {
+        gpios_set_button_intr(CELLINGFAN_FAN_BUTTON_PIN, cellingfan_fan_button_cb);
+        gpios_set_button_pulsar(CELLINGFAN_FAN_SPEED_BUTTON_PIN, cellingfan_fanspeed_button_cb);
+    }
+
+    os_timer_setfn(&cellingfan_block_inversion_timer, (os_timer_func_t*)cellingfan_block_invert_event_cb, NULL);
+    os_timer_setfn(&cellingfan_block_fanonof_timer, (os_timer_func_t*)cellingfan_block_fanonof_event_cb, NULL);
 }
 
 ICACHE_FLASH_ATTR
@@ -223,5 +282,7 @@ void cellingfan_msg_handler(array_builder_t* req, array_builder_t* res)
 	{
 		case 1: cellingfan_state_read(req, res); break;
 		case 3: cellingfan_state_save(req, res); break;
+        case 4: cellingfan_config_read(req, res); break;
+        case 6: cellingfan_config_save(req, res); break;
 	}
 }

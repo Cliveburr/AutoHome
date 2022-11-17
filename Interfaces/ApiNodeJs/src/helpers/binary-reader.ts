@@ -25,7 +25,7 @@ export class BinaryReader {
     public readString(): string {
         const count = this.buffer.readUint8(this.index);
         this.index++;
-        const value = this.buffer.toString('utf8', this.index, this.index + count);
+        const value = this.buffer.toString('utf8', this.index, this.index + count - 1);
         this.index += count;
         return value;
     }

@@ -1,15 +1,10 @@
 <ion-content>
     <ion-header>
         <ion-toolbar>
-            <ion-title size="large">{{header}}</ion-title>
+            <ion-title size="large">Home</ion-title>
         </ion-toolbar>
     </ion-header>
-    <ng-container [ngSwitch]="moduleService.selected?.moduleType">
-        <cellingFan *ngSwitchCase="'CellingFan'"></cellingFan>
-        <div *ngSwitchDefault>
-            <canvas id="homeCanvas" (click)="img_click($event)"></canvas>
-        </div>
-    </ng-container>
+    <canvas id="homeCanvas" (click)="img_click($event)"></canvas>
     <ion-toggle style="display: none"></ion-toggle>
     <ion-radio-group style="display: none"></ion-radio-group>
 </ion-content>

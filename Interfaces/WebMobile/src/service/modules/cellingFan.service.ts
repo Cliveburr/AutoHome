@@ -18,19 +18,19 @@ export class CellingFanService {
     }
 
     public setLight(req: BolleanRequest) {
-        return this.api.post<void>('/setlight', req)
+        return this.api.post<CellingFanState>('/setlight', req)
     }
 
     public setFan(req: BolleanRequest) {
-        return this.api.post<void>('/setfan', req)
+        return this.api.post<CellingFanState>('/setfan', req)
     }
 
     public setFanUp(req: BolleanRequest) {
-        return this.api.post<void>('/setfanup', req)
+        return this.api.post<CellingFanState>('/setfanup', req)
     }
 
     public setFanSpeed(req: UintRequest) {
-        return this.api.post<void>('/setfanspeed', req)
+        return this.api.post<CellingFanState>('/setfanspeed', req)
     }
 
     public getState(moduleModel: ModuleModel) {

@@ -14,6 +14,6 @@ export class MainLayoutComponent {
     }
 
     public homeClick(): void {
-        this.moduleService.selected = undefined;
+        //this.moduleService.selected = undefined;
     }
 }

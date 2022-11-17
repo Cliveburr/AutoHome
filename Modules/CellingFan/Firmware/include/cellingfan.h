@@ -19,6 +19,18 @@
 
 #include "helpers/array_helpers.h"
 
+typedef struct {
+   uint8_t interruptionsOnOff : 1;
+   uint8_t FW1FW2Inversion : 1;
+   uint8_t FI1FI2Inversion : 1;
+} cellingfan_config_pins_t;
+
+typedef struct {
+   cellingfan_config_pins_t pins;
+} cellingfan_config_t;
+
+cellingfan_config_t* cellingfan_config;
+
 void cellingfan_init_gpios(void);
 void cellingfan_init(void);
 void cellingfan_msg_handler(array_builder_t* req, array_builder_t* res);

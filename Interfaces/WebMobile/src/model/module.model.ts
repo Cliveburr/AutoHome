@@ -4,7 +4,7 @@ export interface ModuleListRequest {
 }
 
 export interface ModuleModel {
-    uid: string;
+    UID: string;
     alias: string;
     moduleType: string;
 }

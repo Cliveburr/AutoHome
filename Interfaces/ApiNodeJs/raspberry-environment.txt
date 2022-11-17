@@ -1,0 +1,65 @@
+
+Connect
+{
+	ssh pi@192.168.0.116
+	user: pi
+	senha: pi
+
+
+	Tranfer files easy
+	FileZilla
+}
+
+
+Install NodeJS
+{
+	Download
+	https://unofficial-builds.nodejs.org/download/release/v18.12.0/node-v18.12.0-linux-armv6l.tar.gz
+
+	Extract
+	$ tar -xzf node-vXX.XX.X-linux-armvXl.tar.gz
+	
+	Install
+	$ cd node-v11.15.0-linux-armv6l/
+	$ sudo cp -R * /usr/local/
+}
+
+
+Create service
+{
+	Copy service file
+	$ sudo cp /pi/autohome/autohome.service /lib/systemd/system/autohome.service
+
+	Reload daemon
+	$ sudo systemctl daemon-reload
+	
+	Enable service
+	$ sudo systemctl enable autohome.service
+	
+	Start the service
+	$ sudo service autohome start
+	
+	Verify the service
+	$ sudo service autohome status
+}
+
+Static IP
+{
+	Verify dhcpcd service
+	$ sudo service dhcpcd status
+
+	Enable and start if not
+	$ sudo systemctl enable dhcpcd
+	$ sudo service dhcpcd start
+	
+	Edit file
+	$ sudo nano /etc/dhcpcd.conf
+	
+	interface eth0
+	static ip_address=192.168.0.116/24
+	static routers=192.168.0.1
+	static domain_name_servers=192.168.0.1
+	
+	Reboot
+	$ sudo reboot
+}

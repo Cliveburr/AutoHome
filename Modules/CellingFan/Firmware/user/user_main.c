@@ -7,6 +7,7 @@
 #include "autohome.h"
 #include "net.h"
 #include "helpers/storage.h"
+#include "cellingfan.h"
 
 static const partition_item_t at_partition_table[] = {
     { SYSTEM_PARTITION_BOOTLOADER, 						0x0, 					0x1000},
@@ -41,8 +42,6 @@ void user_init(void)
         os_printf("SDK version: %s\n", system_get_sdk_version());
     #endif
 
-    cellingfan_init_gpios();
-
 	system_init_done_cb(init_done);
 }
 
@@ -54,9 +53,10 @@ void init_done(void)
         { 0xEB000, 0x310000 }
     };
     storage_info_t storage_info_table[] = {
-        { "autohome", sizeof(autohome_configuration_t) }
+        { "autohome", sizeof(autohome_configuration_t) },
+        { "cellingfan", sizeof(cellingfan_config_t) }
     };
-    storage_init(storage_partition_table, 2, storage_info_table, 1);
+    storage_init(storage_partition_table, 2, storage_info_table, 2);
 
 	autohome_init();
 

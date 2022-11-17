@@ -46,15 +46,19 @@ void ping_pong(array_builder_t* req, array_builder_t* res)
 ICACHE_FLASH_ATTR
 void configuration_read(array_builder_t* req, array_builder_t* res)
 {
+	uint8_t i;
 	#ifdef DEBUG
 		os_printf("configuration_read...\n");
 	#endif
 
 	array_write_uchar(res, 4); // configuration read response
 
-	array_write_string(res, autohome_configuration->net_ssid);
-
-	array_write_string(res, autohome_configuration->net_password);
+	array_write_uchar(res, autohome_configuration->wifiCount);
+	for (i = 0; i < autohome_configuration->wifiCount; i++)
+	{
+		array_write_string(res, autohome_configuration->wifis[i].net_ssid);
+		array_write_string(res, autohome_configuration->wifis[i].net_password);
+	}
 
 	array_write_string(res, autohome_configuration->alias);
 }
@@ -62,15 +66,20 @@ void configuration_read(array_builder_t* req, array_builder_t* res)
 ICACHE_FLASH_ATTR
 void configuration_save(array_builder_t* req, array_builder_t* res)
 {
+	uint8_t i;
 	#ifdef DEBUG
 		os_printf("configuration_save...\n");
 	#endif
 
-	os_memset(autohome_configuration->net_ssid, 0, 32);
-	array_read_string_to(req, autohome_configuration->net_ssid);
+	autohome_configuration->wifiCount = array_read_uchar(req);
+	for (i = 0; i < autohome_configuration->wifiCount; i++)
+	{
+		os_memset(autohome_configuration->wifis[i].net_ssid, 0, 32);
+		array_read_string_to(req, autohome_configuration->wifis[i].net_ssid);
 
-	os_memset(autohome_configuration->net_password, 0, 64);
-	array_read_string_to(req, autohome_configuration->net_password);
+		os_memset(autohome_configuration->wifis[i].net_password, 0, 64);
+		array_read_string_to(req, autohome_configuration->wifis[i].net_password);
+	}
 
 	os_memset(autohome_configuration->alias, 0, 30);
 	array_read_string_to(req, autohome_configuration->alias);
@@ -91,6 +100,16 @@ void set_uid(array_builder_t* req, array_builder_t* res)
 }
 
 ICACHE_FLASH_ATTR
+void restart(array_builder_t* req, array_builder_t* res)
+{
+	#ifdef DEBUG
+		os_printf("system_restart...\n");
+	#endif
+
+	system_restart();
+}
+
+ICACHE_FLASH_ATTR
 void autohome_msg_handler(array_builder_t* req, array_builder_t* res)
 {
 	uint8 msg = array_read_uchar(req);
@@ -101,6 +120,7 @@ void autohome_msg_handler(array_builder_t* req, array_builder_t* res)
  		case 3: configuration_read(req, res); break;
  		case 5: configuration_save(req, res); break;
  		case 6: set_uid(req, res); break;
+ 		case 7: restart(req, res); break;
 	}
 }
 
@@ -145,8 +165,6 @@ void load_config(void)
 
 	#ifdef DEBUG
 		os_printf("autohome_configuration.uid = %d\n", autohome_configuration->uid);
-		os_printf("autohome_configuration.net_ssid = %s\n", autohome_configuration->net_ssid);
-		os_printf("autohome_configuration.alias = %s\n", autohome_configuration->alias);
 	#endif
 }
 
