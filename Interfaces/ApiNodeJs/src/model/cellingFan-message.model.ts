@@ -3,7 +3,11 @@ export enum CellingFanMessageType {
     Unkown = 0,
     StateReadRequest = 1,
     StateReadResponse = 2,
-    StateSaveRequest = 3
+    StateSaveRequest = 3,
+    StateSaveResponse = 4,
+    ConfigReadRequest = 5,
+    ConfigReadResponse = 6,
+    ConfigSaveRequest = 7
 }
 
 export enum FanSpeedEnum {

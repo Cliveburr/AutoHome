@@ -16,7 +16,7 @@ export class CellingFanService {
     }
 
 
-    public saveState(request: StateSaveRequest, moduleModel: ModuleModel) {
+    public saveState(request: StateSaveRequest, moduleModel: ModuleModel): Promise<CellingFanState> {
 
         const writer = this.initWriter(CellingFanMessageType.StateSaveRequest);
         
@@ -31,7 +31,23 @@ export class CellingFanService {
 
         writer.writeFields(vl);
 
-        return this.connectionService.connectTCP(moduleModel, (client) => client.send(writer));
+        return this.connectionService.connectTCP(moduleModel, async (client) => {
+            
+            const pck = await client.sendAndWaiting(writer, PortType.CellingFan, CellingFanMessageType.StateSaveResponse);
+
+            const vl = pck.reader.readFields();
+            const light = vl.readBool(0);
+            const fan = vl.readBool(1);
+            const fanUp = vl.readBool(2);
+            const fanSpeed = <FanSpeedEnum>vl.readTwoBitsAsByte(3);
+
+            return <CellingFanState>{
+                light,
+                fan,
+                fanUp,
+                fanSpeed
+            };
+        });
     }
 
     public getState(moduleModel: ModuleModel): Promise<CellingFanState> {

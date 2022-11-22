@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -12,8 +13,8 @@ namespace AH.Interfaces.Dashboard.Main.HomeProject
     public class HomeImageDescriptionBuilder
     {
         private readonly string _imageMaskPath;
-        private readonly string _fromDescriptionPath;
-        private readonly string _toDescriptionPath;
+        private readonly string _settingsPath;
+        private readonly string _descriptionPath;
 
         private class Area
         {
@@ -25,11 +26,11 @@ namespace AH.Interfaces.Dashboard.Main.HomeProject
             public Point? BottomRight { get; set; }
         }
 
-        public HomeImageDescriptionBuilder(string imageMaskPath, string fromDescriptionPath, string toDescriptionPath)
+        public HomeImageDescriptionBuilder(string imageMaskPath, string settingsPath, string descriptionPath)
         {
             _imageMaskPath = imageMaskPath;
-            _fromDescriptionPath = fromDescriptionPath;
-            _toDescriptionPath = toDescriptionPath;
+            _settingsPath = settingsPath;
+            _descriptionPath = descriptionPath;
         }
 
         public void Build()
@@ -38,46 +39,45 @@ namespace AH.Interfaces.Dashboard.Main.HomeProject
 
             var areas = DetectColors(imageMask);
 
-            var fromDescriptionContent = File.ReadAllText(_fromDescriptionPath);
-            var fromDescription = JsonConvert.DeserializeObject<HomeImageDescription>(fromDescriptionContent);
-            fromDescription.Areas = fromDescription.Areas ?? new List<HomeImageDescriptionArea>();
+            var settingsContent = File.ReadAllText(_settingsPath);
+            var settings = JsonConvert.DeserializeObject<HomeImageDescriptionSettings>(settingsContent);
 
-            foreach (var area in areas)
+            var description = new HomeImageDescription();
+            description.globalMargin = settings.GlobalMargin;
+            description.childs = new List<HomeImageDescriptionArea>();
+
+            GetAreasFor(areas, 0, 0, settings.Childs, description.childs);
+            
+            var toDescriptionContent = JsonConvert.SerializeObject(description, Formatting.Indented);
+            File.WriteAllText(_descriptionPath, toDescriptionContent);
+        }
+
+        private void GetAreasFor(List<Area> areas, int x, int y, List<HomeImageDescriptionSettingsArea> settings, List<HomeImageDescriptionArea> descriptions)
+        {
+            foreach (var set in settings)
             {
-                var hasDescription = fromDescription.Areas
-                    .Where(a => a.Red == area.Color.R && a.Blue == area.Color.B && a.Green == area.Color.G)
+                var hasArea = areas
+                    .Where(a => a.Color.R == set.Red && a.Color.B == set.Blue && a.Color.G == set.Green)
                     .FirstOrDefault();
-                if (hasDescription == null)
+                if (hasArea != null)
                 {
-                    fromDescription.Areas.Add(new HomeImageDescriptionArea
+                    var newDescr = new HomeImageDescriptionArea
                     {
-                        Red = area.Color.R,
-                        Blue = area.Color.B,
-                        Green = area.Color.G,
-                        PointX = area.Rectangle.X,
-                        PointY = area.Rectangle.Y,
-                        Width = area.Rectangle.Width,
-                        Height = area.Rectangle.Height
-                    });
-                }
-                else
-                {
-                    hasDescription.Red = area.Color.R;
-                    hasDescription.Blue = area.Color.B;
-                    hasDescription.Green = area.Color.G;
-                    hasDescription.PointX = area.Rectangle.X;
-                    hasDescription.PointY = area.Rectangle.Y;
-                    hasDescription.Width = area.Rectangle.Width;
-                    hasDescription.Height = area.Rectangle.Height;
+                        UID = set.UID,
+                        image = set.Image,
+                        x = hasArea.Rectangle.X - x,
+                        y = hasArea.Rectangle.Y - y,
+                        width = hasArea.Rectangle.Width,
+                        height = hasArea.Rectangle.Height,
+                        childs = new List<HomeImageDescriptionArea>()
+                    };
+                    descriptions.Add(newDescr);
+                    if (set.Childs != null)
+                    {
+                        GetAreasFor(areas, newDescr.x, newDescr.y, set.Childs, newDescr.childs);
+                    }
                 }
             }
-
-            fromDescription.Areas = fromDescription.Areas
-                .Where(a => !(a.Red == 255 && a.Blue == 255 & a.Green == 255))
-                .ToList();
-
-            var toDescriptionContent = JsonConvert.SerializeObject(fromDescription, Formatting.Indented);
-            File.WriteAllText(_toDescriptionPath, toDescriptionContent);
         }
 
         private List<Area> DetectColors(Bitmap bitmap)

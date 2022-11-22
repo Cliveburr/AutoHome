@@ -48,25 +48,13 @@ export default class HomeController extends ControllerBase {
         const imageDescriptionPath = path.resolve(path.join(wwwroot, 'images', 'home', 'home_description.json'));
         const imageFullPath = path.resolve(path.join(wwwroot, 'images', 'home', 'home_full.png'));
 
-        const imageDescription = <HomeImageDescription>JSON.parse(fs.readFileSync(imageDescriptionPath, 'utf8'));
+        const description = <HomeImageDescription>JSON.parse(fs.readFileSync(imageDescriptionPath, 'utf8'));
         const fullImage = fs.readFileSync(imageFullPath).toString('base64');
 
         return {
             cacheDate: Date.now(),
             fullImage,
-            globalMargin: imageDescription.GlobalMargin,
-            areas: imageDescription.Areas
-                .map(a => {
-                    return {
-                        uid: a.UID,
-                        name: a.Name,
-                        image: a.Image,
-                        x: a.PointX,
-                        y: a.PointY,
-                        width: a.Width,
-                        height: a.Height
-                    }
-                })
+            description
         };
     }
 }

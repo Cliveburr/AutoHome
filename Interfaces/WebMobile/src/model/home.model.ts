@@ -6,16 +6,20 @@ export interface InitRequest {
 export interface InitResponse {
     cacheDate: number;
     fullImage: string;
-    globalMargin: number;
-    areas: InitResponseArea[];
+    description: HomeImageDescription;
 }
 
-export interface InitResponseArea {
-    uid: number;
-    name: string;
-    image: string;
+export interface HomeImageDescription {
+    globalMargin: number;
+    childs: HomeImageDescriptionArea[];
+}
+
+export interface HomeImageDescriptionArea {
+    UID: number;
+    image?: string;
     x: number;
     y: number;
     width: number;
     height: number;
+    childs: HomeImageDescriptionArea[];
 }

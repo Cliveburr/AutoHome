@@ -6,8 +6,7 @@ import { ApiPrefixService, ApiService } from "../api.service";
 @Injectable()
 export class ModuleService {
     
-    public selectedEvent: EventEmitter<ModuleModel>;
-    private inSelected?: ModuleModel;
+    public selected?: ModuleModel;
     private api: ApiPrefixService;
 
     public constructor(
@@ -15,21 +14,12 @@ export class ModuleService {
         apiService: ApiService
     ) {
         this.api = apiService.setApi('/module');
-        this.selectedEvent = new EventEmitter<ModuleModel>();
-    }
-
-    public get selected(): ModuleModel | undefined {
-        return this.inSelected;
-    }
-    public set selected(value: ModuleModel | undefined) {
-        this.inSelected = value;
-        this.selectedEvent.emit(value);
     }
 
     public navigateToModuleHome(model: ModuleModel): void {
         switch (model.moduleType) {
             case 'CellingFan':
-                this.inSelected = model;
+                this.selected = model;
                 this.router.navigateByUrl('/cellingfan');
                 break;
             default:

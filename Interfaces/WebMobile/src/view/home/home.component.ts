@@ -1,6 +1,5 @@
-import { AfterViewInit, Component } from '@angular/core';
-import { Subscription } from 'rxjs';
-import { InitResponseArea, InitResponse } from 'src/model';
+import { Component, OnInit } from '@angular/core';
+import { HomeImageDescriptionArea, InitResponse } from 'src/model';
 import { ModuleService, HomeService } from 'src/service';
 
 interface Size {
@@ -23,7 +22,7 @@ interface Box {
 @Component({
     templateUrl: './home.component.html'
 })
-export class HomeComponent implements AfterViewInit {
+export class HomeComponent implements OnInit {
 
     public isOnFocus: boolean;
 
@@ -33,10 +32,8 @@ export class HomeComponent implements AfterViewInit {
     private viewRating: number;
     private viewSize: Size;
     private imageBox: Box;
-    private areaIn?: InitResponseArea;
-    private areaInExpanded?: Box;
+    private areaIn?: HomeImageDescriptionArea;
     private ctx: CanvasRenderingContext2D;
-    private moduleSelectedEventSubscription: Subscription;
 
     public constructor(
         public moduleService: ModuleService,
@@ -44,18 +41,9 @@ export class HomeComponent implements AfterViewInit {
     ) {
         this.isOnFocus = false;
         this.images = {};
-        //this.moduleSelectedEventSubscription = this.moduleService.selectedEvent.subscribe(this.ngAfterViewInit.bind(this));
     }
 
-    public ngOnDestroy() {
-        this.moduleSelectedEventSubscription.unsubscribe();
-    }
-
-    public async ngAfterViewInit() {
-        // if (this.moduleService.selected?.moduleType) {
-        //     return;
-        // }
-
+    public async ngOnInit() {
         this.data = await this.homeService.init();
         await this.createFullImage();
 
@@ -67,7 +55,6 @@ export class HomeComponent implements AfterViewInit {
         homeCanvas.height = this.viewSize.height;
 
         delete this.areaIn;
-        delete this.areaInExpanded;
         this.isOnFocus = false;
         this.drawFullImage();
     }
@@ -110,12 +97,9 @@ export class HomeComponent implements AfterViewInit {
     }
 
     private drawFullImage(): void {
-        
         this.ctx.clearRect(0, 0, this.viewSize.width, this.viewSize.height);
-
         this.calculateViewRating(this.fullImage);
         this.imageBox = this.centerImage(this.fullImage);
-
         this.ctx.drawImage(this.fullImage, 0, 0, this.fullImage.width, this.fullImage.height, this.imageBox.x, this.imageBox.y, this.imageBox.width, this.imageBox.height);
     }
 
@@ -127,18 +111,18 @@ export class HomeComponent implements AfterViewInit {
 
         this.ctx.clearRect(0, 0, this.viewSize.width, this.viewSize.height);
 
-        const globalMargin = this.data.globalMargin;
-        this.areaInExpanded = {
+        const globalMargin = this.data.description.globalMargin;
+        const areaInExpanded = {
             x: Math.min(this.areaIn.x, this.areaIn.x - globalMargin),
             y: Math.min(this.areaIn.y, this.areaIn.y - globalMargin),
             width: Math.max(this.areaIn.width, this.areaIn.width + (2 * globalMargin)),
             height: Math.max(this.areaIn.height, this.areaIn.height + (2 * globalMargin))
         }
 
-        this.calculateViewRating(this.areaInExpanded);
-        this.imageBox = this.centerImage(this.areaInExpanded);
+        this.calculateViewRating(areaInExpanded);
+        this.imageBox = this.centerImage(areaInExpanded);
         
-        this.ctx.drawImage(this.fullImage, this.areaInExpanded.x, this.areaInExpanded.y, this.areaInExpanded.width, this.areaInExpanded.height, this.imageBox.x, this.imageBox.y, this.imageBox.width, this.imageBox.height);
+        this.ctx.drawImage(this.fullImage, areaInExpanded.x, areaInExpanded.y, areaInExpanded.width, areaInExpanded.height, this.imageBox.x, this.imageBox.y, this.imageBox.width, this.imageBox.height);
     }
 
     private relMouseCoords(ev: MouseEvent): Point {
@@ -151,15 +135,14 @@ export class HomeComponent implements AfterViewInit {
 
     public async img_click(ev: MouseEvent): Promise<void> {
         
-        debugger;
         const mouse = this.relMouseCoords(ev);
         mouse.x -= this.imageBox.x;
         mouse.y -= this.imageBox.y;
 
-        if (this.isOnFocus && this.areaInExpanded) {
-            const onModule = this.getAreaIn(this.areaInExpanded.x + (mouse.x / this.viewRating), this.areaInExpanded.y + (mouse.y / this.viewRating));
+        if (this.isOnFocus) {
+            const onModule = this.getAreaIn(mouse.x / this.viewRating, mouse.y / this.viewRating);
             if (onModule) {
-                const getMod = await this.moduleService.getModuleByUID(onModule.uid);
+                const getMod = await this.moduleService.getModuleByUID(onModule.UID);
                 if (getMod) {
                     this.moduleService.navigateToModuleHome(getMod);
                     return;
@@ -169,65 +152,49 @@ export class HomeComponent implements AfterViewInit {
             this.drawFullImage();
             this.isOnFocus = false;
             delete this.areaIn;
-            delete this.areaInExpanded;
         }
         else {
             this.areaIn = this.getAreaIn(mouse.x / this.viewRating, mouse.y / this.viewRating);
             if (this.areaIn) {
                 this.drawAreaImage();
-                
-                const areasInside = this.getAreasInside();
-                for (let areaInside of areasInside) {
-                    setTimeout(this.drawAreaInside.bind(this, areaInside), 1);
-                }
-
+                this.drawAreaInside();
                 this.isOnFocus = true;
             }
         }
     }
 
     private getAreaIn(x: number, y: number) {
-        for (let area of this.data.areas) {
+        const areas = this.areaIn ?
+            this.areaIn.childs :
+            this.data.description.childs;
+
+        for (let area of areas) {
             if (x > area.x && x < (area.x + area.width) &&
                 y > area.y && y < (area.y + area.height)) {
-                    if (this.areaIn) {
-                        if (this.areaIn.name != area.name) {
-                            return area;
-                        }
-                    }
-                    else {
-                        return area;
-                    }
+                    return area;
                 }
         }
         return undefined;
     }
 
-    private getAreasInside(): InitResponseArea[] {
-        const tr = <InitResponseArea[]>[];
-        if (this.areaIn) {
-            for (let area of this.data.areas) {
-                if (area.x > this.areaIn.x && (area.x + area.width) < (this.areaIn.x + this.areaIn.width)
-                    && area.y > this.areaIn.y && (area.y + area.height) < (this.areaIn.y + this.areaIn.height)) {
-                        tr.push(area);
+    private async drawAreaInside(): Promise<void> {
+        if (this.areaIn?.childs) {
+            for (const area of this.areaIn.childs) {
+                if (area.image) {
+                    let image = this.images[area.image];
+                    if (!image) {
+                        this.images[area.image] = image = await this.loadImage(area.image);
                     }
+
+                    const x = (area.x * this.viewRating) + this.imageBox.x;
+                    const y = (area.y * this.viewRating) + this.imageBox.y;
+                    const width = area.width * this.viewRating;
+                    const height = area.height * this.viewRating;
+
+                    this.ctx.drawImage(image, 0, 0, image.width, image.height, x, y, width, height);
+                }
             }
         }
-        return tr;
-    }
-
-    private async drawAreaInside(area: InitResponseArea): Promise<void> {
-        let image = this.images[area.image];
-        if (!image) {
-            this.images[area.image] = image = await this.loadImage(area.image);
-        }
-
-        const x = ((area.x - this.areaInExpanded!.x) * this.viewRating) + this.imageBox.x;
-        const y = ((area.y - this.areaInExpanded!.y) * this.viewRating) + this.imageBox.y;
-        const width = area.width * this.viewRating;
-        const height = area.height * this.viewRating;
-
-        this.ctx.drawImage(image, 0, 0, image.width, image.height, x, y, width, height);
     }
 
     private loadImage(name: string): Promise<HTMLImageElement> {

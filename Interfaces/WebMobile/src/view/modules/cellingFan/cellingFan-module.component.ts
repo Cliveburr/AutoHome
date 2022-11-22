@@ -1,17 +1,19 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { CellingFanState } from 'src/model';
 import { ModuleService, CellingFanService } from 'src/service';
 
 @Component({
     templateUrl: './cellingFan-module.component.html'
 })
-export class CellingFanModuleComponent implements OnInit {
+export class CellingFanModuleComponent {
 
     public model: CellingFanState;
+    private disableEvents: boolean = false;
 
     public constructor(
         public moduleService: ModuleService,
-        public cellingFanService: CellingFanService
+        public cellingFanService: CellingFanService,
+        private changeDetectorRef: ChangeDetectorRef
     ) {
         this.model = {
             light: false,
@@ -21,11 +23,21 @@ export class CellingFanModuleComponent implements OnInit {
         };
     }
 
-    public ngOnInit(): Promise<void> {
+    public ionViewDidEnter(): Promise<void> {
         return this.refresh()
     }
 
+    private setNewModel(model: CellingFanState) {
+        this.disableEvents = true;
+        this.model = model;
+        this.changeDetectorRef.detectChanges();
+        this.disableEvents = false;
+    }
+
     public async lightChange(): Promise<void> {
+        if (this.disableEvents) {
+            return;
+        }
         this.model = await this.cellingFanService.setLight({
             model: this.moduleService.selected!,
             value: this.model.light
@@ -37,6 +49,9 @@ export class CellingFanModuleComponent implements OnInit {
     }
 
     public async fanChange(): Promise<void> {
+        if (this.disableEvents) {
+            return;
+        }
         this.model = await this.cellingFanService.setFan({
             model: this.moduleService.selected!,
             value: this.model.fan
@@ -48,6 +63,9 @@ export class CellingFanModuleComponent implements OnInit {
     }
 
     public async fanUpChange(): Promise<void> {
+        if (this.disableEvents) {
+            return;
+        }
         this.model = await this.cellingFanService.setFanUp({
             model: this.moduleService.selected!,
             value: this.model.fanUp
@@ -59,6 +77,9 @@ export class CellingFanModuleComponent implements OnInit {
     }
 
     public async fanSpeedChange(): Promise<void> {
+        if (this.disableEvents) {
+            return;
+        }
         this.model = await this.cellingFanService.setFanSpeed({
             model: this.moduleService.selected!,
             value: this.model.fanSpeed
@@ -66,6 +87,7 @@ export class CellingFanModuleComponent implements OnInit {
     }
 
     public async refresh(): Promise<void> {
-        this.model = await this.cellingFanService.getState(this.moduleService.selected!);
+        const model = await this.cellingFanService.getState(this.moduleService.selected!);
+        this.setNewModel(model);
     }
 }

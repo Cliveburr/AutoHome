@@ -14,7 +14,7 @@ export default class CellingFanController extends ControllerBase {
     }
 
     @HttpPost('setlight')
-    public setLight(request: BolleanRequest): Promise<void> {
+    public setLight(request: BolleanRequest): Promise<CellingFanState> {
         return this.cellingFanService.saveState({
             setLight: true,
             light: request.value
@@ -22,7 +22,7 @@ export default class CellingFanController extends ControllerBase {
     }
 
     @HttpPost('setfan')
-    public setFan(request: BolleanRequest): Promise<void> {
+    public setFan(request: BolleanRequest): Promise<CellingFanState> {
         return this.cellingFanService.saveState({
             setFan: true,
             fan: request.value
@@ -30,7 +30,7 @@ export default class CellingFanController extends ControllerBase {
     }
 
     @HttpPost('setfanup')
-    public setFanUp(request: BolleanRequest): Promise<void> {
+    public setFanUp(request: BolleanRequest): Promise<CellingFanState> {
         return this.cellingFanService.saveState({
             setFanUp: true,
             fanUp: request.value
@@ -38,7 +38,7 @@ export default class CellingFanController extends ControllerBase {
     }
 
     @HttpPost('setfanspeed')
-    public setFanSpeed(request: UintRequest): Promise<void> {
+    public setFanSpeed(request: UintRequest): Promise<CellingFanState> {
         return this.cellingFanService.saveState({
             fanSpeed: request.value
         }, request.model);

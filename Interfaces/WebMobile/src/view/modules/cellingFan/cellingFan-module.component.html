@@ -18,17 +18,17 @@
 <ion-list>
     <ion-item>
         <ion-label (click)="lightClick()">Light</ion-label>
-        <ion-toggle [(ngModel)]="model.light" (ngModelChange)="lightChange()"></ion-toggle>
+        <ion-toggle [(ngModel)]="model.light" (ionChange)="lightChange()"></ion-toggle>
     </ion-item>
   
     <ion-item>
         <ion-label (click)="fanClick()">Fan</ion-label>
-        <ion-toggle [(ngModel)]="model.fan" (ngModelChange)="fanChange()"></ion-toggle>
+        <ion-toggle [(ngModel)]="model.fan" (ionChange)="fanChange()"></ion-toggle>
     </ion-item>
   
     <ion-item>
         <ion-label (click)="fanUpClick()">Orientation</ion-label>
-        <ion-toggle [(ngModel)]="model.fanUp" (ngModelChange)="fanUpChange()"></ion-toggle>
+        <ion-toggle [(ngModel)]="model.fanUp" (ionChange)="fanUpChange()"></ion-toggle>
     </ion-item>
 </ion-list>
 <ion-list>

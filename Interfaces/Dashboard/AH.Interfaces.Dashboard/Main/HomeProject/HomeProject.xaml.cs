@@ -27,9 +27,9 @@ namespace AH.Interfaces.Dashboard.Main.HomeProject
     public partial class HomeProject : Page
     {
         public string HomeFilePath { get; set; } = @"C:\Users\Clivedurr\Desktop\moveis planejamento\home_full.PNG";
-        public string MaskFilePath { get; set; } = @"C:\Users\Clivedurr\Desktop\moveis planejamento\home_full_mask2.PNG";
-        public string FromJsonPath { get; set; } = @"C:\Users\Clivedurr\Desktop\moveis planejamento\home_description.json";
-        public string ToJsonPath { get; set; } = @"C:\Users\Clivedurr\Desktop\moveis planejamento\home_description2.json";
+        public string MaskFilePath { get; set; } = @"C:\Users\Clivedurr\Desktop\moveis planejamento\home_full_mask.PNG";
+        public string SettingsJsonPath { get; set; } = @"C:\Users\Clivedurr\Desktop\moveis planejamento\home_description_settings.json";
+        public string DescriptionJsonPath { get; set; } = @"C:\Users\Clivedurr\Desktop\moveis planejamento\home_description.json";
         private Bitmap homeFile;
 
         public HomeProject()
@@ -203,7 +203,7 @@ namespace AH.Interfaces.Dashboard.Main.HomeProject
         {
             try
             {
-                var descriptionBuilder = new HomeImageDescriptionBuilder(MaskFilePath, FromJsonPath, ToJsonPath);
+                var descriptionBuilder = new HomeImageDescriptionBuilder(MaskFilePath, SettingsJsonPath, DescriptionJsonPath);
                 descriptionBuilder.Build();
             }
             catch (Exception err)

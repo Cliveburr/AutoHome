@@ -28,7 +28,6 @@
 	<done> - criar apis
 	
 
-- adicionar snubber na placa
 
 
 Tutorial sobre motores

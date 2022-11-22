@@ -1,7 +1,7 @@
 
 Connect
 {
-	ssh pi@192.168.0.116
+	ssh pi@192.168.0.167
 	user: pi
 	senha: pi
 

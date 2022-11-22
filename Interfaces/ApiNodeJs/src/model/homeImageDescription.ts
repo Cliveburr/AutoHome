@@ -1,18 +1,15 @@
 
 export interface HomeImageDescription {
-    GlobalMargin: number;
-    Areas: HomeImageDescriptionArea[];
+    globalMargin: number;
+    childs: HomeImageDescriptionArea[];
 }
 
 export interface HomeImageDescriptionArea {
     UID: number;
-    Name?: string;
-    Image?: string;
-    Red: number;
-    Blue: number;
-    Green: number;
-    PointX: number;
-    PointY: number;
-    Width: number;
-    Height: number;
+    image?: string;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    childs: HomeImageDescriptionArea[];
 }

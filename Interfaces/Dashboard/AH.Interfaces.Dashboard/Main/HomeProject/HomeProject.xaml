@@ -19,12 +19,12 @@
                 <TextBox Margin="5" Text="{Binding MaskFilePath}"></TextBox>
             </DockPanel>
             <DockPanel>
-                <Label Margin="5" DockPanel.Dock="Left">From json file:</Label>
-                <TextBox Margin="5" Text="{Binding FromJsonPath}"></TextBox>
+                <Label Margin="5" DockPanel.Dock="Left">Settings json file:</Label>
+                <TextBox Margin="5" Text="{Binding SettingsJsonPath}"></TextBox>
             </DockPanel>
             <DockPanel>
-                <Label Margin="5" DockPanel.Dock="Left">To json file:</Label>
-                <TextBox Margin="5" Text="{Binding ToJsonPath}"></TextBox>
+                <Label Margin="5" DockPanel.Dock="Left">Description json file:</Label>
+                <TextBox Margin="5" Text="{Binding DescriptionJsonPath}"></TextBox>
             </DockPanel>
         </StackPanel>
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
