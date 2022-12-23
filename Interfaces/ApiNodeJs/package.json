@@ -19,7 +19,7 @@
       "providerjs": "^0.0.15",
       "webhost": "^0.1.2",
       "webhost-mvc": "^0.0.1",
-      "jsonwebtoken": "^8.5.1"
+      "jsonwebtoken": "^9.0.0"
     },
     "devDependencies": {
       "@types/node": "^18.11.3",
