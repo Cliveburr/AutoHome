@@ -6,13 +6,15 @@
 #include "helpers/storage.h"
 #include "cellingfan.h"
 
-/*
-	Messages id
-	1 = state_read request
-	2 = state_read response
-	3 = state_save request
-	4 = state_save response
-*/
+typedef enum {
+    cellingfan_message_type_state_read_request = 1,
+    cellingfan_message_type_state_read_response = 2,
+    cellingfan_message_type_state_save_request = 3,
+    cellingfan_message_type_state_save_response = 4,
+    cellingfan_message_type_config_read_request = 5,
+    cellingfan_message_type_config_read_response = 6,
+    cellingfan_message_type_config_save_request = 7
+} cellingfan_message_type_t;
 
 typedef enum {
     cellingfan_state_fanSpeed_min = 0,
@@ -41,7 +43,7 @@ void cellingfan_config_read(array_builder_t* req, array_builder_t* res)
 		os_printf("cellingfan_config_read...\n");
 	#endif
 
-	array_write_uchar(res, 5); // config_read response
+	array_write_uchar(res, cellingfan_message_type_config_read_response);
 
     uint8_t pins;
     os_memcpy(&pins, &cellingfan_config->pins, 1);
@@ -68,7 +70,7 @@ void cellingfan_state_read(array_builder_t* req, array_builder_t* res)
 		os_printf("cellingfan_state_read...\n");
 	#endif
 
-	array_write_uchar(res, 2); // state_read response
+	array_write_uchar(res, cellingfan_message_type_state_read_response);
 
     array_write_uchar(res, *(uint8_t*)&cellingfan_state);
 }
@@ -160,7 +162,7 @@ void cellingfan_state_save(array_builder_t* req, array_builder_t* res)
 		os_printf("cellingfan_state_save...\n");
 	#endif
 
-	array_write_uchar(res, 4); // state_save response
+	array_write_uchar(res, cellingfan_message_type_state_save_response);
 
     uint8_t state_value = array_read_uchar(req);
     cellingfan_state_save_t state = *(cellingfan_state_save_t*)&state_value;
@@ -184,6 +186,8 @@ void cellingfan_state_save(array_builder_t* req, array_builder_t* res)
     {
         cellingfan_set_fan_state(state.fan);
     }
+
+    array_write_uchar(res, *(uint8_t*)&cellingfan_state);
 }
 
 LOCAL ICACHE_FLASH_ATTR
@@ -280,9 +284,9 @@ void cellingfan_msg_handler(array_builder_t* req, array_builder_t* res)
 
 	switch (msg)
 	{
-		case 1: cellingfan_state_read(req, res); break;
-		case 3: cellingfan_state_save(req, res); break;
-        case 4: cellingfan_config_read(req, res); break;
-        case 6: cellingfan_config_save(req, res); break;
+		case cellingfan_message_type_state_read_request: cellingfan_state_read(req, res); break;
+		case cellingfan_message_type_state_save_request: cellingfan_state_save(req, res); break;
+        case cellingfan_message_type_config_read_request: cellingfan_config_read(req, res); break;
+        case cellingfan_message_type_config_save_request: cellingfan_config_save(req, res); break;
 	}
 }

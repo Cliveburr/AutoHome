@@ -5,8 +5,7 @@
 #define DEBUG
 
 /* *** auto_home config *** */
-#define VERSION_HIGH       0
-#define VERSION_LOW        1
+#define FIRMWARE_VERSION   1
 #define MODULE_TYPE        5    // CellingFan = 5
 /* *** end auto_home config *** */
 

@@ -53,6 +53,8 @@ void configuration_read(array_builder_t* req, array_builder_t* res)
 
 	array_write_uchar(res, 4); // configuration read response
 
+	array_write_uchar(res, FIRMWARE_VERSION);
+
 	array_write_uchar(res, autohome_configuration->wifiCount);
 	for (i = 0; i < autohome_configuration->wifiCount; i++)
 	{
