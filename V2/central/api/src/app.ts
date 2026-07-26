@@ -1,4 +1,9 @@
 import Fastify from 'fastify';
+import { type Database } from './database.js';
+
+export interface AppDependencies {
+  database?: Database;
+}
 
 function getErrorStatusCode(error: unknown): number {
   if (
@@ -14,8 +19,14 @@ function getErrorStatusCode(error: unknown): number {
   return 500;
 }
 
-export function buildApp() {
+export function buildApp({ database }: AppDependencies = {}) {
   const app = Fastify({ logger: { base: { component: 'api' } } });
+
+  if (database) {
+    app.addHook('onClose', async () => {
+      await database.close();
+    });
+  }
 
   app.addHook('onRequest', async (request) => {
     request.log.info({ requestId: request.id }, 'Request received');
@@ -47,7 +58,13 @@ export function buildApp() {
   });
 
   app.get('/', async () => ({ message: 'AutoHome Central API initialized' }));
-  app.get('/api/v1/health', async () => ({ status: 'ok' }));
+  app.get('/api/v1/health', async (_request, reply) => {
+    if (database && !(await database.isAvailable())) {
+      return reply.status(503).send({ status: 'unavailable' });
+    }
+
+    return { status: 'ok' };
+  });
 
   return app;
 }

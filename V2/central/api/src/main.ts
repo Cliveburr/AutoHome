@@ -1,9 +1,11 @@
 import { buildApp } from './app.js';
 import { loadConfig } from './config.js';
+import { Database } from './database.js';
 
 try {
   const config = loadConfig();
-  const app = buildApp();
+  const database = await Database.connect(config.mongodbUri);
+  const app = buildApp({ database });
 
   await app.listen({ host: '127.0.0.1', port: config.httpPort });
   app.log.info({ port: config.httpPort }, 'AutoHome Central API initialized');

@@ -42,7 +42,7 @@ Todos os testes devem rodar sem usar o banco, firmware ou dispositivos reais da 
 
 **Manual:** iniciar com `.env` válido, acessar `/api/v1/health` e remover temporariamente uma variável obrigatória para confirmar uma falha explicativa de início.
 
-### T04 — Preparar MongoDB e persistência básica
+### T04 — Preparar MongoDB e persistência básica — CONCLUÍDA
 
 **Escopo:** configurar conexão MongoDB, ciclo de vida da aplicação, banco de desenvolvimento local, banco isolado de teste e criação dos índices definidos em `dados.md`. Criar repositório base que converte `_id` interno em IDs públicos da API.
 

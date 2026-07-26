@@ -1,6 +1,10 @@
-import { afterAll, describe, expect, it } from 'vitest';
+import { ObjectId } from 'mongodb';
+import { MongoMemoryServer } from 'mongodb-memory-server';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { buildApp } from '../src/app.js';
 import { ConfigurationError, loadConfig } from '../src/config.js';
+import { Database } from '../src/database.js';
+import { BaseRepository } from '../src/repository.js';
 
 const app = buildApp();
 
@@ -42,5 +46,84 @@ describe('technical endpoints', () => {
       details: {},
     });
     expect(response.json().requestId).toEqual(expect.any(String));
+  });
+});
+
+describe('MongoDB persistence', () => {
+  let mongoServer: MongoMemoryServer;
+  let database: Database;
+
+  beforeAll(async () => {
+    mongoServer = await MongoMemoryServer.create();
+    database = await Database.connect(mongoServer.getUri('autohome_test'));
+  });
+
+  afterAll(async () => {
+    await database.close();
+    await mongoServer.stop();
+  });
+
+  it('connects and creates the documented collection indexes', async () => {
+    expect(await database.isAvailable()).toBe(true);
+
+    const expectedIndexes = new Map<string, Array<Record<string, 1 | -1>>>([
+      ['users', [{ username: 1 }]],
+      ['sessions', [{ sessionId: 1 }, { expiresAt: 1 }]],
+      [
+        'audit_logs',
+        [
+          { createdAt: -1 },
+          { actorUserId: 1, createdAt: -1 },
+          { targetId: 1, createdAt: -1 },
+          { action: 1, createdAt: -1 },
+          { result: 1, createdAt: -1 },
+        ],
+      ],
+      ['areas', [{ position: 1 }]],
+      ['rooms', [{ areaId: 1, position: 1 }]],
+      ['modules', [{ protocolId: 1 }, { family: 1 }, { roomId: 1 }, { availability: 1 }]],
+      ['module_states', [{ moduleId: 1 }, { lastSeenAt: -1 }]],
+      ['module_configurations', [{ moduleId: 1 }, { syncStatus: 1 }]],
+      ['commands', [{ commandId: 1 }, { moduleId: 1, createdAt: -1 }, { status: 1, createdAt: -1 }]],
+      ['ota_jobs', [{ createdAt: -1 }, { family: 1 }, { status: 1 }]],
+      ['ota_job_items', [{ otaJobId: 1, moduleId: 1 }, { status: 1 }]],
+    ]);
+
+    const collectionNames = (await database.db.listCollections().toArray()).map(({ name }) => name);
+    expect(collectionNames).toEqual(expect.arrayContaining([...expectedIndexes.keys()]));
+
+    for (const [name, keys] of expectedIndexes) {
+      const indexes = await database.db.collection(name).indexes();
+
+      expect(indexes.map(({ key }) => key)).toEqual(expect.arrayContaining(keys));
+    }
+  });
+
+  it('reports health while the database is available', async () => {
+    const persistence = await Database.connect(mongoServer.getUri('health_test'));
+    const persistenceApp = buildApp({ database: persistence });
+
+    const response = await persistenceApp.inject({ method: 'GET', url: '/api/v1/health' });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual({ status: 'ok' });
+
+    await persistenceApp.close();
+  });
+});
+
+describe('base repository', () => {
+  it('serializes MongoDB IDs as public IDs without exposing _id', () => {
+    class TestRepository extends BaseRepository<{ name: string }> {
+      toPublic(document: { _id: ObjectId; name: string }) {
+        return this.serialize(document);
+      }
+    }
+
+    const id = new ObjectId();
+    const document = new TestRepository().toPublic({ _id: id, name: 'Kitchen' });
+
+    expect(document).toEqual({ id: id.toHexString(), name: 'Kitchen' });
+    expect(document).not.toHaveProperty('_id');
   });
 });
