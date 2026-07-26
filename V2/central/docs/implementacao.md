@@ -68,7 +68,7 @@ Todos os testes devem rodar sem usar o banco, firmware ou dispositivos reais da 
 
 **Manual:** criar um usuário básico, entrar com ele, confirmar acesso aos recursos operacionais e bloqueio nos administrativos; entrar como administrador e localizar os eventos na auditoria.
 
-### T07 — Implementar gestão administrativa de usuários
+### T07 — Implementar gestão administrativa de usuários — CONCLUÍDA
 
 **Escopo:** implementar endpoints OpenAPI de lista, criação, alteração de papel, ativação, desativação e redefinição de senha. Impedir que a instalação fique sem administrador ativo.
 

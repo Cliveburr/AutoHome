@@ -39,6 +39,14 @@ export interface AuthenticatedSession {
   user: PublicUser;
 }
 
+export type UserManagementFailure =
+  'user_not_found' | 'username_taken' | 'last_active_administrator';
+
+export interface UserManagementResult {
+  user?: PublicUser;
+  failure?: UserManagementFailure;
+}
+
 export class AuthenticationService {
   private readonly users: Collection<UserDocument>;
   private readonly sessions: Collection<SessionDocument>;
@@ -180,6 +188,170 @@ export class AuthenticationService {
     });
 
     return this.toPublicUser({ ...user, passwordHash, passwordChangeRequired: false });
+  }
+
+  async listUsers(): Promise<PublicUser[]> {
+    const users = await this.users.find().sort({ username: 1 }).toArray();
+    return users.map((user) => this.toPublicUser(user));
+  }
+
+  async createUser(
+    username: string,
+    password: string,
+    role: UserRole,
+    actor: AuthenticatedSession,
+    originIp?: string,
+  ): Promise<UserManagementResult> {
+    const now = new Date();
+
+    try {
+      const result = await this.users.insertOne({
+        username,
+        passwordHash: await this.hashPassword(password),
+        role,
+        active: true,
+        passwordChangeRequired: false,
+        createdAt: now,
+        updatedAt: now,
+      });
+      const user = await this.users.findOne({ _id: result.insertedId });
+      if (!user) {
+        return { failure: 'user_not_found' };
+      }
+
+      await this.recordUserMutation('user.created', user, actor, originIp);
+      return { user: this.toPublicUser(user) };
+    } catch (error) {
+      if (this.isDuplicateUsernameError(error)) {
+        return { failure: 'username_taken' };
+      }
+
+      throw error;
+    }
+  }
+
+  async changeUserRole(
+    userId: string,
+    role: UserRole,
+    actor: AuthenticatedSession,
+    originIp?: string,
+  ): Promise<UserManagementResult> {
+    const user = await this.findUser(userId);
+    if (!user) {
+      return { failure: 'user_not_found' };
+    }
+
+    if (
+      user.active &&
+      user.role === 'administrador' &&
+      role !== 'administrador' &&
+      !(await this.hasAnotherActiveAdministrator(user._id))
+    ) {
+      return { failure: 'last_active_administrator' };
+    }
+
+    await this.users.updateOne({ _id: user._id }, { $set: { role, updatedAt: new Date() } });
+    const updatedUser = { ...user, role };
+    await this.recordUserMutation('user.role_changed', updatedUser, actor, originIp);
+    return { user: this.toPublicUser(updatedUser) };
+  }
+
+  async setUserActive(
+    userId: string,
+    active: boolean,
+    actor: AuthenticatedSession,
+    originIp?: string,
+  ): Promise<UserManagementResult> {
+    const user = await this.findUser(userId);
+    if (!user) {
+      return { failure: 'user_not_found' };
+    }
+
+    if (
+      !active &&
+      user.active &&
+      user.role === 'administrador' &&
+      !(await this.hasAnotherActiveAdministrator(user._id))
+    ) {
+      return { failure: 'last_active_administrator' };
+    }
+
+    await this.users.updateOne({ _id: user._id }, { $set: { active, updatedAt: new Date() } });
+    if (!active) {
+      await this.sessions.deleteMany({ userId: user._id });
+    }
+
+    const updatedUser = { ...user, active };
+    await this.recordUserMutation(
+      active ? 'user.activated' : 'user.deactivated',
+      updatedUser,
+      actor,
+      originIp,
+    );
+    return { user: this.toPublicUser(updatedUser) };
+  }
+
+  async resetUserPassword(
+    userId: string,
+    password: string,
+    actor: AuthenticatedSession,
+    originIp?: string,
+  ): Promise<UserManagementResult> {
+    const user = await this.findUser(userId);
+    if (!user) {
+      return { failure: 'user_not_found' };
+    }
+
+    const passwordHash = await this.hashPassword(password);
+    await this.users.updateOne(
+      { _id: user._id },
+      { $set: { passwordHash, passwordChangeRequired: true, updatedAt: new Date() } },
+    );
+    await this.sessions.deleteMany({ userId: user._id });
+
+    const updatedUser = { ...user, passwordHash, passwordChangeRequired: true };
+    await this.recordUserMutation('user.password_reset', updatedUser, actor, originIp);
+    return { user: this.toPublicUser(updatedUser) };
+  }
+
+  private async findUser(userId: string): Promise<WithId<UserDocument> | undefined> {
+    if (!ObjectId.isValid(userId)) {
+      return undefined;
+    }
+
+    return (await this.users.findOne({ _id: new ObjectId(userId) })) ?? undefined;
+  }
+
+  private async hasAnotherActiveAdministrator(userId: ObjectId): Promise<boolean> {
+    return (
+      (await this.users.countDocuments({
+        _id: { $ne: userId },
+        role: 'administrador',
+        active: true,
+      })) > 0
+    );
+  }
+
+  private async recordUserMutation(
+    action: string,
+    user: WithId<UserDocument>,
+    actor: AuthenticatedSession,
+    originIp?: string,
+  ): Promise<void> {
+    await this.audit?.record({
+      actorUserId: actor.userId,
+      action,
+      result: 'success',
+      targetType: 'user',
+      targetId: user._id.toHexString(),
+      originIp,
+      sessionId: actor.sessionId,
+      details: { username: user.username, role: user.role, active: user.active },
+    });
+  }
+
+  private isDuplicateUsernameError(error: unknown): boolean {
+    return typeof error === 'object' && error !== null && 'code' in error && error.code === 11000;
   }
 
   private async hashPassword(password: string): Promise<string> {

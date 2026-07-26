@@ -397,3 +397,196 @@ describe('authorization and audit safety', () => {
     expect(entry?.details).toEqual({ allowed: 'visible', nested: { allowed: 'still-visible' } });
   });
 });
+
+describe('administrative user management', () => {
+  let database: Database;
+  let userManagementApp: ReturnType<typeof buildApp>;
+  const config: AppConfig = {
+    mongodbUri: 'mongodb://unused-in-tests',
+    sessionSecret: 'user-management-test-secret',
+    nodeEnv: 'test',
+    httpPort: 3000,
+    firmwareGen1Dir: './firmware/gen1',
+    otaMaxConcurrency: 1,
+    bootstrapAdminPassword: 'bootstrap-password',
+  };
+
+  async function login(username: string, password: string): Promise<string> {
+    const response = await userManagementApp.inject({
+      method: 'POST',
+      url: '/api/v1/auth/login',
+      payload: { username, password },
+    });
+    expect(response.statusCode).toBe(200);
+    return getFirstCookie(response.headers['set-cookie']);
+  }
+
+  beforeAll(async () => {
+    database = await connectTestDatabase('user-management');
+    userManagementApp = buildApp({ database, config });
+    await userManagementApp.ready();
+  });
+
+  afterAll(async () => {
+    await database.db.dropDatabase();
+    await userManagementApp.close();
+  });
+
+  it('allows an administrator to create, list, update, activate and deactivate users', async () => {
+    const bootstrapCookie = await login('admin', config.bootstrapAdminPassword!);
+    const passwordChange = await userManagementApp.inject({
+      method: 'POST',
+      url: '/api/v1/auth/change-password',
+      headers: { cookie: bootstrapCookie },
+      payload: { currentPassword: config.bootstrapAdminPassword, newPassword: 'admin-password' },
+    });
+    expect(passwordChange.statusCode).toBe(200);
+
+    const create = await userManagementApp.inject({
+      method: 'POST',
+      url: '/api/v1/users',
+      headers: { cookie: bootstrapCookie },
+      payload: { username: 'resident', password: 'resident-password', role: 'basico' },
+    });
+    expect(create.statusCode).toBe(201);
+    expect(create.json()).toEqual({
+      user: expect.objectContaining({ username: 'resident', role: 'basico', active: true }),
+    });
+    const residentId = create.json().user.id as string;
+
+    const duplicate = await userManagementApp.inject({
+      method: 'POST',
+      url: '/api/v1/users',
+      headers: { cookie: bootstrapCookie },
+      payload: { username: 'resident', password: 'another-password', role: 'basico' },
+    });
+    expect(duplicate.statusCode).toBe(409);
+    expect(duplicate.json().code).toBe('USERNAME_TAKEN');
+
+    const list = await userManagementApp.inject({
+      method: 'GET',
+      url: '/api/v1/users',
+      headers: { cookie: bootstrapCookie },
+    });
+    expect(list.statusCode).toBe(200);
+    expect(list.json().users).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ username: 'admin', role: 'administrador' }),
+        expect.objectContaining({ username: 'resident', role: 'basico' }),
+      ]),
+    );
+
+    const roleChange = await userManagementApp.inject({
+      method: 'PATCH',
+      url: `/api/v1/users/${residentId}/role`,
+      headers: { cookie: bootstrapCookie },
+      payload: { role: 'administrador' },
+    });
+    expect(roleChange.statusCode).toBe(200);
+    expect(roleChange.json().user.role).toBe('administrador');
+
+    const deactivation = await userManagementApp.inject({
+      method: 'POST',
+      url: `/api/v1/users/${residentId}/deactivate`,
+      headers: { cookie: bootstrapCookie },
+    });
+    expect(deactivation.statusCode).toBe(200);
+    expect(deactivation.json().user.active).toBe(false);
+
+    const activation = await userManagementApp.inject({
+      method: 'POST',
+      url: `/api/v1/users/${residentId}/activate`,
+      headers: { cookie: bootstrapCookie },
+    });
+    expect(activation.statusCode).toBe(200);
+    expect(activation.json().user.active).toBe(true);
+  });
+
+  it('invalidates sessions after password reset and requires the user to choose a new password', async () => {
+    const adminCookie = await login('admin', 'admin-password');
+    const resident = await database.db.collection('users').findOne({ username: 'resident' });
+    expect(resident).toBeDefined();
+
+    const residentCookie = await login('resident', 'resident-password');
+    const reset = await userManagementApp.inject({
+      method: 'POST',
+      url: `/api/v1/users/${resident!._id.toHexString()}/reset-password`,
+      headers: { cookie: adminCookie },
+      payload: { password: 'reset-password' },
+    });
+    expect(reset.statusCode).toBe(200);
+    expect(reset.json().user.passwordChangeRequired).toBe(true);
+
+    const invalidatedSession = await userManagementApp.inject({
+      method: 'GET',
+      url: '/api/v1/me',
+      headers: { cookie: residentCookie },
+    });
+    expect(invalidatedSession.statusCode).toBe(401);
+
+    const resetLoginCookie = await login('resident', 'reset-password');
+    const session = await userManagementApp.inject({
+      method: 'GET',
+      url: '/api/v1/me',
+      headers: { cookie: resetLoginCookie },
+    });
+    expect(session.statusCode).toBe(200);
+    expect(session.json().user.passwordChangeRequired).toBe(true);
+  });
+
+  it('prevents an administrator with a required password change from managing users', async () => {
+    const secondAdmin = await database.db.collection('users').findOne({ username: 'resident' });
+    expect(secondAdmin).toBeDefined();
+
+    const residentCookie = await login('resident', 'reset-password');
+    const response = await userManagementApp.inject({
+      method: 'GET',
+      url: '/api/v1/users',
+      headers: { cookie: residentCookie },
+    });
+    expect(response.statusCode).toBe(403);
+  });
+
+  it('protects the last active administrator and audits user mutations without secrets', async () => {
+    const adminCookie = await login('admin', 'admin-password');
+    const admin = await database.db.collection('users').findOne({ username: 'admin' });
+    expect(admin).toBeDefined();
+    await database.db
+      .collection('users')
+      .updateOne({ _id: new ObjectId(admin!._id) }, { $set: { active: true } });
+    await database.db
+      .collection('users')
+      .updateOne({ username: 'resident' }, { $set: { active: false } });
+
+    const deactivation = await userManagementApp.inject({
+      method: 'POST',
+      url: `/api/v1/users/${admin!._id.toHexString()}/deactivate`,
+      headers: { cookie: adminCookie },
+    });
+    expect(deactivation.statusCode).toBe(409);
+    expect(deactivation.json().code).toBe('LAST_ACTIVE_ADMINISTRATOR');
+
+    const roleChange = await userManagementApp.inject({
+      method: 'PATCH',
+      url: `/api/v1/users/${admin!._id.toHexString()}/role`,
+      headers: { cookie: adminCookie },
+      payload: { role: 'basico' },
+    });
+    expect(roleChange.statusCode).toBe(409);
+    expect(roleChange.json().code).toBe('LAST_ACTIVE_ADMINISTRATOR');
+
+    const auditLogs = await database.db.collection('audit_logs').find().toArray();
+    const actions = auditLogs.map(({ action }) => action);
+    expect(actions).toEqual(
+      expect.arrayContaining([
+        'user.created',
+        'user.role_changed',
+        'user.activated',
+        'user.deactivated',
+        'user.password_reset',
+      ]),
+    );
+    expect(JSON.stringify(auditLogs)).not.toContain('resident-password');
+    expect(JSON.stringify(auditLogs)).not.toContain('reset-password');
+  });
+});

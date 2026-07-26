@@ -61,4 +61,14 @@ export class AuthorizationService {
       }
     };
   }
+
+  requireAdministrativeAccess: AuthorizationHook = async (request, reply) => {
+    await this.requireRole('administrador')(request, reply);
+    if (reply.sent || request.authenticatedSession?.user.passwordChangeRequired) {
+      if (!reply.sent) {
+        forbidden(request, reply);
+      }
+      return;
+    }
+  };
 }

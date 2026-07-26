@@ -35,13 +35,7 @@ const collectionIndexes = new Map<string, readonly IndexDescription[]>([
     ],
   ],
   ['ota_jobs', [{ key: { createdAt: -1 } }, { key: { family: 1 } }, { key: { status: 1 } }]],
-  [
-    'ota_job_items',
-    [
-      { key: { otaJobId: 1, moduleId: 1 } },
-      { key: { status: 1 } },
-    ],
-  ],
+  ['ota_job_items', [{ key: { otaJobId: 1, moduleId: 1 } }, { key: { status: 1 } }]],
 ]);
 
 export class Database {

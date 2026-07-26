@@ -41,7 +41,9 @@ export function loadConfig(environment: NodeJS.ProcessEnv = process.env): AppCon
 
   const nodeEnv = required(environment, 'NODE_ENV');
   if (nodeEnv !== 'development' && nodeEnv !== 'test' && nodeEnv !== 'production') {
-    throw new ConfigurationError('Environment variable NODE_ENV must be development, test, or production.');
+    throw new ConfigurationError(
+      'Environment variable NODE_ENV must be development, test, or production.',
+    );
   }
 
   const bootstrapAdminPassword = environment.BOOTSTRAP_ADMIN_PASSWORD?.trim();
