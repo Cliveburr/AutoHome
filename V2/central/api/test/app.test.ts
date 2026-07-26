@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { loadEnvFile } from 'node:process';
 import argon2 from 'argon2';
 import cookie from '@fastify/cookie';
-import Fastify from 'fastify';
+import Fastify, { type FastifyInstance } from 'fastify';
 import { ObjectId } from 'mongodb';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { buildApp } from '../src/app.js';
@@ -29,6 +29,10 @@ function getTestDatabaseUri(name: string): string {
 
 async function connectTestDatabase(name: string): Promise<Database> {
   return Database.connect(getTestDatabaseUri(name));
+}
+
+function getFirstCookie(setCookie: string | string[] | undefined): string {
+  return (Array.isArray(setCookie) ? setCookie[0] : setCookie)?.split(';')[0] ?? '';
 }
 
 const app = buildApp();
@@ -300,7 +304,7 @@ describe('authentication and sessions', () => {
 
 describe('authorization and audit safety', () => {
   let database: Database;
-  let authorizationApp: ReturnType<typeof Fastify>;
+  let authorizationApp: FastifyInstance;
 
   beforeAll(async () => {
     database = await connectTestDatabase('authorization');
@@ -355,7 +359,7 @@ describe('authorization and audit safety', () => {
 
   it('denies an administrative route to a basic user and authorizes an administrator', async () => {
     const basicLogin = await authorizationApp.inject({ method: 'GET', url: '/test-login/basic' });
-    const basicCookie = basicLogin.headers['set-cookie']?.split(';')[0] ?? '';
+    const basicCookie = getFirstCookie(basicLogin.headers['set-cookie']);
     const basicResponse = await authorizationApp.inject({
       method: 'GET',
       url: '/administrative',
@@ -365,7 +369,7 @@ describe('authorization and audit safety', () => {
     expect(basicResponse.json().code).toBe('FORBIDDEN');
 
     const adminLogin = await authorizationApp.inject({ method: 'GET', url: '/test-login/admin' });
-    const adminCookie = adminLogin.headers['set-cookie']?.split(';')[0] ?? '';
+    const adminCookie = getFirstCookie(adminLogin.headers['set-cookie']);
     const adminResponse = await authorizationApp.inject({
       method: 'GET',
       url: '/administrative',
