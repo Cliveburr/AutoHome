@@ -1,10 +1,35 @@
+import { randomUUID } from 'node:crypto';
+import { loadEnvFile } from 'node:process';
+import argon2 from 'argon2';
+import cookie from '@fastify/cookie';
+import Fastify from 'fastify';
 import { ObjectId } from 'mongodb';
-import { MongoMemoryServer } from 'mongodb-memory-server';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { buildApp } from '../src/app.js';
+import { AuditService } from '../src/audit.js';
+import { AuthenticationService } from '../src/authentication.js';
+import { AuthorizationService } from '../src/authorization.js';
 import { type AppConfig, ConfigurationError, loadConfig } from '../src/config.js';
 import { Database } from '../src/database.js';
 import { BaseRepository } from '../src/repository.js';
+
+loadEnvFile(new URL('../.env', import.meta.url));
+
+function getTestDatabaseUri(name: string): string {
+  const mongodbUri = process.env.MONGODB_URI;
+  if (!mongodbUri) {
+    throw new Error('MONGODB_URI must be configured in api/.env to run integration tests.');
+  }
+
+  const uri = new URL(mongodbUri);
+  const configuredDatabase = uri.pathname.replace(/^\//, '') || 'autohome-central';
+  uri.pathname = `/${configuredDatabase}-test-${name}-${randomUUID().slice(0, 8)}`;
+  return uri.toString();
+}
+
+async function connectTestDatabase(name: string): Promise<Database> {
+  return Database.connect(getTestDatabaseUri(name));
+}
 
 const app = buildApp();
 
@@ -50,17 +75,15 @@ describe('technical endpoints', () => {
 });
 
 describe('MongoDB persistence', () => {
-  let mongoServer: MongoMemoryServer;
   let database: Database;
 
   beforeAll(async () => {
-    mongoServer = await MongoMemoryServer.create();
-    database = await Database.connect(mongoServer.getUri('autohome_test'));
+    database = await connectTestDatabase('persistence');
   });
 
   afterAll(async () => {
+    await database.db.dropDatabase();
     await database.close();
-    await mongoServer.stop();
   });
 
   it('connects and creates the documented collection indexes', async () => {
@@ -84,7 +107,10 @@ describe('MongoDB persistence', () => {
       ['modules', [{ protocolId: 1 }, { family: 1 }, { roomId: 1 }, { availability: 1 }]],
       ['module_states', [{ moduleId: 1 }, { lastSeenAt: -1 }]],
       ['module_configurations', [{ moduleId: 1 }, { syncStatus: 1 }]],
-      ['commands', [{ commandId: 1 }, { moduleId: 1, createdAt: -1 }, { status: 1, createdAt: -1 }]],
+      [
+        'commands',
+        [{ commandId: 1 }, { moduleId: 1, createdAt: -1 }, { status: 1, createdAt: -1 }],
+      ],
       ['ota_jobs', [{ createdAt: -1 }, { family: 1 }, { status: 1 }]],
       ['ota_job_items', [{ otaJobId: 1, moduleId: 1 }, { status: 1 }]],
     ]);
@@ -100,7 +126,7 @@ describe('MongoDB persistence', () => {
   });
 
   it('reports health while the database is available', async () => {
-    const persistence = await Database.connect(mongoServer.getUri('health_test'));
+    const persistence = await connectTestDatabase('health');
     const persistenceApp = buildApp({ database: persistence });
 
     const response = await persistenceApp.inject({ method: 'GET', url: '/api/v1/health' });
@@ -108,6 +134,7 @@ describe('MongoDB persistence', () => {
     expect(response.statusCode).toBe(200);
     expect(response.json()).toEqual({ status: 'ok' });
 
+    await persistence.db.dropDatabase();
     await persistenceApp.close();
   });
 });
@@ -129,7 +156,6 @@ describe('base repository', () => {
 });
 
 describe('authentication and sessions', () => {
-  let mongoServer: MongoMemoryServer;
   let database: Database;
   let authenticationApp: ReturnType<typeof buildApp>;
   const config: AppConfig = {
@@ -143,15 +169,14 @@ describe('authentication and sessions', () => {
   };
 
   beforeAll(async () => {
-    mongoServer = await MongoMemoryServer.create();
-    database = await Database.connect(mongoServer.getUri('authentication_test'));
+    database = await connectTestDatabase('authentication');
     authenticationApp = buildApp({ database, config });
     await authenticationApp.ready();
   });
 
   afterAll(async () => {
+    await database.db.dropDatabase();
     await authenticationApp.close();
-    await mongoServer.stop();
   });
 
   it('creates the bootstrap administrator once with an Argon2id hash', async () => {
@@ -169,6 +194,16 @@ describe('authentication and sessions', () => {
 
     await authenticationApp.ready();
     expect(await database.db.collection('users').countDocuments()).toBe(1);
+
+    expect(
+      await database.db.collection('audit_logs').find({ action: 'user.created' }).toArray(),
+    ).toEqual([
+      expect.objectContaining({
+        result: 'success',
+        targetType: 'user',
+        details: { username: 'admin', role: 'administrador', bootstrap: true },
+      }),
+    ]);
   });
 
   it('rejects invalid credentials and creates an HttpOnly signed session cookie for valid login', async () => {
@@ -189,7 +224,9 @@ describe('authentication and sessions', () => {
     const cookie = (Array.isArray(setCookie) ? setCookie[0] : setCookie)?.split(';')[0];
 
     expect(login.statusCode).toBe(200);
-    expect(login.json()).toMatchObject({ user: { username: 'admin', passwordChangeRequired: true } });
+    expect(login.json()).toMatchObject({
+      user: { username: 'admin', passwordChangeRequired: true },
+    });
     expect(setCookie).toContain('HttpOnly');
     expect(cookie).toBeDefined();
   });
@@ -203,7 +240,11 @@ describe('authentication and sessions', () => {
     const setCookie = login.headers['set-cookie'];
     const cookie = (Array.isArray(setCookie) ? setCookie[0] : setCookie)?.split(';')[0] ?? '';
 
-    const session = await authenticationApp.inject({ method: 'GET', url: '/api/v1/me', headers: { cookie } });
+    const session = await authenticationApp.inject({
+      method: 'GET',
+      url: '/api/v1/me',
+      headers: { cookie },
+    });
     expect(session.statusCode).toBe(200);
     expect(session.json().user.passwordChangeRequired).toBe(true);
 
@@ -223,10 +264,132 @@ describe('authentication and sessions', () => {
     });
     expect(oldPassword.statusCode).toBe(401);
 
-    const logout = await authenticationApp.inject({ method: 'POST', url: '/api/v1/auth/logout', headers: { cookie } });
+    const logout = await authenticationApp.inject({
+      method: 'POST',
+      url: '/api/v1/auth/logout',
+      headers: { cookie },
+    });
     expect(logout.statusCode).toBe(204);
 
-    const invalidatedSession = await authenticationApp.inject({ method: 'GET', url: '/api/v1/me', headers: { cookie } });
+    const invalidatedSession = await authenticationApp.inject({
+      method: 'GET',
+      url: '/api/v1/me',
+      headers: { cookie },
+    });
     expect(invalidatedSession.statusCode).toBe(401);
+  });
+
+  it('records authentication and user mutations without persisting secrets', async () => {
+    const auditLogs = await database.db.collection('audit_logs').find().toArray();
+    const actions = auditLogs.map(({ action, result }) => `${action}:${result}`);
+
+    expect(actions).toEqual(
+      expect.arrayContaining([
+        'user.created:success',
+        'auth.login:failure',
+        'auth.login:success',
+        'user.password_changed:success',
+        'auth.logout:success',
+      ]),
+    );
+    expect(JSON.stringify(auditLogs)).not.toContain(config.bootstrapAdminPassword);
+    expect(JSON.stringify(auditLogs)).not.toContain('new-password');
+    expect(JSON.stringify(auditLogs)).not.toContain('passwordHash');
+  });
+});
+
+describe('authorization and audit safety', () => {
+  let database: Database;
+  let authorizationApp: ReturnType<typeof Fastify>;
+
+  beforeAll(async () => {
+    database = await connectTestDatabase('authorization');
+    const audit = new AuditService(database);
+    const authentication = new AuthenticationService(database, undefined, audit);
+    await authentication.initialize();
+
+    const now = new Date();
+    await database.db.collection('users').insertOne({
+      username: 'basic',
+      passwordHash: await argon2.hash('basic-password', { type: argon2.argon2id }),
+      role: 'basico',
+      active: true,
+      passwordChangeRequired: false,
+      createdAt: now,
+      updatedAt: now,
+    });
+
+    authorizationApp = Fastify();
+    await authorizationApp.register(cookie, { secret: 'authorization-test-secret' });
+    const authorization = new AuthorizationService(authentication, 'autohome_session');
+    authorizationApp.get<{ Params: { username: string } }>(
+      '/test-login/:username',
+      async (request, reply) => {
+        const password = request.params.username === 'basic' ? 'basic-password' : 'admin';
+        const session = await authentication.login(request.params.username, password, request.ip);
+        if (!session) {
+          return reply.status(401).send();
+        }
+
+        reply.setCookie('autohome_session', session.sessionId, {
+          httpOnly: true,
+          signed: true,
+          path: '/',
+        });
+        return reply.send();
+      },
+    );
+    authorizationApp.get(
+      '/administrative',
+      { preHandler: authorization.requireRole('administrador') },
+      async () => ({ ok: true }),
+    );
+    await authorizationApp.ready();
+  });
+
+  afterAll(async () => {
+    await authorizationApp.close();
+    await database.db.dropDatabase();
+    await database.close();
+  });
+
+  it('denies an administrative route to a basic user and authorizes an administrator', async () => {
+    const basicLogin = await authorizationApp.inject({ method: 'GET', url: '/test-login/basic' });
+    const basicCookie = basicLogin.headers['set-cookie']?.split(';')[0] ?? '';
+    const basicResponse = await authorizationApp.inject({
+      method: 'GET',
+      url: '/administrative',
+      headers: { cookie: basicCookie },
+    });
+    expect(basicResponse.statusCode).toBe(403);
+    expect(basicResponse.json().code).toBe('FORBIDDEN');
+
+    const adminLogin = await authorizationApp.inject({ method: 'GET', url: '/test-login/admin' });
+    const adminCookie = adminLogin.headers['set-cookie']?.split(';')[0] ?? '';
+    const adminResponse = await authorizationApp.inject({
+      method: 'GET',
+      url: '/administrative',
+      headers: { cookie: adminCookie },
+    });
+    expect(adminResponse.statusCode).toBe(200);
+    expect(adminResponse.json()).toEqual({ ok: true });
+  });
+
+  it('removes secrets from arbitrary audit details before they reach MongoDB', async () => {
+    const audit = new AuditService(database);
+    await audit.record({
+      action: 'test.audit_safety',
+      result: 'success',
+      details: {
+        allowed: 'visible',
+        password: 'never-store-this',
+        nested: { token: 'never-store-this', allowed: 'still-visible' },
+      },
+    });
+
+    const entry = await database.db
+      .collection('audit_logs')
+      .findOne({ action: 'test.audit_safety' });
+    expect(entry?.details).toEqual({ allowed: 'visible', nested: { allowed: 'still-visible' } });
   });
 });

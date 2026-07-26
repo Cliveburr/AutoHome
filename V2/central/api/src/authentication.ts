@@ -1,14 +1,17 @@
 import { randomUUID } from 'node:crypto';
 import argon2 from 'argon2';
 import { ObjectId, type Collection, type WithId } from 'mongodb';
+import { type AuditService } from './audit.js';
 import { type Database } from './database.js';
 
 const sessionDurationMs = 7 * 24 * 60 * 60 * 1000;
 
+export type UserRole = 'basico' | 'administrador';
+
 export interface UserDocument {
   username: string;
   passwordHash: string;
-  role: 'administrador';
+  role: UserRole;
   active: boolean;
   passwordChangeRequired: boolean;
   createdAt: Date;
@@ -25,13 +28,14 @@ interface SessionDocument {
 export interface PublicUser {
   id: string;
   username: string;
-  role: 'administrador';
+  role: UserRole;
   active: boolean;
   passwordChangeRequired: boolean;
 }
 
 export interface AuthenticatedSession {
   sessionId: string;
+  userId: string;
   user: PublicUser;
 }
 
@@ -42,6 +46,7 @@ export class AuthenticationService {
   constructor(
     database: Database,
     private readonly bootstrapAdminPassword: string | undefined,
+    private readonly audit?: AuditService,
   ) {
     this.users = database.db.collection<UserDocument>('users');
     this.sessions = database.db.collection<SessionDocument>('sessions');
@@ -53,7 +58,7 @@ export class AuthenticationService {
     }
 
     const now = new Date();
-    await this.users.insertOne({
+    const result = await this.users.insertOne({
       username: 'admin',
       passwordHash: await this.hashPassword(this.bootstrapAdminPassword ?? 'admin'),
       role: 'administrador',
@@ -62,11 +67,30 @@ export class AuthenticationService {
       createdAt: now,
       updatedAt: now,
     });
+
+    await this.audit?.record({
+      action: 'user.created',
+      result: 'success',
+      targetType: 'user',
+      targetId: result.insertedId.toHexString(),
+      details: { username: 'admin', role: 'administrador', bootstrap: true },
+    });
   }
 
-  async login(username: string, password: string): Promise<AuthenticatedSession | undefined> {
+  async login(
+    username: string,
+    password: string,
+    originIp?: string,
+  ): Promise<AuthenticatedSession | undefined> {
     const user = await this.users.findOne({ username, active: true });
     if (!user || !(await argon2.verify(user.passwordHash, password))) {
+      await this.audit?.record({
+        action: 'auth.login',
+        result: 'failure',
+        targetType: 'user',
+        targetId: username,
+        originIp,
+      });
       return undefined;
     }
 
@@ -79,7 +103,17 @@ export class AuthenticationService {
       expiresAt: new Date(now.getTime() + sessionDurationMs),
     });
 
-    return { sessionId, user: this.toPublicUser(user) };
+    await this.audit?.record({
+      actorUserId: user._id.toHexString(),
+      action: 'auth.login',
+      result: 'success',
+      targetType: 'user',
+      targetId: user._id.toHexString(),
+      originIp,
+      sessionId,
+    });
+
+    return { sessionId, userId: user._id.toHexString(), user: this.toPublicUser(user) };
   }
 
   async getSession(sessionId: string): Promise<AuthenticatedSession | undefined> {
@@ -94,14 +128,31 @@ export class AuthenticationService {
       return undefined;
     }
 
-    return { sessionId, user: this.toPublicUser(user) };
+    return { sessionId, userId: user._id.toHexString(), user: this.toPublicUser(user) };
   }
 
-  async logout(sessionId: string): Promise<void> {
+  async logout(sessionId: string, originIp?: string): Promise<void> {
+    const session = await this.getSession(sessionId);
     await this.sessions.deleteOne({ sessionId });
+    if (session) {
+      await this.audit?.record({
+        actorUserId: session.userId,
+        action: 'auth.logout',
+        result: 'success',
+        targetType: 'user',
+        targetId: session.userId,
+        originIp,
+        sessionId,
+      });
+    }
   }
 
-  async changePassword(sessionId: string, currentPassword: string, newPassword: string): Promise<PublicUser | undefined> {
+  async changePassword(
+    sessionId: string,
+    currentPassword: string,
+    newPassword: string,
+    originIp?: string,
+  ): Promise<PublicUser | undefined> {
     const session = await this.getSession(sessionId);
     if (!session) {
       return undefined;
@@ -117,6 +168,16 @@ export class AuthenticationService {
       { _id: user._id },
       { $set: { passwordHash, passwordChangeRequired: false, updatedAt: new Date() } },
     );
+
+    await this.audit?.record({
+      actorUserId: session.userId,
+      action: 'user.password_changed',
+      result: 'success',
+      targetType: 'user',
+      targetId: session.userId,
+      originIp,
+      sessionId,
+    });
 
     return this.toPublicUser({ ...user, passwordHash, passwordChangeRequired: false });
   }
@@ -134,5 +195,4 @@ export class AuthenticationService {
       passwordChangeRequired: user.passwordChangeRequired,
     };
   }
-
 }

@@ -1,8 +1,10 @@
+import { loadEnvFile } from 'node:process';
 import { buildApp } from './app.js';
 import { loadConfig } from './config.js';
 import { Database } from './database.js';
 
 try {
+  loadEnvFile(new URL('../.env', import.meta.url));
   const config = loadConfig();
   const database = await Database.connect(config.mongodbUri);
   const app = buildApp({ database, config });

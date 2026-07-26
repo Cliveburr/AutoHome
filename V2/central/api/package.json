@@ -16,7 +16,6 @@
     "mongodb": "^7.5.0"
   },
   "devDependencies": {
-    "mongodb-memory-server": "^11.2.0",
     "tsx": "^4.19.2"
   }
 }

@@ -9,7 +9,7 @@ O protocolo compartilhado de módulos ainda possui pendências. Por isso, a cent
 ## Convenções de Teste
 
 - **Unitário:** regra de domínio sem MongoDB, rede ou sistema de arquivos real.
-- **Integração:** API, MongoDB temporário, sessão HTTP, WebSocket ou sistema de arquivos temporário.
+- **Integração:** API, banco isolado na instância MongoDB local configurada, sessão HTTP, WebSocket ou sistema de arquivos temporário.
 - **Contrato:** OpenAPI validado contra rotas e cliente TypeScript gerado.
 - **E2E:** navegador contra API e MongoDB locais, cobrindo fluxos do usuário.
 - **Manual:** realizado imediatamente após a tarefa, em ambiente local de desenvolvimento.
@@ -46,7 +46,7 @@ Todos os testes devem rodar sem usar o banco, firmware ou dispositivos reais da 
 
 **Escopo:** configurar conexão MongoDB, ciclo de vida da aplicação, banco de desenvolvimento local, banco isolado de teste e criação dos índices definidos em `dados.md`. Criar repositório base que converte `_id` interno em IDs públicos da API.
 
-**Automatizado:** usar MongoDB temporário para verificar conexão, criação de índices e ausência de `_id` em uma resposta serializada.
+**Automatizado:** usar um banco de teste isolado na instância local configurada para verificar conexão, criação de índices e ausência de `_id` em uma resposta serializada.
 
 **Manual:** iniciar a API com MongoDB local, confirmar a saúde com dependência disponível e inspecionar que os índices são criados no banco de desenvolvimento.
 
@@ -60,7 +60,7 @@ Todos os testes devem rodar sem usar o banco, firmware ou dispositivos reais da 
 
 **Manual:** iniciar com banco vazio, entrar com `admin`, confirmar que as demais rotas são bloqueadas, trocar a senha, sair e entrar novamente com a nova senha.
 
-### T06 — Implementar autorização e auditoria
+### T06 — Implementar autorização e auditoria — CONCLUÍDA
 
 **Escopo:** criar os papéis `basico` e `administrador`, middleware de autorização e `audit_logs`. Registrar autenticação, mudanças de usuários e toda mutação de domínio; não registrar segredos.
 
