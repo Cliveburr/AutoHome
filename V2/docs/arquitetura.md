@@ -101,7 +101,7 @@ Módulos conectados diretamente ao Wi-Fi doméstico não passam pela ponte; eles
 
 ### Central
 
-A central executa em um computador local da residência e será composta por uma API Node.js com TypeScript, banco de dados e serviços de processamento. Ela é a fonte de verdade para o inventário, as configurações desejadas, os usuários e o histórico, mas não substitui o estado operacional mantido pelos módulos.
+A central executa em um computador local da residência e será composta por uma API Node.js com TypeScript, MongoDB e serviços de processamento. Cada instalação controla uma única residência. Ela é a fonte de verdade para o inventário, as configurações desejadas, os usuários e o histórico, mas não substitui o estado operacional mantido pelos módulos.
 
 Responsabilidades:
 
@@ -111,9 +111,11 @@ Responsabilidades:
 - Enviar comandos administrativos e comandos solicitados pelas interfaces.
 - Criar, versionar, validar e distribuir configurações.
 - Agendar ações, como desligar luzes em determinado horário.
-- Gerenciar atualizações OTA de firmware, incluindo progresso, falhas e recuperação.
-- Aplicar autenticação, autorização e trilha de auditoria.
+- Gerenciar atualizações OTA de firmware, incluindo progresso, falhas e recuperação. A central identifica o firmware pelo hash SHA-256 do binário local e compara-o ao hash informado pelo módulo; atualizações podem ser individuais ou em lote.
+- Aplicar autenticação, autorização e trilha de auditoria. A primeira versão tem os papéis `basico`, para consulta e comandos operacionais aos módulos, e `administrador`, exclusivo para configurações e administração da central.
 - Expor API para a web, terminais de voz e serviço de IA.
+
+O cadastro de usuários é interno, sem dependência de e-mail. Uma instalação nova cria a conta bootstrap `admin` com a senha inicial `admin` e exige a troca de senha antes de permitir comandos ou administração. A interface web usa sessões por cookie seguro; senhas usam hash Argon2id. O MongoDB não é exposto publicamente. A API e a interface podem ser expostas à internet em etapa futura, sempre sobre HTTPS e sem acesso direto aos módulos ou ao banco.
 
 Agendamentos e automações configurados pela central devem ser sincronizados para os módulos quando puderem ser executados localmente. Assim, automações importantes podem continuar ativas durante uma indisponibilidade temporária da central.
 
@@ -179,11 +181,11 @@ Esse fluxo não exige a central, o serviço de IA ou internet. No modo Wi-Fi dir
 
 ### Atualização de firmware
 
-1. Um administrador seleciona uma versão de firmware compatível com um grupo de módulos.
-2. A central valida compatibilidade, disponibilidade de energia e condições da rede.
-3. A imagem é distribuída em lotes pela ponte e pela Mesh, com progresso e confirmação por dispositivo.
-4. Cada módulo valida a imagem, reinicia na nova versão e mantém mecanismo de recuperação para uma atualização inválida.
-5. A central registra o resultado e destaca módulos que exigem intervenção.
+1. Um administrador inicia a atualização de um módulo, de uma família ou de todos os módulos elegíveis.
+2. A central seleciona o binário local da família compatível, registra seu hash SHA-256 e executa a atualização em fila e lotes pequenos.
+3. A imagem é distribuída com progresso por dispositivo pela ponte e pela Mesh quando aplicável.
+4. Cada módulo valida o hash da imagem, reinicia e informa seu hash de firmware atual; a central só confirma a atualização se o hash esperado for recebido.
+5. A central registra o resultado, mantém falhas isoladas no lote e destaca módulos que exigem nova tentativa ou intervenção.
 
 ## Framework e Contratos
 
