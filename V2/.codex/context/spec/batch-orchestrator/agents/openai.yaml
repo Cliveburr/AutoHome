@@ -1,0 +1,4 @@
+interface:
+  display_name: "Makeframe Batch Orchestrator"
+  short_description: "Executa tarefas Makeframe em lote com parada segura"
+  default_prompt: "Use $makeframe-batch-orchestrator para executar sequencialmente as tarefas Makeframe solicitadas e parar no primeiro erro."

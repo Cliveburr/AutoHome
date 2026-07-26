@@ -1,0 +1,16 @@
+# Codex workspace policy
+# Applies a non-interactive workspace-write policy when this configuration is loaded.
+approval_policy = "never"
+sandbox_mode = "danger-full-access"
+
+[sandbox_workspace_write]
+writable_roots = ["D:\\GitTemp\\makeframe"]
+
+[windows]
+sandbox = "elevated"   # Recommended
+# sandbox = "unelevated" # Fallback if admin permissions/setup are unavailable
+
+web_search = "cached"  # default; serves results from the web search cache
+# web_search = "indexed" # gate external web access through the search index
+# web_search = "live"  # fetch the most recent data from the web (same as --search)
+# web_search = "disabled"
