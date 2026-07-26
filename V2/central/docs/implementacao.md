@@ -18,7 +18,7 @@ Todos os testes devem rodar sem usar o banco, firmware ou dispositivos reais da 
 
 ## Fundação
 
-### T01 — Inicializar o workspace da central
+### T01 — Inicializar o workspace da central — CONCLUÍDA
 
 **Escopo:** criar o workspace TypeScript com `central/api` e `central/web`, `npm` workspaces, configuração compartilhada de lint, formatação, TypeScript estrito e variáveis de ambiente de exemplo. Definir comandos `dev`, `build`, `lint` e `test` em cada aplicação.
 
