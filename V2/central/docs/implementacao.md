@@ -34,7 +34,7 @@ Todos os testes devem rodar sem usar o banco, firmware ou dispositivos reais da 
 
 **Manual:** usar `Ctrl+Shift+B`, acessar API e web, colocar um breakpoint em uma rota de diagnóstico e iniciar `F5`; a execução deve pausar no breakpoint.
 
-### T03 — Implementar configuração, logs e saúde da API
+### T03 — Implementar configuração, logs e saúde da API — CONCLUÍDA
 
 **Escopo:** carregar e validar `MONGODB_URI`, `SESSION_SECRET`, `NODE_ENV`, `HTTP_PORT`, `AUTOHOME_FIRMWARE_GEN1_DIR`, `OTA_MAX_CONCURRENCY` e `BOOTSTRAP_ADMIN_PASSWORD`. Implementar logs estruturados, `requestId`, resposta de erro padrão e `GET /api/v1/health`.
 

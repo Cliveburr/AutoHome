@@ -1,12 +1,13 @@
 import { buildApp } from './app.js';
-
-const app = buildApp();
-const port = 3000;
+import { loadConfig } from './config.js';
 
 try {
-  await app.listen({ host: '127.0.0.1', port });
-  console.log(`AutoHome Central API initialized at http://127.0.0.1:${port}`);
+  const config = loadConfig();
+  const app = buildApp();
+
+  await app.listen({ host: '127.0.0.1', port: config.httpPort });
+  app.log.info({ port: config.httpPort }, 'AutoHome Central API initialized');
 } catch (error) {
-  app.log.error(error);
+  console.error(error);
   process.exitCode = 1;
 }
