@@ -1,0 +1,247 @@
+openapi: 3.1.0
+info:
+  title: AutoHome Central API
+  version: 1.0.0
+  description: >-
+    Contrato HTTP inicial da Central. Esta definicao e a fonte canonica para
+    geracao do cliente TypeScript da interface web.
+servers:
+  - url: /api/v1
+    description: Central da instalacao local
+tags:
+  - name: Operacao
+  - name: Autenticacao
+paths:
+  /health:
+    get:
+      tags: [Operacao]
+      operationId: getHealth
+      summary: Consulta a disponibilidade tecnica da Central
+      responses:
+        '200':
+          description: API em execucao e dependencias essenciais disponiveis.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthAvailable'
+        '503':
+          description: Uma dependencia essencial esta indisponivel.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthUnavailable'
+  /auth/login:
+    post:
+      tags: [Autenticacao]
+      operationId: login
+      summary: Inicia uma sessao autenticada
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Sessao criada. A resposta define o cookie de sessao HttpOnly.
+          headers:
+            Set-Cookie:
+              description: Cookie assinado `autohome_session`, HttpOnly e SameSite=Lax.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/InvalidCredentials'
+  /auth/logout:
+    post:
+      tags: [Autenticacao]
+      operationId: logout
+      summary: Encerra a sessao autenticada atual
+      security:
+        - sessionCookie: []
+      responses:
+        '204':
+          description: Sessao invalidada e cookie removido.
+          headers:
+            Set-Cookie:
+              description: Instrucao para remover o cookie `autohome_session`.
+              schema:
+                type: string
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+  /auth/change-password:
+    post:
+      tags: [Autenticacao]
+      operationId: changePassword
+      summary: Altera a senha do usuario da sessao atual
+      security:
+        - sessionCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+      responses:
+        '200':
+          description: Senha alterada; a obrigatoriedade de troca e removida.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/InvalidCredentials'
+  /me:
+    get:
+      tags: [Autenticacao]
+      operationId: getCurrentSession
+      summary: Consulta a sessao e o usuario atual
+      security:
+        - sessionCookie: []
+      responses:
+        '200':
+          description: Sessao autenticada atual.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionResponse'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+components:
+  securitySchemes:
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: autohome_session
+      description: Cookie de sessao assinado, enviado pelo navegador com credenciais.
+  schemas:
+    HealthAvailable:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          const: ok
+    HealthUnavailable:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          const: unavailable
+    LoginRequest:
+      type: object
+      additionalProperties: false
+      required: [username, password]
+      properties:
+        username:
+          type: string
+          minLength: 1
+        password:
+          type: string
+          minLength: 1
+          format: password
+          writeOnly: true
+    ChangePasswordRequest:
+      type: object
+      additionalProperties: false
+      required: [currentPassword, newPassword]
+      properties:
+        currentPassword:
+          type: string
+          minLength: 1
+          format: password
+          writeOnly: true
+        newPassword:
+          type: string
+          minLength: 1
+          format: password
+          writeOnly: true
+    SessionResponse:
+      type: object
+      additionalProperties: false
+      required: [user]
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+    User:
+      type: object
+      additionalProperties: false
+      required: [id, username, role, active, passwordChangeRequired]
+      properties:
+        id:
+          type: string
+          description: Identificador publico estavel; nunca o `_id` interno do MongoDB.
+        username:
+          type: string
+        role:
+          type: string
+          enum: [basico, administrador]
+        active:
+          type: boolean
+        passwordChangeRequired:
+          type: boolean
+    Error:
+      type: object
+      additionalProperties: false
+      required: [code, message, details, requestId]
+      properties:
+        code:
+          type: string
+          description: Codigo estavel, legivel por maquina, do erro.
+        message:
+          type: string
+          description: Mensagem segura para apresentacao ao usuario.
+        details:
+          type: object
+          additionalProperties: true
+        requestId:
+          type: string
+          description: Identificador para correlacao com os logs tecnicos.
+  responses:
+    BadRequest:
+      description: Requisicao invalida.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            requiredField:
+              value:
+                code: BAD_REQUEST
+                message: A requisicao nao pode ser processada.
+                details: {}
+                requestId: req_123
+    InvalidCredentials:
+      description: Credenciais, senha atual ou sessao informada sao invalidas.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            invalidCredentials:
+              value:
+                code: INVALID_CREDENTIALS
+                message: Usuario ou senha invalidos.
+                details: {}
+                requestId: req_123
+    Unauthenticated:
+      description: A sessao autenticada e obrigatoria ou nao e mais valida.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            unauthenticated:
+              value:
+                code: UNAUTHENTICATED
+                message: Autenticacao obrigatoria.
+                details: {}
+                requestId: req_123

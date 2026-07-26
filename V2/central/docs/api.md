@@ -17,7 +17,9 @@ Erros têm formato único:
 
 Listas suportam paginação, ordenação, busca e filtros quando aplicável. Toda mutação exige sessão autenticada, verifica papel e registra auditoria.
 
-OpenAPI é a fonte canônica do contrato HTTP. A interface web usa cliente TypeScript gerado a partir dessa definição, sem manter rotas e tipos duplicados manualmente.
+OpenAPI é a fonte canônica do contrato HTTP. A definição versionada está em [`openapi.yaml`](openapi.yaml). A interface web usa cliente TypeScript gerado a partir dessa definição, sem manter rotas e tipos duplicados manualmente.
+
+O primeiro recorte publicado cobre saúde, início e encerramento de sessão, troca da própria senha e consulta da sessão atual. Autenticação usa exclusivamente o cookie assinado `autohome_session`; o contrato não introduz token Bearer nem expõe o identificador interno da sessão.
 
 ## Recursos HTTP
 
