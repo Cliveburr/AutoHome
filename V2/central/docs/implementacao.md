@@ -26,7 +26,7 @@ Todos os testes devem rodar sem usar o banco, firmware ou dispositivos reais da 
 
 **Manual:** executar os comandos de cada aplicação e confirmar que a API e a web exibem uma mensagem temporária de inicialização em portas distintas.
 
-### T02 — Criar execução local e integração com VS Code
+### T02 — Criar execução local e integração com VS Code — CONCLUÍDA
 
 **Escopo:** criar `.vscode/tasks.json` e `.vscode/launch.json`. `Ctrl+Shift+B` inicia API e web em modo de desenvolvimento; `F5` inicia ou conecta o depurador Node.js da API e abre a web no navegador. Incluir tarefas de `lint`, `test`, `test:watch` e `build`.
 

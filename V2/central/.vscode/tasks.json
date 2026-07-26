@@ -1,0 +1,104 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "api: dev",
+      "type": "npm",
+      "script": "dev",
+      "path": "api",
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "autohome-api",
+        "pattern": [
+          {
+            "regexp": "^$"
+          }
+        ],
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".",
+          "endsPattern": "AutoHome Central API initialized at"
+        }
+      }
+    },
+    {
+      "label": "web: dev",
+      "type": "npm",
+      "script": "dev",
+      "path": "web",
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "autohome-web",
+        "pattern": [
+          {
+            "regexp": "^$"
+          }
+        ],
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".",
+          "endsPattern": "Local:"
+        }
+      }
+    },
+    {
+      "label": "dev",
+      "dependsOn": [
+        "api: dev",
+        "web: dev"
+      ],
+      "dependsOrder": "parallel",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "lint",
+      "type": "npm",
+      "script": "lint",
+      "group": "test",
+      "problemMatcher": [
+        "$eslint-stylish"
+      ]
+    },
+    {
+      "label": "test",
+      "type": "npm",
+      "script": "test",
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "api: test:watch",
+      "type": "shell",
+      "command": "npm run test --workspace=@autohome/api -- --watch",
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "web: test:watch",
+      "type": "shell",
+      "command": "npm run test --workspace=@autohome/web -- --watch",
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "test:watch",
+      "dependsOn": [
+        "api: test:watch",
+        "web: test:watch"
+      ],
+      "dependsOrder": "parallel"
+    },
+    {
+      "label": "build",
+      "type": "npm",
+      "script": "build",
+      "group": "build",
+      "problemMatcher": [
+        "$tsc"
+      ]
+    }
+  ]
+}
