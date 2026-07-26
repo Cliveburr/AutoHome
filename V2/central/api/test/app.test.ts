@@ -2,7 +2,7 @@ import { ObjectId } from 'mongodb';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { buildApp } from '../src/app.js';
-import { ConfigurationError, loadConfig } from '../src/config.js';
+import { type AppConfig, ConfigurationError, loadConfig } from '../src/config.js';
 import { Database } from '../src/database.js';
 import { BaseRepository } from '../src/repository.js';
 
@@ -125,5 +125,108 @@ describe('base repository', () => {
 
     expect(document).toEqual({ id: id.toHexString(), name: 'Kitchen' });
     expect(document).not.toHaveProperty('_id');
+  });
+});
+
+describe('authentication and sessions', () => {
+  let mongoServer: MongoMemoryServer;
+  let database: Database;
+  let authenticationApp: ReturnType<typeof buildApp>;
+  const config: AppConfig = {
+    mongodbUri: 'mongodb://unused-in-tests',
+    sessionSecret: 'test-session-secret',
+    nodeEnv: 'test',
+    httpPort: 3000,
+    firmwareGen1Dir: './firmware/gen1',
+    otaMaxConcurrency: 1,
+    bootstrapAdminPassword: 'bootstrap-password',
+  };
+
+  beforeAll(async () => {
+    mongoServer = await MongoMemoryServer.create();
+    database = await Database.connect(mongoServer.getUri('authentication_test'));
+    authenticationApp = buildApp({ database, config });
+    await authenticationApp.ready();
+  });
+
+  afterAll(async () => {
+    await authenticationApp.close();
+    await mongoServer.stop();
+  });
+
+  it('creates the bootstrap administrator once with an Argon2id hash', async () => {
+    const users = await database.db.collection('users').find().toArray();
+
+    expect(users).toHaveLength(1);
+    expect(users[0]).toMatchObject({
+      username: 'admin',
+      role: 'administrador',
+      active: true,
+      passwordChangeRequired: true,
+    });
+    expect(users[0]?.passwordHash).toMatch(/^\$argon2id\$/);
+    expect(users[0]?.passwordHash).not.toBe(config.bootstrapAdminPassword);
+
+    await authenticationApp.ready();
+    expect(await database.db.collection('users').countDocuments()).toBe(1);
+  });
+
+  it('rejects invalid credentials and creates an HttpOnly signed session cookie for valid login', async () => {
+    const invalidLogin = await authenticationApp.inject({
+      method: 'POST',
+      url: '/api/v1/auth/login',
+      payload: { username: 'admin', password: 'incorrect-password' },
+    });
+    expect(invalidLogin.statusCode).toBe(401);
+    expect(invalidLogin.json().code).toBe('INVALID_CREDENTIALS');
+
+    const login = await authenticationApp.inject({
+      method: 'POST',
+      url: '/api/v1/auth/login',
+      payload: { username: 'admin', password: config.bootstrapAdminPassword },
+    });
+    const setCookie = login.headers['set-cookie'];
+    const cookie = (Array.isArray(setCookie) ? setCookie[0] : setCookie)?.split(';')[0];
+
+    expect(login.statusCode).toBe(200);
+    expect(login.json()).toMatchObject({ user: { username: 'admin', passwordChangeRequired: true } });
+    expect(setCookie).toContain('HttpOnly');
+    expect(cookie).toBeDefined();
+  });
+
+  it('requires the initial password to be changed and invalidates the session on logout', async () => {
+    const login = await authenticationApp.inject({
+      method: 'POST',
+      url: '/api/v1/auth/login',
+      payload: { username: 'admin', password: config.bootstrapAdminPassword },
+    });
+    const setCookie = login.headers['set-cookie'];
+    const cookie = (Array.isArray(setCookie) ? setCookie[0] : setCookie)?.split(';')[0] ?? '';
+
+    const session = await authenticationApp.inject({ method: 'GET', url: '/api/v1/me', headers: { cookie } });
+    expect(session.statusCode).toBe(200);
+    expect(session.json().user.passwordChangeRequired).toBe(true);
+
+    const change = await authenticationApp.inject({
+      method: 'POST',
+      url: '/api/v1/auth/change-password',
+      headers: { cookie },
+      payload: { currentPassword: config.bootstrapAdminPassword, newPassword: 'new-password' },
+    });
+    expect(change.statusCode).toBe(200);
+    expect(change.json().user.passwordChangeRequired).toBe(false);
+
+    const oldPassword = await authenticationApp.inject({
+      method: 'POST',
+      url: '/api/v1/auth/login',
+      payload: { username: 'admin', password: config.bootstrapAdminPassword },
+    });
+    expect(oldPassword.statusCode).toBe(401);
+
+    const logout = await authenticationApp.inject({ method: 'POST', url: '/api/v1/auth/logout', headers: { cookie } });
+    expect(logout.statusCode).toBe(204);
+
+    const invalidatedSession = await authenticationApp.inject({ method: 'GET', url: '/api/v1/me', headers: { cookie } });
+    expect(invalidatedSession.statusCode).toBe(401);
   });
 });

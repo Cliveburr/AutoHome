@@ -1,8 +1,12 @@
 import Fastify from 'fastify';
+import cookie from '@fastify/cookie';
+import { AuthenticationService } from './authentication.js';
+import { type AppConfig } from './config.js';
 import { type Database } from './database.js';
 
 export interface AppDependencies {
   database?: Database;
+  config?: AppConfig;
 }
 
 function getErrorStatusCode(error: unknown): number {
@@ -19,12 +23,23 @@ function getErrorStatusCode(error: unknown): number {
   return 500;
 }
 
-export function buildApp({ database }: AppDependencies = {}) {
+export function buildApp({ database, config }: AppDependencies = {}) {
   const app = Fastify({ logger: { base: { component: 'api' } } });
+  const authentication = database ? new AuthenticationService(database, config?.bootstrapAdminPassword) : undefined;
+
+  if (config) {
+    app.register(cookie, { secret: config.sessionSecret });
+  }
 
   if (database) {
     app.addHook('onClose', async () => {
       await database.close();
+    });
+  }
+
+  if (authentication) {
+    app.addHook('onReady', async () => {
+      await authentication.initialize();
     });
   }
 
@@ -65,6 +80,65 @@ export function buildApp({ database }: AppDependencies = {}) {
 
     return { status: 'ok' };
   });
+
+  if (authentication && config) {
+    const sessionCookie = 'autohome_session';
+    const cookieOptions = {
+      httpOnly: true,
+      sameSite: 'lax' as const,
+      secure: config.nodeEnv === 'production',
+      path: '/',
+    };
+
+    app.post<{ Body: { username?: string; password?: string } }>('/api/v1/auth/login', async (request, reply) => {
+      const { username, password } = request.body ?? {};
+      if (!username || !password) {
+        return reply.status(400).send({ code: 'BAD_REQUEST', message: 'Usuario e senha sao obrigatorios.', details: {}, requestId: request.id });
+      }
+
+      const session = await authentication.login(username, password);
+      if (!session) {
+        return reply.status(401).send({ code: 'INVALID_CREDENTIALS', message: 'Usuario ou senha invalidos.', details: {}, requestId: request.id });
+      }
+
+      reply.setCookie(sessionCookie, session.sessionId, { ...cookieOptions, signed: true });
+      return { user: session.user };
+    });
+
+    app.get('/api/v1/me', async (request, reply) => {
+      const sessionId = request.unsignCookie(request.cookies[sessionCookie] ?? '').value ?? '';
+      const session = await authentication.getSession(sessionId);
+      if (!session) {
+        return reply.status(401).send({ code: 'UNAUTHENTICATED', message: 'Autenticacao obrigatoria.', details: {}, requestId: request.id });
+      }
+
+      return { user: session.user };
+    });
+
+    app.post('/api/v1/auth/logout', async (request, reply) => {
+      const sessionId = request.unsignCookie(request.cookies[sessionCookie] ?? '').value;
+      if (sessionId) {
+        await authentication.logout(sessionId);
+      }
+      reply.clearCookie(sessionCookie, cookieOptions);
+      return reply.status(204).send();
+    });
+
+    app.post<{ Body: { currentPassword?: string; newPassword?: string } }>('/api/v1/auth/change-password', async (request, reply) => {
+      const sessionId = request.unsignCookie(request.cookies[sessionCookie] ?? '').value ?? '';
+      const { currentPassword, newPassword } = request.body ?? {};
+      if (!currentPassword || !newPassword) {
+        return reply.status(400).send({ code: 'BAD_REQUEST', message: 'Senha atual e nova senha sao obrigatorias.', details: {}, requestId: request.id });
+      }
+
+      const user = await authentication.changePassword(sessionId, currentPassword, newPassword);
+      if (!user) {
+        return reply.status(401).send({ code: 'INVALID_CREDENTIALS', message: 'Sessao ou senha atual invalida.', details: {}, requestId: request.id });
+      }
+
+      return { user };
+    });
+  }
 
   return app;
 }

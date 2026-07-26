@@ -52,7 +52,7 @@ Todos os testes devem rodar sem usar o banco, firmware ou dispositivos reais da 
 
 ## Segurança e Auditoria
 
-### T05 — Implementar usuários bootstrap, autenticação e sessão
+### T05 — Implementar usuários bootstrap, autenticação e sessão — CONCLUÍDA
 
 **Escopo:** criar `users` e `sessions`, hash Argon2id, login, logout, consulta de sessão, alteração da própria senha e regras da conta bootstrap. Criar `admin` somente no banco vazio, usando `BOOTSTRAP_ADMIN_PASSWORD` quando definido; exigir troca antes de qualquer outra ação.
 
