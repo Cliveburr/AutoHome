@@ -86,7 +86,7 @@ Todos os testes devem rodar sem usar o banco, firmware ou dispositivos reais da 
 
 **Manual:** abrir a documentação OpenAPI local e usar uma requisição de login e `GET /me`; confirmar que a resposta segue o esquema publicado.
 
-### T09 — Implementar áreas e cômodos
+### T09 — Implementar áreas e cômodos — CONCLUÍDA
 
 **Escopo:** criar coleções, índices, endpoints e validações para áreas e cômodos. Permitir área opcional, ordenação e operações administrativas de criar, renomear e excluir; impedir exclusão que deixe módulos vinculados sem tratamento explícito.
 

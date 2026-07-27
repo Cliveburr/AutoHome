@@ -2,78 +2,310 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { ChangePasswordData, ChangePasswordErrors, ChangePasswordResponses, GetCurrentSessionData, GetCurrentSessionErrors, GetCurrentSessionResponses, GetHealthData, GetHealthErrors, GetHealthResponses, LoginData, LoginErrors, LoginResponses, LogoutData, LogoutErrors, LogoutResponses } from './types.gen';
+import type {
+  ChangePasswordData,
+  ChangePasswordErrors,
+  ChangePasswordResponses,
+  CreateAreaData,
+  CreateAreaErrors,
+  CreateAreaResponses,
+  CreateRoomData,
+  CreateRoomErrors,
+  CreateRoomResponses,
+  DeleteAreaData,
+  DeleteAreaErrors,
+  DeleteAreaResponses,
+  DeleteRoomData,
+  DeleteRoomErrors,
+  DeleteRoomResponses,
+  GetCurrentSessionData,
+  GetCurrentSessionErrors,
+  GetCurrentSessionResponses,
+  GetHealthData,
+  GetHealthErrors,
+  GetHealthResponses,
+  ListAreasData,
+  ListAreasErrors,
+  ListAreasResponses,
+  ListRoomsData,
+  ListRoomsErrors,
+  ListRoomsResponses,
+  LoginData,
+  LoginErrors,
+  LoginResponses,
+  LogoutData,
+  LogoutErrors,
+  LogoutResponses,
+  UpdateAreaData,
+  UpdateAreaErrors,
+  UpdateAreaResponses,
+  UpdateRoomData,
+  UpdateRoomErrors,
+  UpdateRoomResponses,
+} from './types.gen';
 
-export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
-    /**
-     * You can provide a client instance returned by `createClient()` instead of
-     * individual options. This might be also useful if you want to implement a
-     * custom client.
-     */
-    client?: Client;
-    /**
-     * You can pass arbitrary values through the `meta` object. This can be
-     * used to access values that aren't defined as part of the SDK function.
-     */
-    meta?: keyof ClientMeta extends never ? Record<string, unknown> : ClientMeta;
+export type Options<
+  TData extends TDataShape = TDataShape,
+  ThrowOnError extends boolean = boolean,
+  TResponse = unknown,
+> = Options2<TData, ThrowOnError, TResponse> & {
+  /**
+   * You can provide a client instance returned by `createClient()` instead of
+   * individual options. This might be also useful if you want to implement a
+   * custom client.
+   */
+  client?: Client;
+  /**
+   * You can pass arbitrary values through the `meta` object. This can be
+   * used to access values that aren't defined as part of the SDK function.
+   */
+  meta?: keyof ClientMeta extends never ? Record<string, unknown> : ClientMeta;
 };
 
 /**
  * Consulta a disponibilidade tecnica da Central
  */
-export const getHealth = <ThrowOnError extends boolean = false>(options?: Options<GetHealthData, ThrowOnError>): RequestResult<GetHealthResponses, GetHealthErrors, ThrowOnError> => (options?.client ?? client).get<GetHealthResponses, GetHealthErrors, ThrowOnError>({ url: '/health', ...options });
+export const getHealth = <ThrowOnError extends boolean = false>(
+  options?: Options<GetHealthData, ThrowOnError>,
+): RequestResult<GetHealthResponses, GetHealthErrors, ThrowOnError> =>
+  (options?.client ?? client).get<GetHealthResponses, GetHealthErrors, ThrowOnError>({
+    url: '/health',
+    ...options,
+  });
 
 /**
  * Inicia uma sessao autenticada
  */
-export const login = <ThrowOnError extends boolean = false>(options: Options<LoginData, ThrowOnError>): RequestResult<LoginResponses, LoginErrors, ThrowOnError> => (options.client ?? client).post<LoginResponses, LoginErrors, ThrowOnError>({
+export const login = <ThrowOnError extends boolean = false>(
+  options: Options<LoginData, ThrowOnError>,
+): RequestResult<LoginResponses, LoginErrors, ThrowOnError> =>
+  (options.client ?? client).post<LoginResponses, LoginErrors, ThrowOnError>({
     url: '/auth/login',
     ...options,
     headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
 
 /**
  * Encerra a sessao autenticada atual
  */
-export const logout = <ThrowOnError extends boolean = false>(options?: Options<LogoutData, ThrowOnError>): RequestResult<LogoutResponses, LogoutErrors, ThrowOnError> => (options?.client ?? client).post<LogoutResponses, LogoutErrors, ThrowOnError>({
-    security: [{
-            in: 'cookie',
-            name: 'autohome_session',
-            type: 'apiKey'
-        }],
+export const logout = <ThrowOnError extends boolean = false>(
+  options?: Options<LogoutData, ThrowOnError>,
+): RequestResult<LogoutResponses, LogoutErrors, ThrowOnError> =>
+  (options?.client ?? client).post<LogoutResponses, LogoutErrors, ThrowOnError>({
+    security: [
+      {
+        in: 'cookie',
+        name: 'autohome_session',
+        type: 'apiKey',
+      },
+    ],
     url: '/auth/logout',
-    ...options
-});
+    ...options,
+  });
 
 /**
  * Altera a senha do usuario da sessao atual
  */
-export const changePassword = <ThrowOnError extends boolean = false>(options: Options<ChangePasswordData, ThrowOnError>): RequestResult<ChangePasswordResponses, ChangePasswordErrors, ThrowOnError> => (options.client ?? client).post<ChangePasswordResponses, ChangePasswordErrors, ThrowOnError>({
-    security: [{
-            in: 'cookie',
-            name: 'autohome_session',
-            type: 'apiKey'
-        }],
+export const changePassword = <ThrowOnError extends boolean = false>(
+  options: Options<ChangePasswordData, ThrowOnError>,
+): RequestResult<ChangePasswordResponses, ChangePasswordErrors, ThrowOnError> =>
+  (options.client ?? client).post<ChangePasswordResponses, ChangePasswordErrors, ThrowOnError>({
+    security: [
+      {
+        in: 'cookie',
+        name: 'autohome_session',
+        type: 'apiKey',
+      },
+    ],
     url: '/auth/change-password',
     ...options,
     headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
 
 /**
  * Consulta a sessao e o usuario atual
  */
-export const getCurrentSession = <ThrowOnError extends boolean = false>(options?: Options<GetCurrentSessionData, ThrowOnError>): RequestResult<GetCurrentSessionResponses, GetCurrentSessionErrors, ThrowOnError> => (options?.client ?? client).get<GetCurrentSessionResponses, GetCurrentSessionErrors, ThrowOnError>({
-    security: [{
-            in: 'cookie',
-            name: 'autohome_session',
-            type: 'apiKey'
-        }],
+export const getCurrentSession = <ThrowOnError extends boolean = false>(
+  options?: Options<GetCurrentSessionData, ThrowOnError>,
+): RequestResult<GetCurrentSessionResponses, GetCurrentSessionErrors, ThrowOnError> =>
+  (options?.client ?? client).get<
+    GetCurrentSessionResponses,
+    GetCurrentSessionErrors,
+    ThrowOnError
+  >({
+    security: [
+      {
+        in: 'cookie',
+        name: 'autohome_session',
+        type: 'apiKey',
+      },
+    ],
     url: '/me',
-    ...options
-});
+    ...options,
+  });
+
+/**
+ * Lista areas na ordem administrativa
+ */
+export const listAreas = <ThrowOnError extends boolean = false>(
+  options?: Options<ListAreasData, ThrowOnError>,
+): RequestResult<ListAreasResponses, ListAreasErrors, ThrowOnError> =>
+  (options?.client ?? client).get<ListAreasResponses, ListAreasErrors, ThrowOnError>({
+    security: [
+      {
+        in: 'cookie',
+        name: 'autohome_session',
+        type: 'apiKey',
+      },
+    ],
+    url: '/areas',
+    ...options,
+  });
+
+/**
+ * Cria uma area
+ */
+export const createArea = <ThrowOnError extends boolean = false>(
+  options: Options<CreateAreaData, ThrowOnError>,
+): RequestResult<CreateAreaResponses, CreateAreaErrors, ThrowOnError> =>
+  (options.client ?? client).post<CreateAreaResponses, CreateAreaErrors, ThrowOnError>({
+    security: [
+      {
+        in: 'cookie',
+        name: 'autohome_session',
+        type: 'apiKey',
+      },
+    ],
+    url: '/areas',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Exclui uma area sem comodos vinculados
+ */
+export const deleteArea = <ThrowOnError extends boolean = false>(
+  options: Options<DeleteAreaData, ThrowOnError>,
+): RequestResult<DeleteAreaResponses, DeleteAreaErrors, ThrowOnError> =>
+  (options.client ?? client).delete<DeleteAreaResponses, DeleteAreaErrors, ThrowOnError>({
+    security: [
+      {
+        in: 'cookie',
+        name: 'autohome_session',
+        type: 'apiKey',
+      },
+    ],
+    url: '/areas/{areaId}',
+    ...options,
+  });
+
+/**
+ * Renomeia ou reordena uma area
+ */
+export const updateArea = <ThrowOnError extends boolean = false>(
+  options: Options<UpdateAreaData, ThrowOnError>,
+): RequestResult<UpdateAreaResponses, UpdateAreaErrors, ThrowOnError> =>
+  (options.client ?? client).patch<UpdateAreaResponses, UpdateAreaErrors, ThrowOnError>({
+    security: [
+      {
+        in: 'cookie',
+        name: 'autohome_session',
+        type: 'apiKey',
+      },
+    ],
+    url: '/areas/{areaId}',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Lista comodos ordenados por area e posicao
+ */
+export const listRooms = <ThrowOnError extends boolean = false>(
+  options?: Options<ListRoomsData, ThrowOnError>,
+): RequestResult<ListRoomsResponses, ListRoomsErrors, ThrowOnError> =>
+  (options?.client ?? client).get<ListRoomsResponses, ListRoomsErrors, ThrowOnError>({
+    security: [
+      {
+        in: 'cookie',
+        name: 'autohome_session',
+        type: 'apiKey',
+      },
+    ],
+    url: '/rooms',
+    ...options,
+  });
+
+/**
+ * Cria um comodo com area opcional
+ */
+export const createRoom = <ThrowOnError extends boolean = false>(
+  options: Options<CreateRoomData, ThrowOnError>,
+): RequestResult<CreateRoomResponses, CreateRoomErrors, ThrowOnError> =>
+  (options.client ?? client).post<CreateRoomResponses, CreateRoomErrors, ThrowOnError>({
+    security: [
+      {
+        in: 'cookie',
+        name: 'autohome_session',
+        type: 'apiKey',
+      },
+    ],
+    url: '/rooms',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Exclui um comodo sem modulos vinculados
+ */
+export const deleteRoom = <ThrowOnError extends boolean = false>(
+  options: Options<DeleteRoomData, ThrowOnError>,
+): RequestResult<DeleteRoomResponses, DeleteRoomErrors, ThrowOnError> =>
+  (options.client ?? client).delete<DeleteRoomResponses, DeleteRoomErrors, ThrowOnError>({
+    security: [
+      {
+        in: 'cookie',
+        name: 'autohome_session',
+        type: 'apiKey',
+      },
+    ],
+    url: '/rooms/{roomId}',
+    ...options,
+  });
+
+/**
+ * Renomeia, reorganiza ou reordena um comodo
+ */
+export const updateRoom = <ThrowOnError extends boolean = false>(
+  options: Options<UpdateRoomData, ThrowOnError>,
+): RequestResult<UpdateRoomResponses, UpdateRoomErrors, ThrowOnError> =>
+  (options.client ?? client).patch<UpdateRoomResponses, UpdateRoomErrors, ThrowOnError>({
+    security: [
+      {
+        in: 'cookie',
+        name: 'autohome_session',
+        type: 'apiKey',
+      },
+    ],
+    url: '/rooms/{roomId}',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });

@@ -9,6 +9,7 @@ import {
 import { AuthorizationService } from './authorization.js';
 import { type AppConfig } from './config.js';
 import { type Database } from './database.js';
+import { type OrganizationFailure, OrganizationService } from './organization.js';
 
 export interface AppDependencies {
   database?: Database;
@@ -61,12 +62,46 @@ function userManagementError(
   return { ...error, details: {}, requestId };
 }
 
+function organizationError(
+  failure: OrganizationFailure,
+  requestId: string,
+): {
+  statusCode: number;
+  code: string;
+  message: string;
+  requestId: string;
+  details: Record<string, never>;
+} {
+  const errors = {
+    area_not_found: { statusCode: 404, code: 'AREA_NOT_FOUND', message: 'Area nao encontrada.' },
+    room_not_found: { statusCode: 404, code: 'ROOM_NOT_FOUND', message: 'Comodo nao encontrado.' },
+    area_in_use: {
+      statusCode: 409,
+      code: 'AREA_IN_USE',
+      message: 'A area possui comodos vinculados e nao pode ser excluida.',
+    },
+    room_in_use: {
+      statusCode: 409,
+      code: 'ROOM_IN_USE',
+      message: 'O comodo possui modulos vinculados e nao pode ser excluido.',
+    },
+  } as const;
+  const error = errors[failure];
+
+  return { ...error, details: {}, requestId };
+}
+
+function isPosition(value: unknown): value is number {
+  return typeof value === 'number' && Number.isInteger(value) && value >= 0;
+}
+
 export function buildApp({ database, config }: AppDependencies = {}) {
   const app = Fastify({ logger: { base: { component: 'api' } } });
   const audit = database ? new AuditService(database) : undefined;
   const authentication = database
     ? new AuthenticationService(database, config?.bootstrapAdminPassword, audit)
     : undefined;
+  const organization = database && audit ? new OrganizationService(database, audit) : undefined;
 
   if (config) {
     app.register(cookie, { secret: config.sessionSecret });
@@ -339,6 +374,191 @@ export function buildApp({ database, config }: AppDependencies = {}) {
         return { user: result.user };
       },
     );
+
+    if (organization) {
+      app.get(
+        '/api/v1/areas',
+        { preHandler: authorization.requireAdministrativeAccess },
+        async () => ({ areas: await organization.listAreas() }),
+      );
+
+      app.post<{ Body: { name?: string; position?: unknown } }>(
+        '/api/v1/areas',
+        { preHandler: authorization.requireAdministrativeAccess },
+        async (request, reply) => {
+          const name = request.body?.name?.trim();
+          const { position } = request.body ?? {};
+          if (!name || (position !== undefined && !isPosition(position))) {
+            return reply.status(400).send({
+              code: 'BAD_REQUEST',
+              message: 'Nome e posicao valida sao obrigatorios.',
+              details: {},
+              requestId: request.id,
+            });
+          }
+
+          const area = await organization.createArea(
+            name,
+            position,
+            request.authenticatedSession!,
+            request.ip,
+          );
+          return reply.status(201).send({ area });
+        },
+      );
+
+      app.patch<{ Params: { areaId: string }; Body: { name?: string; position?: unknown } }>(
+        '/api/v1/areas/:areaId',
+        { preHandler: authorization.requireAdministrativeAccess },
+        async (request, reply) => {
+          const name = request.body?.name?.trim();
+          const { position } = request.body ?? {};
+          if (
+            (request.body?.name !== undefined && !name) ||
+            (position !== undefined && !isPosition(position)) ||
+            (name === undefined && position === undefined)
+          ) {
+            return reply.status(400).send({
+              code: 'BAD_REQUEST',
+              message: 'Informe um nome ou uma posicao valida.',
+              details: {},
+              requestId: request.id,
+            });
+          }
+
+          const result = await organization.updateArea(
+            request.params.areaId,
+            {
+              ...(name !== undefined ? { name } : {}),
+              ...(position !== undefined ? { position } : {}),
+            },
+            request.authenticatedSession!,
+            request.ip,
+          );
+          if (result.failure) {
+            const error = organizationError(result.failure, request.id);
+            return reply.status(error.statusCode).send(error);
+          }
+          return { area: result.value };
+        },
+      );
+
+      app.delete<{ Params: { areaId: string } }>(
+        '/api/v1/areas/:areaId',
+        { preHandler: authorization.requireAdministrativeAccess },
+        async (request, reply) => {
+          const result = await organization.deleteArea(
+            request.params.areaId,
+            request.authenticatedSession!,
+            request.ip,
+          );
+          if (result.failure) {
+            const error = organizationError(result.failure, request.id);
+            return reply.status(error.statusCode).send(error);
+          }
+          return reply.status(204).send();
+        },
+      );
+
+      app.get(
+        '/api/v1/rooms',
+        { preHandler: authorization.requireAdministrativeAccess },
+        async () => ({ rooms: await organization.listRooms() }),
+      );
+
+      app.post<{ Body: { name?: string; areaId?: unknown; position?: unknown } }>(
+        '/api/v1/rooms',
+        { preHandler: authorization.requireAdministrativeAccess },
+        async (request, reply) => {
+          const name = request.body?.name?.trim();
+          const { areaId, position } = request.body ?? {};
+          if (
+            !name ||
+            (areaId !== undefined && typeof areaId !== 'string') ||
+            (position !== undefined && !isPosition(position))
+          ) {
+            return reply.status(400).send({
+              code: 'BAD_REQUEST',
+              message: 'Nome, area e posicao devem ser validos.',
+              details: {},
+              requestId: request.id,
+            });
+          }
+
+          const result = await organization.createRoom(
+            name,
+            areaId,
+            position,
+            request.authenticatedSession!,
+            request.ip,
+          );
+          if (result.failure) {
+            const error = organizationError(result.failure, request.id);
+            return reply.status(error.statusCode).send(error);
+          }
+          return reply.status(201).send({ room: result.value });
+        },
+      );
+
+      app.patch<{
+        Params: { roomId: string };
+        Body: { name?: string; areaId?: unknown; position?: unknown };
+      }>(
+        '/api/v1/rooms/:roomId',
+        { preHandler: authorization.requireAdministrativeAccess },
+        async (request, reply) => {
+          const name = request.body?.name?.trim();
+          const { areaId, position } = request.body ?? {};
+          const hasAreaId = Object.hasOwn(request.body ?? {}, 'areaId');
+          if (
+            (request.body?.name !== undefined && !name) ||
+            (hasAreaId && areaId !== null && typeof areaId !== 'string') ||
+            (position !== undefined && !isPosition(position)) ||
+            (name === undefined && !hasAreaId && position === undefined)
+          ) {
+            return reply.status(400).send({
+              code: 'BAD_REQUEST',
+              message: 'Informe nome, area ou posicao valida.',
+              details: {},
+              requestId: request.id,
+            });
+          }
+
+          const result = await organization.updateRoom(
+            request.params.roomId,
+            {
+              ...(name !== undefined ? { name } : {}),
+              ...(hasAreaId ? { areaId: areaId as string | null } : {}),
+              ...(position !== undefined ? { position } : {}),
+            },
+            request.authenticatedSession!,
+            request.ip,
+          );
+          if (result.failure) {
+            const error = organizationError(result.failure, request.id);
+            return reply.status(error.statusCode).send(error);
+          }
+          return { room: result.value };
+        },
+      );
+
+      app.delete<{ Params: { roomId: string } }>(
+        '/api/v1/rooms/:roomId',
+        { preHandler: authorization.requireAdministrativeAccess },
+        async (request, reply) => {
+          const result = await organization.deleteRoom(
+            request.params.roomId,
+            request.authenticatedSession!,
+            request.ip,
+          );
+          if (result.failure) {
+            const error = organizationError(result.failure, request.id);
+            return reply.status(error.statusCode).send(error);
+          }
+          return reply.status(204).send();
+        },
+      );
+    }
   }
 
   return app;

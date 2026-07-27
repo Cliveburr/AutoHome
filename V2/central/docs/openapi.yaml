@@ -13,6 +13,8 @@ tags:
     description: Estado tecnico da central.
   - name: Autenticacao
     description: Sessao autenticada e credenciais do usuario.
+  - name: Organizacao
+    description: Organizacao administrativa da residencia em areas e comodos.
 paths:
   /health:
     get:
@@ -118,6 +120,196 @@ paths:
                 $ref: '#/components/schemas/SessionResponse'
         '401':
           $ref: '#/components/responses/Unauthenticated'
+  /areas:
+    get:
+      tags: [Organizacao]
+      operationId: listAreas
+      summary: Lista areas na ordem administrativa
+      security:
+        - sessionCookie: []
+      responses:
+        '200':
+          description: Areas ordenadas por posicao.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AreaListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      tags: [Organizacao]
+      operationId: createArea
+      summary: Cria uma area
+      security:
+        - sessionCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAreaRequest'
+      responses:
+        '201':
+          description: Area criada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AreaResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /areas/{areaId}:
+    patch:
+      tags: [Organizacao]
+      operationId: updateArea
+      summary: Renomeia ou reordena uma area
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: '#/components/parameters/AreaId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAreaRequest'
+      responses:
+        '200':
+          description: Area atualizada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AreaResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/AreaNotFound'
+    delete:
+      tags: [Organizacao]
+      operationId: deleteArea
+      summary: Exclui uma area sem comodos vinculados
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: '#/components/parameters/AreaId'
+      responses:
+        '204':
+          description: Area excluida.
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/AreaNotFound'
+        '409':
+          $ref: '#/components/responses/AreaInUse'
+  /rooms:
+    get:
+      tags: [Organizacao]
+      operationId: listRooms
+      summary: Lista comodos ordenados por area e posicao
+      security:
+        - sessionCookie: []
+      responses:
+        '200':
+          description: Comodos cadastrados.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoomListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      tags: [Organizacao]
+      operationId: createRoom
+      summary: Cria um comodo com area opcional
+      security:
+        - sessionCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRoomRequest'
+      responses:
+        '201':
+          description: Comodo criado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoomResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/AreaNotFound'
+  /rooms/{roomId}:
+    patch:
+      tags: [Organizacao]
+      operationId: updateRoom
+      summary: Renomeia, reorganiza ou reordena um comodo
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: '#/components/parameters/RoomId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateRoomRequest'
+      responses:
+        '200':
+          description: Comodo atualizado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoomResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Area ou comodo nao encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      tags: [Organizacao]
+      operationId: deleteRoom
+      summary: Exclui um comodo sem modulos vinculados
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: '#/components/parameters/RoomId'
+      responses:
+        '204':
+          description: Comodo excluido.
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/RoomNotFound'
+        '409':
+          $ref: '#/components/responses/RoomInUse'
 components:
   securitySchemes:
     sessionCookie:
@@ -126,6 +318,113 @@ components:
       name: autohome_session
       description: Cookie de sessao assinado, enviado pelo navegador com credenciais.
   schemas:
+    Area:
+      type: object
+      additionalProperties: false
+      required: [id, name, position]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        position:
+          type: integer
+          minimum: 0
+    Room:
+      type: object
+      additionalProperties: false
+      required: [id, name, position]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        areaId:
+          type: string
+        position:
+          type: integer
+          minimum: 0
+    CreateAreaRequest:
+      type: object
+      additionalProperties: false
+      required: [name]
+      properties:
+        name:
+          type: string
+          minLength: 1
+        position:
+          type: integer
+          minimum: 0
+    UpdateAreaRequest:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        name:
+          type: string
+          minLength: 1
+        position:
+          type: integer
+          minimum: 0
+    CreateRoomRequest:
+      type: object
+      additionalProperties: false
+      required: [name]
+      properties:
+        name:
+          type: string
+          minLength: 1
+        areaId:
+          type: string
+        position:
+          type: integer
+          minimum: 0
+    UpdateRoomRequest:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        name:
+          type: string
+          minLength: 1
+        areaId:
+          type: [string, 'null']
+          description: Use null para remover o vinculo com a area.
+        position:
+          type: integer
+          minimum: 0
+    AreaResponse:
+      type: object
+      additionalProperties: false
+      required: [area]
+      properties:
+        area:
+          $ref: '#/components/schemas/Area'
+    AreaListResponse:
+      type: object
+      additionalProperties: false
+      required: [areas]
+      properties:
+        areas:
+          type: array
+          items:
+            $ref: '#/components/schemas/Area'
+    RoomResponse:
+      type: object
+      additionalProperties: false
+      required: [room]
+      properties:
+        room:
+          $ref: '#/components/schemas/Room'
+    RoomListResponse:
+      type: object
+      additionalProperties: false
+      required: [rooms]
+      properties:
+        rooms:
+          type: array
+          items:
+            $ref: '#/components/schemas/Room'
     HealthAvailable:
       type: object
       required: [status]
@@ -210,6 +509,36 @@ components:
           type: string
           description: Identificador para correlacao com os logs tecnicos.
   responses:
+    Forbidden:
+      description: A sessao autenticada nao tem permissao administrativa.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    AreaNotFound:
+      description: A area informada nao existe.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    RoomNotFound:
+      description: O comodo informado nao existe.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    AreaInUse:
+      description: A area possui comodos vinculados.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    RoomInUse:
+      description: O comodo possui modulos vinculados.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
     BadRequest:
       description: Requisicao invalida.
       content:
@@ -249,3 +578,16 @@ components:
                 message: Autenticacao obrigatoria.
                 details: {}
                 requestId: req_123
+  parameters:
+    AreaId:
+      name: areaId
+      in: path
+      required: true
+      schema:
+        type: string
+    RoomId:
+      name: roomId
+      in: path
+      required: true
+      schema:
+        type: string

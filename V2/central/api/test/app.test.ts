@@ -48,7 +48,10 @@ async function getPublishedOperations(): Promise<Array<{ method: string; url: st
   return Object.entries(document.paths).flatMap(([path, operations]) =>
     Object.keys(operations)
       .filter((method) => ['get', 'post', 'put', 'patch', 'delete'].includes(method))
-      .map((method) => ({ method: method.toUpperCase(), url: `/api/v1${path}` })),
+      .map((method) => ({
+        method: method.toUpperCase(),
+        url: `/api/v1${path.replaceAll(/\{([^}]+)\}/g, ':$1')}`,
+      })),
   );
 }
 
@@ -614,5 +617,194 @@ describe('administrative user management', () => {
     );
     expect(JSON.stringify(auditLogs)).not.toContain('resident-password');
     expect(JSON.stringify(auditLogs)).not.toContain('reset-password');
+  });
+});
+
+describe('areas and rooms administration', () => {
+  let database: Database;
+  let organizationApp: ReturnType<typeof buildApp>;
+  const config: AppConfig = {
+    mongodbUri: 'mongodb://unused-in-tests',
+    sessionSecret: 'organization-test-secret',
+    nodeEnv: 'test',
+    httpPort: 3000,
+    firmwareGen1Dir: './firmware/gen1',
+    otaMaxConcurrency: 1,
+    bootstrapAdminPassword: 'bootstrap-password',
+  };
+
+  async function login(username: string, password: string): Promise<string> {
+    const response = await organizationApp.inject({
+      method: 'POST',
+      url: '/api/v1/auth/login',
+      payload: { username, password },
+    });
+    expect(response.statusCode).toBe(200);
+    return getFirstCookie(response.headers['set-cookie']);
+  }
+
+  beforeAll(async () => {
+    database = await connectTestDatabase('organization');
+    organizationApp = buildApp({ database, config });
+    await organizationApp.ready();
+  });
+
+  afterAll(async () => {
+    await database.db.dropDatabase();
+    await organizationApp.close();
+  });
+
+  it('creates, orders, renames and reorganizes areas and rooms', async () => {
+    const bootstrapCookie = await login('admin', config.bootstrapAdminPassword!);
+    const passwordChange = await organizationApp.inject({
+      method: 'POST',
+      url: '/api/v1/auth/change-password',
+      headers: { cookie: bootstrapCookie },
+      payload: { currentPassword: config.bootstrapAdminPassword, newPassword: 'admin-password' },
+    });
+    expect(passwordChange.statusCode).toBe(200);
+
+    const kitchen = await organizationApp.inject({
+      method: 'POST',
+      url: '/api/v1/areas',
+      headers: { cookie: bootstrapCookie },
+      payload: { name: 'Cozinha' },
+    });
+    const livingRoom = await organizationApp.inject({
+      method: 'POST',
+      url: '/api/v1/areas',
+      headers: { cookie: bootstrapCookie },
+      payload: { name: 'Sala', position: 0 },
+    });
+    expect(kitchen.statusCode).toBe(201);
+    expect(livingRoom.statusCode).toBe(201);
+    const kitchenId = kitchen.json().area.id as string;
+    const livingRoomId = livingRoom.json().area.id as string;
+
+    const areas = await organizationApp.inject({
+      method: 'GET',
+      url: '/api/v1/areas',
+      headers: { cookie: bootstrapCookie },
+    });
+    expect(areas.json().areas).toEqual([
+      expect.objectContaining({ id: livingRoomId, name: 'Sala', position: 0 }),
+      expect.objectContaining({ id: kitchenId, name: 'Cozinha', position: 1 }),
+    ]);
+
+    const pantry = await organizationApp.inject({
+      method: 'POST',
+      url: '/api/v1/rooms',
+      headers: { cookie: bootstrapCookie },
+      payload: { name: 'Despensa' },
+    });
+    const mainKitchen = await organizationApp.inject({
+      method: 'POST',
+      url: '/api/v1/rooms',
+      headers: { cookie: bootstrapCookie },
+      payload: { name: 'Cozinha principal', areaId: kitchenId },
+    });
+    const balcony = await organizationApp.inject({
+      method: 'POST',
+      url: '/api/v1/rooms',
+      headers: { cookie: bootstrapCookie },
+      payload: { name: 'Varanda', areaId: kitchenId, position: 0 },
+    });
+    expect(pantry.statusCode).toBe(201);
+    expect(mainKitchen.statusCode).toBe(201);
+    expect(balcony.statusCode).toBe(201);
+    const pantryId = pantry.json().room.id as string;
+    const balconyId = balcony.json().room.id as string;
+
+    const roomUpdate = await organizationApp.inject({
+      method: 'PATCH',
+      url: `/api/v1/rooms/${pantryId}`,
+      headers: { cookie: bootstrapCookie },
+      payload: { name: 'Lavanderia', areaId: livingRoomId },
+    });
+    expect(roomUpdate.statusCode).toBe(200);
+    expect(roomUpdate.json().room).toMatchObject({
+      id: pantryId,
+      name: 'Lavanderia',
+      areaId: livingRoomId,
+      position: 0,
+    });
+
+    const removeArea = await organizationApp.inject({
+      method: 'PATCH',
+      url: `/api/v1/rooms/${pantryId}`,
+      headers: { cookie: bootstrapCookie },
+      payload: { areaId: null },
+    });
+    expect(removeArea.statusCode).toBe(200);
+    expect(removeArea.json().room).not.toHaveProperty('areaId');
+
+    const rooms = await organizationApp.inject({
+      method: 'GET',
+      url: '/api/v1/rooms',
+      headers: { cookie: bootstrapCookie },
+    });
+    expect(rooms.statusCode).toBe(200);
+    expect(rooms.json().rooms).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: balconyId, areaId: kitchenId, position: 0 }),
+        expect.objectContaining({ id: pantryId, name: 'Lavanderia', position: 0 }),
+      ]),
+    );
+  });
+
+  it('blocks deletion while areas or rooms are referenced and audits organization mutations', async () => {
+    const adminCookie = await login('admin', 'admin-password');
+    const areas = await organizationApp.inject({
+      method: 'GET',
+      url: '/api/v1/areas',
+      headers: { cookie: adminCookie },
+    });
+    const kitchenId = areas.json().areas.find((area: { name: string }) => area.name === 'Cozinha')
+      .id as string;
+    const rooms = await organizationApp.inject({
+      method: 'GET',
+      url: '/api/v1/rooms',
+      headers: { cookie: adminCookie },
+    });
+    const kitchenRoomId = rooms
+      .json()
+      .rooms.find((room: { areaId?: string }) => room.areaId === kitchenId).id as string;
+
+    const areaInUse = await organizationApp.inject({
+      method: 'DELETE',
+      url: `/api/v1/areas/${kitchenId}`,
+      headers: { cookie: adminCookie },
+    });
+    expect(areaInUse.statusCode).toBe(409);
+    expect(areaInUse.json().code).toBe('AREA_IN_USE');
+
+    await database.db.collection('modules').insertOne({ roomId: new ObjectId(kitchenRoomId) });
+    const roomInUse = await organizationApp.inject({
+      method: 'DELETE',
+      url: `/api/v1/rooms/${kitchenRoomId}`,
+      headers: { cookie: adminCookie },
+    });
+    expect(roomInUse.statusCode).toBe(409);
+    expect(roomInUse.json().code).toBe('ROOM_IN_USE');
+
+    const basicUser = await organizationApp.inject({
+      method: 'POST',
+      url: '/api/v1/users',
+      headers: { cookie: adminCookie },
+      payload: { username: 'basic-user', password: 'basic-password', role: 'basico' },
+    });
+    expect(basicUser.statusCode).toBe(201);
+    const basicCookie = await login('basic-user', 'basic-password');
+    const denied = await organizationApp.inject({
+      method: 'GET',
+      url: '/api/v1/areas',
+      headers: { cookie: basicCookie },
+    });
+    expect(denied.statusCode).toBe(403);
+
+    const auditLogs = await database.db.collection('audit_logs').find().toArray();
+    expect(auditLogs.map(({ action }) => action)).toEqual(
+      expect.arrayContaining(['area.created', 'room.created', 'room.updated']),
+    );
   });
 });
