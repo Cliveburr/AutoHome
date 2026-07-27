@@ -110,7 +110,7 @@ Todos os testes devem rodar sem usar o banco, firmware ou dispositivos reais da 
 
 **Manual:** criar um módulo simulado, encontrá-lo em Descoberta, adotá-lo e confirmar que ele passa a aparecer em Módulos, ainda sem cômodo.
 
-### T12 — Implementar detalhe, organização e configuração de módulos
+### T12 — Implementar detalhe, organização e configuração de módulos — CONCLUÍDA
 
 **Escopo:** permitir nomear módulo, vinculá-lo opcionalmente a cômodo, consultar estado e alterar configurações declaradas. Persistir valores desejados, enviados e confirmados; validar tipos e capacidades. Implementar vínculos locais somente sobre a interface simulada.
 

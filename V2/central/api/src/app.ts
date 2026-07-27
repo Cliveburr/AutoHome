@@ -12,11 +12,17 @@ import { type Database } from './database.js';
 import {
   type ModuleAdoptionFailure,
   type ModuleAvailability,
+  type ModuleMutationFailure,
   ModuleInventoryService,
   type ModuleFilters,
 } from './modules.js';
 import { type OrganizationFailure, OrganizationService } from './organization.js';
-import { InMemoryModuleTransport, type TransportEvent } from './transport.js';
+import {
+  InMemoryModuleTransport,
+  type ModuleCapability,
+  type ParameterDeclaration,
+  type TransportEvent,
+} from './transport.js';
 
 export interface AppDependencies {
   database?: Database;
@@ -126,6 +132,37 @@ function moduleAdoptionError(
   return { ...error, details: {}, requestId };
 }
 
+function moduleMutationError(
+  failure: ModuleMutationFailure,
+  requestId: string,
+): {
+  statusCode: number;
+  code: string;
+  message: string;
+  requestId: string;
+  details: Record<string, never>;
+} {
+  const errors = {
+    module_not_found: {
+      statusCode: 404,
+      code: 'MODULE_NOT_FOUND',
+      message: 'Modulo adotado nao encontrado.',
+    },
+    room_not_found: { statusCode: 404, code: 'ROOM_NOT_FOUND', message: 'Comodo nao encontrado.' },
+    configuration_invalid: {
+      statusCode: 422,
+      code: 'CONFIGURATION_INVALID',
+      message: 'A configuracao nao corresponde a declaracao do modulo.',
+    },
+    link_incompatible: {
+      statusCode: 422,
+      code: 'LINK_INCOMPATIBLE',
+      message: 'O vinculo nao corresponde a capacidades compativeis.',
+    },
+  } as const;
+  return { ...errors[failure], details: {}, requestId };
+}
+
 function isPosition(value: unknown): value is number {
   return typeof value === 'number' && Number.isInteger(value) && value >= 0;
 }
@@ -136,6 +173,64 @@ function isStringList(value: unknown): value is string[] {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function isParameterDeclaration(value: unknown): value is ParameterDeclaration {
+  if (!isRecord(value) || typeof value.key !== 'string' || !value.key) return false;
+  if (value.type !== 'boolean' && value.type !== 'number' && value.type !== 'string') return false;
+  if (
+    (value.minimum !== undefined &&
+      (typeof value.minimum !== 'number' || !Number.isFinite(value.minimum))) ||
+    (value.maximum !== undefined &&
+      (typeof value.maximum !== 'number' || !Number.isFinite(value.maximum))) ||
+    (typeof value.minimum === 'number' &&
+      typeof value.maximum === 'number' &&
+      value.minimum > value.maximum)
+  )
+    return false;
+  if (
+    value.enum !== undefined &&
+    (!Array.isArray(value.enum) || value.enum.some((item) => typeof item !== value.type))
+  )
+    return false;
+  return value.required === undefined || typeof value.required === 'boolean';
+}
+
+function isModuleCapabilities(value: unknown): value is ModuleCapability[] {
+  if (!Array.isArray(value) || value.length === 0) return false;
+  if (
+    new Set(value.map((capability) => (isRecord(capability) ? capability.id : undefined))).size !==
+    value.length
+  )
+    return false;
+  return value.every((capability) => {
+    if (!isRecord(capability) || typeof capability.id !== 'string' || !capability.id) return false;
+    if (
+      capability.configuration !== undefined &&
+      (!Array.isArray(capability.configuration) ||
+        !capability.configuration.every(isParameterDeclaration))
+    )
+      return false;
+    if (
+      capability.events !== undefined &&
+      (!isStringList(capability.events) ||
+        new Set(capability.events).size !== capability.events.length)
+    )
+      return false;
+    return (
+      capability.actions === undefined ||
+      (Array.isArray(capability.actions) &&
+        capability.actions.every(
+          (action) =>
+            isRecord(action) &&
+            typeof action.name === 'string' &&
+            !!action.name &&
+            (action.parameters === undefined ||
+              (Array.isArray(action.parameters) &&
+                action.parameters.every(isParameterDeclaration))),
+        ))
+    );
+  });
 }
 
 function isModuleAvailability(value: unknown): value is ModuleAvailability {
@@ -180,6 +275,13 @@ function transportEventLogData(event: TransportEvent): Record<string, string> {
         operation: event.operation,
         correlationId: event.correlationId,
       };
+    case 'operation.failed':
+      return {
+        type: event.type,
+        protocolId: event.protocolId,
+        operation: event.operation,
+        correlationId: event.correlationId,
+      };
     case 'module.unavailable':
       return { type: event.type, protocolId: event.protocolId, operation: event.operation };
     case 'ota.transfer_failed':
@@ -193,11 +295,14 @@ export function buildApp({ database, config, simulatedTransport }: AppDependenci
   const authentication = database
     ? new AuthenticationService(database, config?.bootstrapAdminPassword, audit)
     : undefined;
-  const organization = database && audit ? new OrganizationService(database, audit) : undefined;
-  const modules = database && audit ? new ModuleInventoryService(database, audit) : undefined;
   const developmentTransport =
     config?.nodeEnv === 'development'
       ? (simulatedTransport ?? new InMemoryModuleTransport())
+      : undefined;
+  const organization = database && audit ? new OrganizationService(database, audit) : undefined;
+  const modules =
+    database && audit
+      ? new ModuleInventoryService(database, audit, developmentTransport)
       : undefined;
 
   developmentTransport?.subscribe((event) => {
@@ -277,12 +382,12 @@ export function buildApp({ database, config, simulatedTransport }: AppDependenci
         !protocolId ||
         typeof family !== 'string' ||
         !family ||
-        !isStringList(capabilities) ||
+        !isModuleCapabilities(capabilities) ||
         (state !== undefined && !isRecord(state))
       ) {
         return reply.status(400).send({
           code: 'BAD_REQUEST',
-          message: 'protocolId, family, capabilities e state devem ser validos.',
+          message: 'protocolId, family, declaracoes de capacidades e state devem ser validos.',
           details: {},
           requestId: request.id,
         });
@@ -767,6 +872,154 @@ export function buildApp({ database, config, simulatedTransport }: AppDependenci
             });
           }
           return { modules: await modules.listRegistered(filters) };
+        },
+      );
+
+      app.get<{ Params: { protocolId: string } }>(
+        '/api/v1/modules/:protocolId',
+        { preHandler: authorization.requireAuthentication },
+        async (request, reply) => {
+          const module = await modules.getDetail(request.params.protocolId);
+          if (!module) {
+            const error = moduleMutationError('module_not_found', request.id);
+            return reply.status(error.statusCode).send(error);
+          }
+          return { module };
+        },
+      );
+
+      app.patch<{ Params: { protocolId: string }; Body: { name?: unknown; roomId?: unknown } }>(
+        '/api/v1/modules/:protocolId',
+        { preHandler: authorization.requireAdministrativeAccess },
+        async (request, reply) => {
+          const hasName = Object.hasOwn(request.body ?? {}, 'name');
+          const hasRoomId = Object.hasOwn(request.body ?? {}, 'roomId');
+          const name =
+            typeof request.body?.name === 'string' ? request.body.name.trim() : undefined;
+          const roomId = request.body?.roomId;
+          if (
+            (!hasName && !hasRoomId) ||
+            (hasName && !name) ||
+            (hasRoomId && roomId !== null && typeof roomId !== 'string')
+          ) {
+            return reply.status(400).send({
+              code: 'BAD_REQUEST',
+              message: 'Informe nome ou comodo valido.',
+              details: {},
+              requestId: request.id,
+            });
+          }
+          const result = await modules.updateOrganization(
+            request.params.protocolId,
+            {
+              ...(hasName ? { name } : {}),
+              ...(hasRoomId ? { roomId: roomId as string | null } : {}),
+            },
+            request.authenticatedSession!,
+            request.ip,
+          );
+          if ('failure' in result) {
+            const error = moduleMutationError(result.failure, request.id);
+            return reply.status(error.statusCode).send(error);
+          }
+          return { module: result.value };
+        },
+      );
+
+      app.put<{
+        Params: { protocolId: string };
+        Body: { capabilityId?: unknown; parameterKey?: unknown; value?: unknown };
+      }>(
+        '/api/v1/modules/:protocolId/configurations',
+        { preHandler: authorization.requireAdministrativeAccess },
+        async (request, reply) => {
+          const body = request.body ?? {};
+          if (
+            typeof body.capabilityId !== 'string' ||
+            !body.capabilityId ||
+            typeof body.parameterKey !== 'string' ||
+            !body.parameterKey ||
+            !Object.hasOwn(body, 'value')
+          ) {
+            return reply.status(400).send({
+              code: 'BAD_REQUEST',
+              message: 'capabilityId, parameterKey e value sao obrigatorios.',
+              details: {},
+              requestId: request.id,
+            });
+          }
+          const result = await modules.setConfiguration(
+            request.params.protocolId,
+            { capabilityId: body.capabilityId, parameterKey: body.parameterKey, value: body.value },
+            request.authenticatedSession!,
+            request.ip,
+          );
+          if ('failure' in result) {
+            const error = moduleMutationError(result.failure, request.id);
+            return reply.status(error.statusCode).send(error);
+          }
+          return { configuration: result.value };
+        },
+      );
+
+      app.post<{
+        Params: { protocolId: string };
+        Body: {
+          source?: { capabilityId?: unknown; event?: unknown };
+          target?: {
+            protocolId?: unknown;
+            capabilityId?: unknown;
+            action?: unknown;
+            parameters?: unknown;
+          };
+        };
+      }>(
+        '/api/v1/modules/:protocolId/local-links',
+        { preHandler: authorization.requireAdministrativeAccess },
+        async (request, reply) => {
+          const source = request.body?.source;
+          const target = request.body?.target;
+          if (
+            !source ||
+            !target ||
+            typeof source.capabilityId !== 'string' ||
+            !source.capabilityId ||
+            typeof source.event !== 'string' ||
+            !source.event ||
+            typeof target.protocolId !== 'string' ||
+            !target.protocolId ||
+            typeof target.capabilityId !== 'string' ||
+            !target.capabilityId ||
+            typeof target.action !== 'string' ||
+            !target.action ||
+            !isRecord(target.parameters)
+          ) {
+            return reply.status(400).send({
+              code: 'BAD_REQUEST',
+              message: 'Origem, destino e parametros do vinculo sao obrigatorios.',
+              details: {},
+              requestId: request.id,
+            });
+          }
+          const result = await modules.createLocalLink(
+            request.params.protocolId,
+            {
+              source: { capabilityId: source.capabilityId, event: source.event },
+              target: {
+                protocolId: target.protocolId,
+                capabilityId: target.capabilityId,
+                action: target.action,
+                parameters: target.parameters,
+              },
+            },
+            request.authenticatedSession!,
+            request.ip,
+          );
+          if ('failure' in result) {
+            const error = moduleMutationError(result.failure, request.id);
+            return reply.status(error.statusCode).send(error);
+          }
+          return reply.status(201).send({ localLink: result.value });
         },
       );
     }

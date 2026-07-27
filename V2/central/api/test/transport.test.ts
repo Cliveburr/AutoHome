@@ -12,7 +12,7 @@ describe('InMemoryModuleTransport', () => {
     transport.registerModule({
       protocolId: 'gen1-switch-1',
       family: 'gen1',
-      capabilities: ['switch'],
+      capabilities: [{ id: 'switch' }],
       state: { switch: false },
       firmwareHash: 'old-hash',
     });
@@ -66,7 +66,7 @@ describe('InMemoryModuleTransport', () => {
     transport.registerModule({
       protocolId: 'gen1-relay-1',
       family: 'gen1',
-      capabilities: ['relay'],
+      capabilities: [{ id: 'relay' }],
     });
 
     transport.setAvailability('gen1-relay-1', false);
@@ -89,7 +89,7 @@ describe('InMemoryModuleTransport', () => {
         firmware: new Uint8Array([1, 2, 3]),
         correlationId: 'ota-1',
       }),
-    ).resolves.toEqual({ status: 'failed', reason: 'simulated link loss' });
+    ).resolves.toEqual({ status: 'failed', reason: 'simulated_failure' });
     await expect(transport.requestFirmwareHash('gen1-relay-1')).resolves.toBeUndefined();
 
     expect(events).toEqual(
@@ -110,7 +110,7 @@ describe('InMemoryModuleTransport', () => {
     transport.registerModule({
       protocolId: 'gen1-sensor-1',
       family: 'gen1',
-      capabilities: ['sensor'],
+      capabilities: [{ id: 'sensor' }],
       firmwareHash: 'old-hash',
     });
 
@@ -123,6 +123,40 @@ describe('InMemoryModuleTransport', () => {
       }),
     ).resolves.toEqual({ status: 'confirmed' });
     await expect(transport.requestFirmwareHash('gen1-sensor-1')).resolves.toBe('new-hash');
+  });
+
+  it('keeps a configuration pending until an explicit simulated confirmation and exposes only a safe failure reason', async () => {
+    const transport = new InMemoryModuleTransport();
+    const events: TransportEvent[] = [];
+    transport.subscribe((event) => events.push(event));
+    transport.registerModule({
+      protocolId: 'gen1-config-1',
+      family: 'gen1',
+      capabilities: [{ id: 'switch' }],
+    });
+    transport.setAutoConfirm('gen1-config-1', 'configuration', false);
+    await expect(
+      transport.distributeConfiguration({
+        protocolId: 'gen1-config-1',
+        configuration: {},
+        correlationId: 'pending-1',
+      }),
+    ).resolves.toEqual({ status: 'pending' });
+    expect(events).not.toContainEqual(
+      expect.objectContaining({ type: 'operation.confirmed', correlationId: 'pending-1' }),
+    );
+    transport.confirmOperation('gen1-config-1', 'configuration', 'pending-1');
+    expect(events).toContainEqual(
+      expect.objectContaining({ type: 'operation.confirmed', correlationId: 'pending-1' }),
+    );
+    transport.failNextOperation('gen1-config-1', 'configuration');
+    await expect(
+      transport.distributeConfiguration({
+        protocolId: 'gen1-config-1',
+        configuration: {},
+        correlationId: 'failed-1',
+      }),
+    ).resolves.toEqual({ status: 'failed', reason: 'simulated_failure' });
   });
 });
 
@@ -147,7 +181,7 @@ describe('development simulated module insertion', () => {
       payload: {
         protocolId: 'gen1-lamp-1',
         family: 'gen1',
-        capabilities: ['dimmer'],
+        capabilities: [{ id: 'dimmer' }],
         state: { brightness: 30 },
       },
     });

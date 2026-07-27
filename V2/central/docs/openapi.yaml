@@ -388,6 +388,123 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthenticated'
+  /modules/{protocolId}:
+    get:
+      tags: [Modulos]
+      operationId: getModuleDetail
+      summary: Consulta o detalhe de um modulo adotado
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: '#/components/parameters/ProtocolId'
+      responses:
+        '200':
+          description: Inventario, organizacao, ultimo estado e sincronizacao persistida.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModuleDetailResponse'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '404':
+          $ref: '#/components/responses/ModuleNotFound'
+    patch:
+      tags: [Modulos]
+      operationId: updateModuleOrganization
+      summary: Nomeia ou vincula um modulo adotado a um comodo
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: '#/components/parameters/ProtocolId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateModuleOrganizationRequest'
+      responses:
+        '200':
+          description: Organizacao administrativa atualizada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModuleResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Modulo adotado ou comodo nao encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /modules/{protocolId}/configurations:
+    put:
+      tags: [Modulos]
+      operationId: setModuleConfiguration
+      summary: Salva e sincroniza uma configuracao declarada do modulo
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: '#/components/parameters/ProtocolId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetModuleConfigurationRequest'
+      responses:
+        '200':
+          description: Configuracao desejada, enviada e confirmada quando houver resposta valida.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModuleConfigurationResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/ModuleNotFound'
+        '422':
+          $ref: '#/components/responses/ConfigurationInvalid'
+  /modules/{protocolId}/local-links:
+    post:
+      tags: [Modulos]
+      operationId: createModuleLocalLink
+      summary: Cria um vinculo local entre capacidades compativeis
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: '#/components/parameters/ProtocolId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateLocalLinkRequest'
+      responses:
+        '201':
+          description: Vinculo persistido; so fica confirmado depois das confirmacoes dos participantes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LocalLinkResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/ModuleNotFound'
+        '422':
+          $ref: '#/components/responses/LinkIncompatible'
 components:
   securitySchemes:
     sessionCookie:
@@ -531,7 +648,7 @@ components:
         capabilities:
           type: array
           items:
-            type: string
+            $ref: '#/components/schemas/ModuleCapability'
         transport:
           type: string
           enum: [simulated]
@@ -554,6 +671,207 @@ components:
           type: string
           format: date-time
           description: Presente somente depois da adocao administrativa.
+        name:
+          type: string
+          description: Nome administrativo opcional do modulo adotado.
+        roomId:
+          type: string
+          description: Identificador publico do comodo opcionalmente vinculado.
+    ModuleCapability:
+      type: object
+      additionalProperties: false
+      required: [id]
+      properties:
+        id:
+          type: string
+        configuration:
+          type: array
+          items:
+            $ref: '#/components/schemas/ParameterDeclaration'
+        events:
+          type: array
+          items:
+            type: string
+        actions:
+          type: array
+          items:
+            $ref: '#/components/schemas/ActionDeclaration'
+    ParameterDeclaration:
+      type: object
+      additionalProperties: false
+      required: [key, type]
+      properties:
+        key:
+          type: string
+        type:
+          type: string
+          enum: [boolean, number, string]
+        minimum:
+          type: number
+        maximum:
+          type: number
+        enum:
+          type: array
+          items:
+            type: [boolean, number, string]
+        required:
+          type: boolean
+    ActionDeclaration:
+      type: object
+      additionalProperties: false
+      required: [name]
+      properties:
+        name:
+          type: string
+        parameters:
+          type: array
+          items:
+            $ref: '#/components/schemas/ParameterDeclaration'
+    ModuleState:
+      type: object
+      additionalProperties: false
+      required: [values, observedAt]
+      properties:
+        values:
+          type: object
+          additionalProperties: true
+        firmwareHash:
+          type: string
+        observedAt:
+          type: string
+          format: date-time
+    SynchronizationStatus:
+      type: string
+      enum: [pendente, confirmada, falhou]
+    ModuleConfiguration:
+      type: object
+      additionalProperties: false
+      required: [capabilityId, parameterKey, desired, syncStatus]
+      properties:
+        capabilityId:
+          type: string
+        parameterKey:
+          type: string
+        desired:
+          type: [boolean, number, string]
+        sent:
+          $ref: '#/components/schemas/ConfigurationTransmission'
+        confirmed:
+          $ref: '#/components/schemas/ConfigurationConfirmation'
+        syncStatus:
+          $ref: '#/components/schemas/SynchronizationStatus'
+        failureReason:
+          type: string
+          enum: [module_unavailable, transport_failed]
+    ConfigurationTransmission:
+      type: object
+      additionalProperties: false
+      required: [value, correlationId, sentAt]
+      properties:
+        value:
+          type: [boolean, number, string]
+        correlationId:
+          type: string
+        sentAt:
+          type: string
+          format: date-time
+    ConfigurationConfirmation:
+      type: object
+      additionalProperties: false
+      required: [value, confirmedAt]
+      properties:
+        value:
+          type: [boolean, number, string]
+        confirmedAt:
+          type: string
+          format: date-time
+    LocalLink:
+      type: object
+      additionalProperties: false
+      required: [id, source, target, syncStatus]
+      properties:
+        id:
+          type: string
+        source:
+          $ref: '#/components/schemas/LocalLinkSource'
+        target:
+          $ref: '#/components/schemas/LocalLinkTarget'
+        syncStatus:
+          $ref: '#/components/schemas/SynchronizationStatus'
+        failureReason:
+          type: string
+          enum: [module_unavailable, transport_failed]
+    LocalLinkSource:
+      type: object
+      additionalProperties: false
+      required: [capabilityId, event]
+      properties:
+        capabilityId:
+          type: string
+        event:
+          type: string
+    LocalLinkTarget:
+      type: object
+      additionalProperties: false
+      required: [protocolId, capabilityId, action, parameters]
+      properties:
+        protocolId:
+          type: string
+        capabilityId:
+          type: string
+        action:
+          type: string
+        parameters:
+          type: object
+          additionalProperties:
+            type: [boolean, number, string]
+    ModuleDetail:
+      allOf:
+        - $ref: '#/components/schemas/Module'
+        - type: object
+          additionalProperties: false
+          required: [configurations, localLinks]
+          properties:
+            state:
+              $ref: '#/components/schemas/ModuleState'
+            configurations:
+              type: array
+              items:
+                $ref: '#/components/schemas/ModuleConfiguration'
+            localLinks:
+              type: array
+              items:
+                $ref: '#/components/schemas/LocalLink'
+    UpdateModuleOrganizationRequest:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        name:
+          type: string
+          minLength: 1
+        roomId:
+          type: [string, 'null']
+    SetModuleConfigurationRequest:
+      type: object
+      additionalProperties: false
+      required: [capabilityId, parameterKey, value]
+      properties:
+        capabilityId:
+          type: string
+        parameterKey:
+          type: string
+        value:
+          type: [boolean, number, string]
+    CreateLocalLinkRequest:
+      type: object
+      additionalProperties: false
+      required: [source, target]
+      properties:
+        source:
+          $ref: '#/components/schemas/LocalLinkSource'
+        target:
+          $ref: '#/components/schemas/LocalLinkTarget'
     ModuleResponse:
       type: object
       additionalProperties: false
@@ -561,6 +879,27 @@ components:
       properties:
         module:
           $ref: '#/components/schemas/Module'
+    ModuleDetailResponse:
+      type: object
+      additionalProperties: false
+      required: [module]
+      properties:
+        module:
+          $ref: '#/components/schemas/ModuleDetail'
+    ModuleConfigurationResponse:
+      type: object
+      additionalProperties: false
+      required: [configuration]
+      properties:
+        configuration:
+          $ref: '#/components/schemas/ModuleConfiguration'
+    LocalLinkResponse:
+      type: object
+      additionalProperties: false
+      required: [localLink]
+      properties:
+        localLink:
+          $ref: '#/components/schemas/LocalLink'
     ModuleListResponse:
       type: object
       additionalProperties: false
@@ -692,6 +1031,24 @@ components:
             $ref: '#/components/schemas/Error'
     ModuleAlreadyAdopted:
       description: O modulo informado ja foi adotado e nao pode ser adotado novamente.
+      content:
+        application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    ModuleNotFound:
+      description: O modulo adotado informado nao existe.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ConfigurationInvalid:
+      description: Valor, tipo ou limite nao corresponde a declaracao anunciada.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    LinkIncompatible:
+      description: A origem, destino, acao ou parametros do vinculo sao incompativeis.
       content:
         application/json:
           schema:

@@ -68,7 +68,7 @@ export type Module = {
    */
   protocolId: string;
   family: string;
-  capabilities: Array<string>;
+  capabilities: Array<ModuleCapability>;
   transport: 'simulated';
   status: 'descoberto' | 'cadastrado';
   availability: 'online' | 'offline';
@@ -79,10 +79,126 @@ export type Module = {
    * Presente somente depois da adocao administrativa.
    */
   adoptedAt?: string;
+  /**
+   * Nome administrativo opcional do modulo adotado.
+   */
+  name?: string;
+  /**
+   * Identificador publico do comodo opcionalmente vinculado.
+   */
+  roomId?: string;
+};
+
+export type ModuleCapability = {
+  id: string;
+  configuration?: Array<ParameterDeclaration>;
+  events?: Array<string>;
+  actions?: Array<ActionDeclaration>;
+};
+
+export type ParameterDeclaration = {
+  key: string;
+  type: 'boolean' | 'number' | 'string';
+  minimum?: number;
+  maximum?: number;
+  enum?: Array<boolean | number | string>;
+  required?: boolean;
+};
+
+export type ActionDeclaration = {
+  name: string;
+  parameters?: Array<ParameterDeclaration>;
+};
+
+export type ModuleState = {
+  values: {
+    [key: string]: unknown;
+  };
+  firmwareHash?: string;
+  observedAt: string;
+};
+
+export type SynchronizationStatus = 'pendente' | 'confirmada' | 'falhou';
+
+export type ModuleConfiguration = {
+  capabilityId: string;
+  parameterKey: string;
+  desired: boolean | number | string;
+  sent?: ConfigurationTransmission;
+  confirmed?: ConfigurationConfirmation;
+  syncStatus: SynchronizationStatus;
+  failureReason?: 'module_unavailable' | 'transport_failed';
+};
+
+export type ConfigurationTransmission = {
+  value: boolean | number | string;
+  correlationId: string;
+  sentAt: string;
+};
+
+export type ConfigurationConfirmation = {
+  value: boolean | number | string;
+  confirmedAt: string;
+};
+
+export type LocalLink = {
+  id: string;
+  source: LocalLinkSource;
+  target: LocalLinkTarget;
+  syncStatus: SynchronizationStatus;
+  failureReason?: 'module_unavailable' | 'transport_failed';
+};
+
+export type LocalLinkSource = {
+  capabilityId: string;
+  event: string;
+};
+
+export type LocalLinkTarget = {
+  protocolId: string;
+  capabilityId: string;
+  action: string;
+  parameters: {
+    [key: string]: boolean | number | string;
+  };
+};
+
+export type ModuleDetail = Module & {
+  state?: ModuleState;
+  configurations: Array<ModuleConfiguration>;
+  localLinks: Array<LocalLink>;
+};
+
+export type UpdateModuleOrganizationRequest = {
+  name?: string;
+  roomId?: string | null;
+};
+
+export type SetModuleConfigurationRequest = {
+  capabilityId: string;
+  parameterKey: string;
+  value: boolean | number | string;
+};
+
+export type CreateLocalLinkRequest = {
+  source: LocalLinkSource;
+  target: LocalLinkTarget;
 };
 
 export type ModuleResponse = {
   module: Module;
+};
+
+export type ModuleDetailResponse = {
+  module: ModuleDetail;
+};
+
+export type ModuleConfigurationResponse = {
+  configuration: ModuleConfiguration;
+};
+
+export type LocalLinkResponse = {
+  localLink: LocalLink;
 };
 
 export type ModuleListResponse = {
@@ -698,3 +814,165 @@ export type ListModulesResponses = {
 };
 
 export type ListModulesResponse = ListModulesResponses[keyof ListModulesResponses];
+
+export type GetModuleDetailData = {
+  body?: never;
+  path: {
+    protocolId: string;
+  };
+  query?: never;
+  url: '/modules/{protocolId}';
+};
+
+export type GetModuleDetailErrors = {
+  /**
+   * A sessao autenticada e obrigatoria ou nao e mais valida.
+   */
+  401: Error;
+  /**
+   * O modulo adotado informado nao existe.
+   */
+  404: Error;
+};
+
+export type GetModuleDetailError = GetModuleDetailErrors[keyof GetModuleDetailErrors];
+
+export type GetModuleDetailResponses = {
+  /**
+   * Inventario, organizacao, ultimo estado e sincronizacao persistida.
+   */
+  200: ModuleDetailResponse;
+};
+
+export type GetModuleDetailResponse = GetModuleDetailResponses[keyof GetModuleDetailResponses];
+
+export type UpdateModuleOrganizationData = {
+  body: UpdateModuleOrganizationRequest;
+  path: {
+    protocolId: string;
+  };
+  query?: never;
+  url: '/modules/{protocolId}';
+};
+
+export type UpdateModuleOrganizationErrors = {
+  /**
+   * Requisicao invalida.
+   */
+  400: Error;
+  /**
+   * A sessao autenticada e obrigatoria ou nao e mais valida.
+   */
+  401: Error;
+  /**
+   * A sessao autenticada nao tem permissao administrativa.
+   */
+  403: Error;
+  /**
+   * Modulo adotado ou comodo nao encontrado.
+   */
+  404: Error;
+};
+
+export type UpdateModuleOrganizationError =
+  UpdateModuleOrganizationErrors[keyof UpdateModuleOrganizationErrors];
+
+export type UpdateModuleOrganizationResponses = {
+  /**
+   * Organizacao administrativa atualizada.
+   */
+  200: ModuleResponse;
+};
+
+export type UpdateModuleOrganizationResponse =
+  UpdateModuleOrganizationResponses[keyof UpdateModuleOrganizationResponses];
+
+export type SetModuleConfigurationData = {
+  body: SetModuleConfigurationRequest;
+  path: {
+    protocolId: string;
+  };
+  query?: never;
+  url: '/modules/{protocolId}/configurations';
+};
+
+export type SetModuleConfigurationErrors = {
+  /**
+   * Requisicao invalida.
+   */
+  400: Error;
+  /**
+   * A sessao autenticada e obrigatoria ou nao e mais valida.
+   */
+  401: Error;
+  /**
+   * A sessao autenticada nao tem permissao administrativa.
+   */
+  403: Error;
+  /**
+   * O modulo adotado informado nao existe.
+   */
+  404: Error;
+  /**
+   * Valor, tipo ou limite nao corresponde a declaracao anunciada.
+   */
+  422: Error;
+};
+
+export type SetModuleConfigurationError =
+  SetModuleConfigurationErrors[keyof SetModuleConfigurationErrors];
+
+export type SetModuleConfigurationResponses = {
+  /**
+   * Configuracao desejada, enviada e confirmada quando houver resposta valida.
+   */
+  200: ModuleConfigurationResponse;
+};
+
+export type SetModuleConfigurationResponse =
+  SetModuleConfigurationResponses[keyof SetModuleConfigurationResponses];
+
+export type CreateModuleLocalLinkData = {
+  body: CreateLocalLinkRequest;
+  path: {
+    protocolId: string;
+  };
+  query?: never;
+  url: '/modules/{protocolId}/local-links';
+};
+
+export type CreateModuleLocalLinkErrors = {
+  /**
+   * Requisicao invalida.
+   */
+  400: Error;
+  /**
+   * A sessao autenticada e obrigatoria ou nao e mais valida.
+   */
+  401: Error;
+  /**
+   * A sessao autenticada nao tem permissao administrativa.
+   */
+  403: Error;
+  /**
+   * O modulo adotado informado nao existe.
+   */
+  404: Error;
+  /**
+   * A origem, destino, acao ou parametros do vinculo sao incompativeis.
+   */
+  422: Error;
+};
+
+export type CreateModuleLocalLinkError =
+  CreateModuleLocalLinkErrors[keyof CreateModuleLocalLinkErrors];
+
+export type CreateModuleLocalLinkResponses = {
+  /**
+   * Vinculo persistido; so fica confirmado depois das confirmacoes dos participantes.
+   */
+  201: LocalLinkResponse;
+};
+
+export type CreateModuleLocalLinkResponse =
+  CreateModuleLocalLinkResponses[keyof CreateModuleLocalLinkResponses];

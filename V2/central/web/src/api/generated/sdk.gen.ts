@@ -12,6 +12,9 @@ import type {
   CreateAreaData,
   CreateAreaErrors,
   CreateAreaResponses,
+  CreateModuleLocalLinkData,
+  CreateModuleLocalLinkErrors,
+  CreateModuleLocalLinkResponses,
   CreateRoomData,
   CreateRoomErrors,
   CreateRoomResponses,
@@ -27,6 +30,9 @@ import type {
   GetHealthData,
   GetHealthErrors,
   GetHealthResponses,
+  GetModuleDetailData,
+  GetModuleDetailErrors,
+  GetModuleDetailResponses,
   ListAreasData,
   ListAreasErrors,
   ListAreasResponses,
@@ -45,9 +51,15 @@ import type {
   LogoutData,
   LogoutErrors,
   LogoutResponses,
+  SetModuleConfigurationData,
+  SetModuleConfigurationErrors,
+  SetModuleConfigurationResponses,
   UpdateAreaData,
   UpdateAreaErrors,
   UpdateAreaResponses,
+  UpdateModuleOrganizationData,
+  UpdateModuleOrganizationErrors,
+  UpdateModuleOrganizationResponses,
   UpdateRoomData,
   UpdateRoomErrors,
   UpdateRoomResponses,
@@ -379,4 +391,100 @@ export const listModules = <ThrowOnError extends boolean = false>(
     ],
     url: '/modules',
     ...options,
+  });
+
+/**
+ * Consulta o detalhe de um modulo adotado
+ */
+export const getModuleDetail = <ThrowOnError extends boolean = false>(
+  options: Options<GetModuleDetailData, ThrowOnError>,
+): RequestResult<GetModuleDetailResponses, GetModuleDetailErrors, ThrowOnError> =>
+  (options.client ?? client).get<GetModuleDetailResponses, GetModuleDetailErrors, ThrowOnError>({
+    security: [
+      {
+        in: 'cookie',
+        name: 'autohome_session',
+        type: 'apiKey',
+      },
+    ],
+    url: '/modules/{protocolId}',
+    ...options,
+  });
+
+/**
+ * Nomeia ou vincula um modulo adotado a um comodo
+ */
+export const updateModuleOrganization = <ThrowOnError extends boolean = false>(
+  options: Options<UpdateModuleOrganizationData, ThrowOnError>,
+): RequestResult<UpdateModuleOrganizationResponses, UpdateModuleOrganizationErrors, ThrowOnError> =>
+  (options.client ?? client).patch<
+    UpdateModuleOrganizationResponses,
+    UpdateModuleOrganizationErrors,
+    ThrowOnError
+  >({
+    security: [
+      {
+        in: 'cookie',
+        name: 'autohome_session',
+        type: 'apiKey',
+      },
+    ],
+    url: '/modules/{protocolId}',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Salva e sincroniza uma configuracao declarada do modulo
+ */
+export const setModuleConfiguration = <ThrowOnError extends boolean = false>(
+  options: Options<SetModuleConfigurationData, ThrowOnError>,
+): RequestResult<SetModuleConfigurationResponses, SetModuleConfigurationErrors, ThrowOnError> =>
+  (options.client ?? client).put<
+    SetModuleConfigurationResponses,
+    SetModuleConfigurationErrors,
+    ThrowOnError
+  >({
+    security: [
+      {
+        in: 'cookie',
+        name: 'autohome_session',
+        type: 'apiKey',
+      },
+    ],
+    url: '/modules/{protocolId}/configurations',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Cria um vinculo local entre capacidades compativeis
+ */
+export const createModuleLocalLink = <ThrowOnError extends boolean = false>(
+  options: Options<CreateModuleLocalLinkData, ThrowOnError>,
+): RequestResult<CreateModuleLocalLinkResponses, CreateModuleLocalLinkErrors, ThrowOnError> =>
+  (options.client ?? client).post<
+    CreateModuleLocalLinkResponses,
+    CreateModuleLocalLinkErrors,
+    ThrowOnError
+  >({
+    security: [
+      {
+        in: 'cookie',
+        name: 'autohome_session',
+        type: 'apiKey',
+      },
+    ],
+    url: '/modules/{protocolId}/local-links',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
   });

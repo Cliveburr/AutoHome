@@ -885,7 +885,13 @@ describe('module discovery and adoption HTTP API', () => {
       payload: {
         protocolId: 'gen1-lamp-garage',
         family: 'gen1',
-        capabilities: ['dimmer', 'energy'],
+        capabilities: [
+          {
+            id: 'dimmer',
+            configuration: [{ key: 'brightness', type: 'number', minimum: 0, maximum: 100 }],
+          },
+          { id: 'energy' },
+        ],
         state: { brightness: 30 },
       },
     });
@@ -909,7 +915,13 @@ describe('module discovery and adoption HTTP API', () => {
       expect.objectContaining({
         protocolId: 'gen1-lamp-garage',
         family: 'gen1',
-        capabilities: ['dimmer', 'energy'],
+        capabilities: [
+          {
+            id: 'dimmer',
+            configuration: [{ key: 'brightness', type: 'number', minimum: 0, maximum: 100 }],
+          },
+          { id: 'energy' },
+        ],
         transport: 'simulated',
         availability: 'online',
         status: 'descoberto',
@@ -967,5 +979,67 @@ describe('module discovery and adoption HTTP API', () => {
       result: 'success',
       details: expect.objectContaining({ protocolId: 'gen1-lamp-garage' }),
     });
+
+    const basicDetail = await modulesApp.inject({
+      method: 'GET',
+      url: '/api/v1/modules/gen1-lamp-garage',
+      headers: { cookie: basicCookie },
+    });
+    expect(basicDetail.statusCode).toBe(200);
+    expect(basicDetail.json().module).toMatchObject({ configurations: [], localLinks: [] });
+
+    const deniedOrganization = await modulesApp.inject({
+      method: 'PATCH',
+      url: '/api/v1/modules/gen1-lamp-garage',
+      headers: { cookie: basicCookie },
+      payload: { name: 'Lampada da garagem' },
+    });
+    expect(deniedOrganization.statusCode).toBe(403);
+
+    const room = await modulesApp.inject({
+      method: 'POST',
+      url: '/api/v1/rooms',
+      headers: { cookie: pendingCookie },
+      payload: { name: 'Garagem' },
+    });
+    expect(room.statusCode).toBe(201);
+    const organization = await modulesApp.inject({
+      method: 'PATCH',
+      url: '/api/v1/modules/gen1-lamp-garage',
+      headers: { cookie: pendingCookie },
+      payload: { name: 'Lampada da garagem', roomId: room.json().room.id },
+    });
+    expect(organization.statusCode).toBe(200);
+    expect(organization.json().module).toMatchObject({
+      name: 'Lampada da garagem',
+      roomId: room.json().room.id,
+    });
+
+    const configured = await modulesApp.inject({
+      method: 'PUT',
+      url: '/api/v1/modules/gen1-lamp-garage/configurations',
+      headers: { cookie: pendingCookie },
+      payload: { capabilityId: 'dimmer', parameterKey: 'brightness', value: 40 },
+    });
+    expect(configured.statusCode).toBe(200);
+    expect(configured.json().configuration).toMatchObject({
+      desired: 40,
+      confirmed: { value: 40 },
+      syncStatus: 'confirmada',
+    });
+    const invalidConfiguration = await modulesApp.inject({
+      method: 'PUT',
+      url: '/api/v1/modules/gen1-lamp-garage/configurations',
+      headers: { cookie: pendingCookie },
+      payload: { capabilityId: 'dimmer', parameterKey: 'brightness', value: 101 },
+    });
+    expect(invalidConfiguration.statusCode).toBe(422);
+    expect(invalidConfiguration.json().code).toBe('CONFIGURATION_INVALID');
+    const roomInUse = await modulesApp.inject({
+      method: 'DELETE',
+      url: `/api/v1/rooms/${room.json().room.id}`,
+      headers: { cookie: pendingCookie },
+    });
+    expect(roomInUse.statusCode).toBe(409);
   });
 });
