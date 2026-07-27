@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1 --port 5173",
     "build": "tsc --project tsconfig.json && vite build",
+    "generate:api": "openapi-ts -i ../docs/openapi.yaml -o src/api/generated --client @hey-api/client-fetch --no-log-file",
     "lint": "eslint src",
     "test": "vitest run"
   },

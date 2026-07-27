@@ -10,13 +10,16 @@ servers:
     description: Central da instalacao local
 tags:
   - name: Operacao
+    description: Estado tecnico da central.
   - name: Autenticacao
+    description: Sessao autenticada e credenciais do usuario.
 paths:
   /health:
     get:
       tags: [Operacao]
       operationId: getHealth
       summary: Consulta a disponibilidade tecnica da Central
+      security: []
       responses:
         '200':
           description: API em execucao e dependencias essenciais disponiveis.
@@ -35,6 +38,7 @@ paths:
       tags: [Autenticacao]
       operationId: login
       summary: Inicia uma sessao autenticada
+      security: []
       requestBody:
         required: true
         content:

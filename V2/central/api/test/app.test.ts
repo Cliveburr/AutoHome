@@ -1,10 +1,12 @@
 import { randomUUID } from 'node:crypto';
+import { readFile } from 'node:fs/promises';
 import { loadEnvFile } from 'node:process';
 import argon2 from 'argon2';
 import cookie from '@fastify/cookie';
 import Fastify, { type FastifyInstance } from 'fastify';
 import { ObjectId } from 'mongodb';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { parse } from 'yaml';
 import { buildApp } from '../src/app.js';
 import { AuditService } from '../src/audit.js';
 import { AuthenticationService } from '../src/authentication.js';
@@ -33,6 +35,21 @@ async function connectTestDatabase(name: string): Promise<Database> {
 
 function getFirstCookie(setCookie: string | string[] | undefined): string {
   return (Array.isArray(setCookie) ? setCookie[0] : setCookie)?.split(';')[0] ?? '';
+}
+
+interface OpenApiDocument {
+  paths: Record<string, Record<string, unknown>>;
+}
+
+async function getPublishedOperations(): Promise<Array<{ method: string; url: string }>> {
+  const source = await readFile(new URL('../../docs/openapi.yaml', import.meta.url), 'utf8');
+  const document = parse(source) as OpenApiDocument;
+
+  return Object.entries(document.paths).flatMap(([path, operations]) =>
+    Object.keys(operations)
+      .filter((method) => ['get', 'post', 'put', 'patch', 'delete'].includes(method))
+      .map((method) => ({ method: method.toUpperCase(), url: `/api/v1${path}` })),
+  );
 }
 
 const app = buildApp();
@@ -425,6 +442,15 @@ describe('administrative user management', () => {
     database = await connectTestDatabase('user-management');
     userManagementApp = buildApp({ database, config });
     await userManagementApp.ready();
+  });
+
+  it('implements every operation published in the OpenAPI contract', async () => {
+    const operations = await getPublishedOperations();
+
+    expect(operations).not.toHaveLength(0);
+    for (const operation of operations) {
+      expect(userManagementApp.hasRoute(operation)).toBe(true);
+    }
   });
 
   afterAll(async () => {

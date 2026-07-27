@@ -78,7 +78,7 @@ Todos os testes devem rodar sem usar o banco, firmware ou dispositivos reais da 
 
 ## Contratos e Dados da Residência
 
-### T08 — Publicar o primeiro contrato OpenAPI e gerar o cliente web
+### T08 — Publicar o primeiro contrato OpenAPI e gerar o cliente web — CONCLUÍDA
 
 **Escopo:** criar a especificação OpenAPI para autenticação, saúde, usuário atual e erros. Gerar cliente TypeScript consumido pela web e validar que cada rota implementada corresponde ao contrato.
 
