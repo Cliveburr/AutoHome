@@ -31,13 +31,19 @@ solicitação explícita do usuário.
 
 ## Orquestração
 
-O orquestrador usa os perfis `autohome_task_selector`, `autohome_planner`,
-`autohome_implementer`, `autohome_tester` e `autohome_reviewer`. Para cada
-tarefa, a ordem é: seleção, plano, implementação, teste, revisão e commit.
-O perfil `autohome_repairer` é acionado automaticamente para corrigir falhas
-locais de implementação, testes, artefatos ou revisão. Ele permanece limitado
-ao bloqueio registrado e devolve a tarefa à primeira fase que precisa ser
-revalidada.
+O orquestrador usa as instruções dos perfis `autohome_task_selector`,
+`autohome_planner`, `autohome_implementer`, `autohome_tester` e
+`autohome_reviewer`, mas inicia cada sub-agent como `default` para poder
+transmitir modelo e esforço individualmente. Para cada tarefa, a ordem é:
+seleção, plano, implementação, teste, revisão e commit. O perfil
+`autohome_repairer` é acionado automaticamente para corrigir falhas locais de
+implementação, testes, artefatos ou revisão. Ele permanece limitado ao bloqueio
+registrado e devolve a tarefa à primeira fase que precisa ser revalidada.
+
+Cada chamada deve preencher explicitamente os campos `model` e
+`reasoning_effort` do `spawn_agent` conforme a matriz em
+`implementation-flow/orchestration.md`. Não dependa da herança do
+orquestrador nem coloque esses parâmetros somente no prompt.
 
 O planejador atua em modo Plan: analisa o repositório sem modificar arquivos do
 projeto e materializa o plano temporário. O implementador lê esse plano; o
