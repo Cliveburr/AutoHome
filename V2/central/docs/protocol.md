@@ -12,6 +12,8 @@ Como a central participa do protocolo de comunicação. Especificação do cabe�
 
 ## Pendências de implementação
 
+Enquanto estas definições não estiverem aprovadas, a central usa somente uma interface interna de transporte e um adaptador em memória, restrito a desenvolvimento e testes. Esse adaptador modela descoberta, estado, confirmações, indisponibilidade e falha de OTA sem criar pacotes, portas ou serialização de rede.
+
 - Porta(s) UDP/TCP reservadas ao protocolo.
 - Formato exato de serialização do payload.
 - Modelo de chaves/pareamento usado na tag de autenticação.

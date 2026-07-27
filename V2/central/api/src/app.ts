@@ -10,10 +10,12 @@ import { AuthorizationService } from './authorization.js';
 import { type AppConfig } from './config.js';
 import { type Database } from './database.js';
 import { type OrganizationFailure, OrganizationService } from './organization.js';
+import { InMemoryModuleTransport, type TransportEvent } from './transport.js';
 
 export interface AppDependencies {
   database?: Database;
   config?: AppConfig;
+  simulatedTransport?: InMemoryModuleTransport;
 }
 
 function getErrorStatusCode(error: unknown): number {
@@ -95,13 +97,56 @@ function isPosition(value: unknown): value is number {
   return typeof value === 'number' && Number.isInteger(value) && value >= 0;
 }
 
-export function buildApp({ database, config }: AppDependencies = {}) {
+function isStringList(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every((item) => typeof item === 'string' && item.length > 0);
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function transportEventLogData(event: TransportEvent): Record<string, string> {
+  switch (event.type) {
+    case 'module.discovered':
+      return {
+        type: event.type,
+        protocolId: event.module.protocolId,
+        family: event.module.family,
+      };
+    case 'module.state':
+      return { type: event.type, protocolId: event.protocolId };
+    case 'operation.confirmed':
+      return {
+        type: event.type,
+        protocolId: event.protocolId,
+        operation: event.operation,
+        correlationId: event.correlationId,
+      };
+    case 'module.unavailable':
+      return { type: event.type, protocolId: event.protocolId, operation: event.operation };
+    case 'ota.transfer_failed':
+      return { type: event.type, protocolId: event.protocolId };
+  }
+}
+
+export function buildApp({ database, config, simulatedTransport }: AppDependencies = {}) {
   const app = Fastify({ logger: { base: { component: 'api' } } });
   const audit = database ? new AuditService(database) : undefined;
   const authentication = database
     ? new AuthenticationService(database, config?.bootstrapAdminPassword, audit)
     : undefined;
   const organization = database && audit ? new OrganizationService(database, audit) : undefined;
+  const developmentTransport =
+    config?.nodeEnv === 'development'
+      ? (simulatedTransport ?? new InMemoryModuleTransport())
+      : undefined;
+
+  developmentTransport?.subscribe((event) => {
+    app.log.info(
+      { transportEvent: transportEventLogData(event) },
+      'Simulated module transport event',
+    );
+  });
 
   if (config) {
     app.register(cookie, { secret: config.sessionSecret });
@@ -156,6 +201,46 @@ export function buildApp({ database, config }: AppDependencies = {}) {
 
     return { status: 'ok' };
   });
+
+  if (developmentTransport) {
+    app.post<{
+      Body: { protocolId?: unknown; family?: unknown; capabilities?: unknown; state?: unknown };
+    }>('/api/v1/development/simulated-modules', async (request, reply) => {
+      const { protocolId, family, capabilities, state } = request.body ?? {};
+      if (
+        typeof protocolId !== 'string' ||
+        !protocolId ||
+        typeof family !== 'string' ||
+        !family ||
+        !isStringList(capabilities) ||
+        (state !== undefined && !isRecord(state))
+      ) {
+        return reply.status(400).send({
+          code: 'BAD_REQUEST',
+          message: 'protocolId, family, capabilities e state devem ser validos.',
+          details: {},
+          requestId: request.id,
+        });
+      }
+
+      try {
+        const module = developmentTransport.registerModule({
+          protocolId,
+          family,
+          capabilities,
+          ...(state === undefined ? {} : { state }),
+        });
+        return reply.status(201).send({ module });
+      } catch (error) {
+        return reply.status(409).send({
+          code: 'SIMULATED_MODULE_EXISTS',
+          message: error instanceof Error ? error.message : 'Modulo simulado ja registrado.',
+          details: {},
+          requestId: request.id,
+        });
+      }
+    });
+  }
 
   if (authentication && config) {
     const sessionCookie = 'autohome_session';

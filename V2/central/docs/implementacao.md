@@ -94,7 +94,7 @@ Todos os testes devem rodar sem usar o banco, firmware ou dispositivos reais da 
 
 **Manual:** como administrador, criar uma área e dois cômodos, reordená-los e tentar excluir uma área ainda em uso para verificar a mensagem de bloqueio.
 
-### T10 — Criar a interface de transporte simulada
+### T10 — Criar a interface de transporte simulada — CONCLUÍDA
 
 **Escopo:** definir a interface interna da central para descoberta, consulta de estado/hash, envio de comando, distribuição de configuração e OTA. Implementar adaptador em memória exclusivo para desenvolvimento e testes; não definir nem codificar protocolo de rede real.
 
