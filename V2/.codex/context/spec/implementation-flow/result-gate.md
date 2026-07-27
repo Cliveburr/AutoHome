@@ -14,8 +14,11 @@ NEXT: <próxima fase ou none>
 
 O orquestrador só avança com `SUCCESS` do planejador e implementador,
 `SUCCESS` do testador com todos os comandos obrigatórios aprovados, e
-`APPROVED` do revisor. Campo ausente, artefato incompatível, teste pendente ou
-evidência insuficiente é reprovação.
+`APPROVED` do revisor. Cada agente valida localmente os sete campos e o status
+compatível com sua fase antes de responder. Campo ausente, artefato
+incompatível, teste pendente ou evidência insuficiente é uma falha local de
+processo: corrija o artefato/retorno automaticamente e revalide a fase, sem
+pedir autorização ao usuário.
 
 O revisor confere o plano, o diff, `test-results.md`, os critérios de aceite e
 `git diff --check`. Ao aprovar, atualiza o marcador de conclusão da tarefa e
@@ -23,7 +26,8 @@ faz um commit somente com os arquivos da tarefa que diferirem do estado inicial
 do Git. Alterações preexistentes ou alheias permanecem fora do commit.
 
 Ao reprovar ou bloquear, o revisor escreve a causa e a sugestão de retomada em
-`review.md`. O orquestrador sugere `autohome_repairer`, mas só o inicia com
-autorização explícita do usuário. O corretor lê o relatório, altera apenas o
-escopo apontado e retorna a tarefa ao testador e ao revisor; ele nunca conclui
-ou commita a tarefa.
+`review.md`. O orquestrador inicia `autohome_repairer` automaticamente para
+causas locais. O corretor lê o relatório, altera apenas o escopo apontado e
+retorna a tarefa à fase afetada; ele nunca conclui ou commita a tarefa. O
+orquestrador só pede direção para uma decisão material de planejamento ou uma
+barreira externa sem solução local segura.

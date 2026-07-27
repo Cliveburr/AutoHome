@@ -3,9 +3,13 @@
 Execute este procedimento de ponta a ponta. Não encerre o trabalho após
 apresentar o plano.
 
-Prossiga autonomamente por todas as etapas. Peça direção somente quando surgir
-uma decisão material, ambígua ou incerta que não possa ser resolvida pela
-documentação e pelo contexto disponíveis.
+Prossiga autonomamente por todas as etapas. A intervenção humana ocorre somente
+no planejamento, quando houver uma decisão material, ambígua ou incerta que não
+possa ser resolvida pela documentação e pelo contexto disponíveis. A criação da
+tarefa já autoriza as mutações normais de implementação, teste, reteste,
+documentação de entrega, marcador de conclusão e commit isolado; respostas como
+`sim` ou `autorizo` nunca são pré-requisito do fluxo. Esta regra não substitui
+nem contorna controles obrigatórios de segurança da plataforma.
 
 Durante a fase atual de desenvolvimento, não introduza compatibilidade
 retroativa, caminhos legados ou preservação de comportamento antigo, salvo
@@ -18,17 +22,22 @@ solicitação explícita do usuário.
   inacabadas em ordem.
 - Execute sempre um único subagente por vez. Só avance para a próxima fase ou
   tarefa com resultado completo e válido da fase anterior.
-- Em qualquer falha, bloqueio, interrupção ou validação insuficiente, pare
-  imediatamente. Preserve as alterações parciais, não tente novamente de forma
-  automática e não inicie a próxima tarefa.
+- Em qualquer falha, bloqueio, interrupção ou validação insuficiente, preserve
+  as alterações parciais e corrija automaticamente a causa local dentro do
+  escopo da tarefa. Repita as fases afetadas até obter resultado válido antes de
+  iniciar a próxima tarefa. Só interrompa para o usuário quando o planejador
+  identificar uma decisão material pendente ou houver uma barreira externa sem
+  solução local segura.
 
 ## Orquestração
 
 O orquestrador usa os perfis `autohome_task_selector`, `autohome_planner`,
 `autohome_implementer`, `autohome_tester` e `autohome_reviewer`. Para cada
 tarefa, a ordem é: seleção, plano, implementação, teste, revisão e commit.
-O perfil `autohome_repairer` é opcional e só pode ser iniciado após solicitação
-explícita do usuário em resposta a uma reprovação.
+O perfil `autohome_repairer` é acionado automaticamente para corrigir falhas
+locais de implementação, testes, artefatos ou revisão. Ele permanece limitado
+ao bloqueio registrado e devolve a tarefa à primeira fase que precisa ser
+revalidada.
 
 O planejador atua em modo Plan: analisa o repositório sem modificar arquivos do
 projeto e materializa o plano temporário. O implementador lê esse plano; o

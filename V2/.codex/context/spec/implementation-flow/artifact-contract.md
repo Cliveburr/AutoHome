@@ -11,6 +11,9 @@ Os artefatos obrigatórios são:
 
 - `plan.md`: tarefa, estado inicial do Git, escopo, arquivos previstos,
   critérios de aceite, restrições, mudanças documentais e comandos de teste.
+  Quando houver teardown destrutivo de banco, também identifica o mecanismo de
+  isolamento, a validação do alvo antes da exclusão e a garantia de término do
+  trabalho assíncrono antes do teardown.
 - `implementation.md`: arquivos alterados, decisões de implementação, desvios
   aprovados do plano e validações exploratórias executadas.
 - `test-results.md`: comando, resultado, evidência resumida, duração quando

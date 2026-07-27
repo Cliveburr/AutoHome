@@ -11,9 +11,13 @@ testa ou revisa em paralelo com qualquer subagente.
    `autohome_reviewer`.
 3. Só inicie a segunda tarefa depois que a primeira tiver sido aprovada e
    commitada pelo revisor.
-4. Em qualquer resultado diferente de sucesso válido, interrompa o fluxo,
-   preserve o workspace e reporte a fronteira de falha. Não inicie a segunda
-   tarefa nem o corretor automaticamente.
+4. Em qualquer resultado diferente de sucesso válido, preserve o workspace e
+   classifique a causa. Para falha local de código, teste, artefato, validação
+   ou revisão, inicie `autohome_repairer` automaticamente, retorne à primeira
+   fase afetada e só avance após resultado válido. Pare para intervenção humana
+   apenas se o planejamento encontrar decisão material/ambiguidade ou se houver
+   barreira externa sem solução local segura; não solicite confirmações de
+   reteste, reparo, marcador ou commit.
 
 O planejador deve ler a documentação da área: para a Central, comece por
 [`implementacao.md`](../../../../central/docs/implementacao.md) e
@@ -21,5 +25,7 @@ O planejador deve ler a documentação da área: para a Central, comece por
 a área, o seletor deve bloquear e pedir esclarecimento.
 
 Cada prompt de subagente deve conter o identificador da tarefa, o diretório de
-artefatos, o estado inicial do Git e a exigência de retornar o status definido
-em [`result-gate.md`](result-gate.md).
+artefatos, o estado inicial do Git e a exigência de validar o status definido
+em [`result-gate.md`](result-gate.md) antes de responder. Para testes que
+executem teardown destrutivo, o prompt também exige comprovar banco local
+isolado antes de qualquer exclusão.
