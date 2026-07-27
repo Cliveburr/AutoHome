@@ -18,3 +18,44 @@ web_search = "cached"  # default; serves results from the web search cache
 [mcp_servers.codegraph]
 command = "codegraph"
 args = ["serve", "--mcp"]
+
+# This repository is a coding-only workspace. Keep the code navigation MCP;
+# disable the browser-oriented runtime inherited from the user configuration.
+[mcp_servers.node_repl]
+enabled = false
+
+# Keep only coding-adjacent plugins available in this project.
+[plugins."documents@openai-primary-runtime"]
+enabled = false
+
+[plugins."pdf@openai-primary-runtime"]
+enabled = false
+
+[plugins."spreadsheets@openai-primary-runtime"]
+enabled = false
+
+[plugins."google-calendar@openai-curated"]
+enabled = false
+
+[plugins."slack@openai-curated"]
+enabled = false
+
+[plugins."sites@openai-bundled"]
+enabled = false
+
+# These bundled workflows are not part of normal implementation work.
+[[skills.config]]
+path = "C:\\Users\\Clivedurr\\.codex\\skills\\.system\\imagegen\\SKILL.md"
+enabled = false
+
+[[skills.config]]
+path = "C:\\Users\\Clivedurr\\.codex\\skills\\.system\\plugin-creator\\SKILL.md"
+enabled = false
+
+[[skills.config]]
+path = "C:\\Users\\Clivedurr\\.codex\\skills\\.system\\skill-creator\\SKILL.md"
+enabled = false
+
+[[skills.config]]
+path = "C:\\Users\\Clivedurr\\.codex\\skills\\.system\\skill-installer\\SKILL.md"
+enabled = false

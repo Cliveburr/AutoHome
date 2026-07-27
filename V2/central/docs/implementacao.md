@@ -150,6 +150,8 @@ Todos os testes devem rodar sem usar o banco, firmware ou dispositivos reais da 
 
 **Escopo:** criar aplicação React com Vite, PWA responsiva, React Router, TanStack Query, Tailwind CSS e componentes acessíveis. Implementar login, logout, troca obrigatória de senha, proteção de rotas e cliente OpenAPI gerado.
 
+Criação de scripts para subir tanto a api quanto o web já em modo hotreload e usando o endereço de rede da 192.168.18.*, scripts para derrubar também os modo dev/hotreload tanto da api e web, e script para gerar os artefatos copiaveis/publicaveis de produção
+
 **Automatizado:** testar guardas de rota, tela de troca obrigatória e tratamento de sessão expirada; executar build de produção.
 
 **Manual:** abrir a web em desktop e celular, entrar com a conta bootstrap, trocar a senha, atualizar a página e confirmar que a sessão permanece válida; sair e confirmar redirecionamento ao login.

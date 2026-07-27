@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/main.ts",
+    "dev:lan": "cross-env AUTOHOME_HTTP_HOST=0.0.0.0 npm run dev",
     "build": "tsc --project tsconfig.json",
     "lint": "eslint src test",
     "test": "npm run typecheck && vitest run",

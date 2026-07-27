@@ -9,25 +9,35 @@
   ],
   "scripts": {
     "build": "npm run build --workspaces --if-present",
+    "dev:lan": "node scripts/dev-lan.mjs",
+    "dev:stop": "node scripts/stop-dev-lan.mjs",
     "generate:api": "npm run generate:api --workspace @autohome/web",
     "lint": "npm run lint --workspaces --if-present",
     "openapi:validate": "redocly lint docs/openapi.yaml",
+    "production:prepare": "npm run build",
     "test": "npm run test --workspaces --if-present",
-    "format": "prettier --write .prettierrc.json eslint.config.js package.json package-lock.json tsconfig.json \"api/**/*.{ts,json}\" \"web/**/*.{ts,tsx,json,html}\"",
-    "format:check": "prettier --check .prettierrc.json eslint.config.js package.json package-lock.json tsconfig.json \"api/**/*.{ts,json}\" \"web/**/*.{ts,tsx,json,html}\""
+    "format": "prettier --write .prettierrc.json eslint.config.js package.json package-lock.json tsconfig.json \"api/**/*.{ts,json}\" \"web/**/*.{ts,tsx,css,json,html}\" \"scripts/**/*.mjs\"",
+    "format:check": "prettier --check .prettierrc.json eslint.config.js package.json package-lock.json tsconfig.json \"api/**/*.{ts,json}\" \"web/**/*.{ts,tsx,css,json,html}\" \"scripts/**/*.mjs\""
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
     "@hey-api/openapi-ts": "^0.99.0",
     "@redocly/cli": "^2.40.0",
+    "@tailwindcss/vite": "^4.3.3",
+    "@testing-library/jest-dom": "^7.0.0",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/node": "^24.10.1",
+    "cross-env": "^10.1.0",
     "eslint": "^9.39.1",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
     "globals": "^16.5.0",
+    "jsdom": "^29.1.1",
     "prettier": "^3.7.4",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.46.3",
+    "vite-plugin-pwa": "^1.3.0",
     "vitest": "^4.0.8",
     "yaml": "^2.8.2"
   }

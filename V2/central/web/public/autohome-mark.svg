@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" role="img" aria-label="AutoHome">
+  <rect width="192" height="192" rx="40" fill="#0f172a"/>
+  <path d="M40 94 96 48l56 46v56a10 10 0 0 1-10 10H50a10 10 0 0 1-10-10V94Z" fill="#2563eb"/>
+  <path d="M76 160v-42h40v42" fill="#f8fafc"/>
+  <circle cx="96" cy="94" r="13" fill="#f8fafc"/>
+</svg>
