@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { constants } from 'node:fs';
-import { access, readdir, stat } from 'node:fs/promises';
+import { access, readdir, readFile, realpath, stat } from 'node:fs/promises';
 import { createReadStream } from 'node:fs';
 import { extname, join } from 'node:path';
 import { type ModuleInventoryService } from './modules.js';
@@ -41,6 +41,28 @@ export class FirmwareRepository {
     );
 
     return [...new Set(hashes)].sort().map((hash) => ({ hash }));
+  }
+
+  /** Returns a verified local artifact. Paths never leave this repository boundary. */
+  async readArtifact(family: string, expectedHash: string): Promise<Uint8Array> {
+    const directory = this.directoryFor(family);
+    const resolvedDirectory = await realpath(directory);
+    const entries = await readdir(directory, { withFileTypes: true });
+    for (const entry of entries) {
+      if (!entry.isFile() || extname(entry.name) !== '.bin') continue;
+      const candidate = join(directory, entry.name);
+      const resolvedCandidate = await realpath(candidate);
+      if (
+        !resolvedCandidate.startsWith(`${resolvedDirectory}\\`) &&
+        resolvedCandidate !== resolvedDirectory
+      )
+        continue;
+      const firmware = await readFile(resolvedCandidate);
+      if (createHash('sha256').update(firmware).digest('hex') === expectedHash) return firmware;
+    }
+    throw new Error(
+      `Eligible firmware artifact ${expectedHash} for family ${family} was not found.`,
+    );
   }
 
   private async validateDirectory(family: string): Promise<void> {

@@ -19,8 +19,8 @@ A central separa intenção administrativa, estado confirmado por módulos e his
 | `module_states` | Último estado confirmado, disponibilidade e última comunicação. | `moduleId` único, última comunicação |
 | `module_configurations` | Configurações desejadas, enviadas e confirmadas. | `moduleId`, estado de sincronização |
 | `commands` | Solicitações operacionais, correlação e confirmação. | `commandId` único, `solicitante + Idempotency-Key` único, `moduleId`, estado, data/hora |
-| `ota_jobs` | Execuções individuais ou em lote de OTA. | data/hora, família, estado |
-| `ota_job_items` | Resultado de OTA por módulo. | `otaJobId`, `moduleId`, estado |
+| `ota_jobs` | Execuções individuais ou em lote de OTA, solicitante e origem de retry. | `jobId` único, data/hora, família, estado |
+| `ota_job_items` | Resultado de OTA por módulo, identidade de firmware fixada, correlação e transições. | `itemId` único, `otaJobId + moduleId`, `moduleId + estado`, `family + estado`, estado + fila, correlação |
 
 ## Regras de Modelagem
 
@@ -30,6 +30,7 @@ A central separa intenção administrativa, estado confirmado por módulos e his
 - `commands` preserva solicitante interno, alvo interno, conteúdo já validado da solicitação, identificador de correlação, chave de idempotência, estado, datas de envio/conclusão e motivo seguro de falha. Esses campos internos não fazem parte da projeção HTTP pública.
 - `module_configurations` preserva as versões desejada, enviada e confirmada sem depender de um contador textual de versão.
 - `ota_job_items` registra o hash esperado, progresso, estado e resultado de cada módulo.
+- `ota_jobs` e `ota_job_items` preservam a solicitação e o histórico mesmo quando não há módulo elegível; a fila em processo não é recuperada automaticamente após reinício.
 - `audit_logs` não armazena senhas, hashes de senha, cookies, tokens ou binários.
 
 ## Retenção

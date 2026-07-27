@@ -18,6 +18,9 @@ import type {
   CreateModuleLocalLinkData,
   CreateModuleLocalLinkErrors,
   CreateModuleLocalLinkResponses,
+  CreateOtaJobData,
+  CreateOtaJobErrors,
+  CreateOtaJobResponses,
   CreateRoomData,
   CreateRoomErrors,
   CreateRoomResponses,
@@ -42,6 +45,9 @@ import type {
   GetOtaAvailabilityData,
   GetOtaAvailabilityErrors,
   GetOtaAvailabilityResponses,
+  GetOtaJobData,
+  GetOtaJobErrors,
+  GetOtaJobResponses,
   ListAreasData,
   ListAreasErrors,
   ListAreasResponses,
@@ -60,6 +66,9 @@ import type {
   LogoutData,
   LogoutErrors,
   LogoutResponses,
+  RetryOtaJobData,
+  RetryOtaJobErrors,
+  RetryOtaJobResponses,
   SetModuleConfigurationData,
   SetModuleConfigurationErrors,
   SetModuleConfigurationResponses,
@@ -122,6 +131,64 @@ export const getOtaAvailability = <ThrowOnError extends boolean = false>(
       },
     ],
     url: '/ota',
+    ...options,
+  });
+
+/**
+ * Enfileira uma atualizacao OTA por modulo, familia ou residencia
+ */
+export const createOtaJob = <ThrowOnError extends boolean = false>(
+  options: Options<CreateOtaJobData, ThrowOnError>,
+): RequestResult<CreateOtaJobResponses, CreateOtaJobErrors, ThrowOnError> =>
+  (options.client ?? client).post<CreateOtaJobResponses, CreateOtaJobErrors, ThrowOnError>({
+    security: [
+      {
+        in: 'cookie',
+        name: 'autohome_session',
+        type: 'apiKey',
+      },
+    ],
+    url: '/ota/jobs',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Consulta o progresso e os itens persistidos de um job OTA
+ */
+export const getOtaJob = <ThrowOnError extends boolean = false>(
+  options: Options<GetOtaJobData, ThrowOnError>,
+): RequestResult<GetOtaJobResponses, GetOtaJobErrors, ThrowOnError> =>
+  (options.client ?? client).get<GetOtaJobResponses, GetOtaJobErrors, ThrowOnError>({
+    security: [
+      {
+        in: 'cookie',
+        name: 'autohome_session',
+        type: 'apiKey',
+      },
+    ],
+    url: '/ota/jobs/{jobId}',
+    ...options,
+  });
+
+/**
+ * Cria um novo job somente com itens ainda nao confirmados
+ */
+export const retryOtaJob = <ThrowOnError extends boolean = false>(
+  options: Options<RetryOtaJobData, ThrowOnError>,
+): RequestResult<RetryOtaJobResponses, RetryOtaJobErrors, ThrowOnError> =>
+  (options.client ?? client).post<RetryOtaJobResponses, RetryOtaJobErrors, ThrowOnError>({
+    security: [
+      {
+        in: 'cookie',
+        name: 'autohome_session',
+        type: 'apiKey',
+      },
+    ],
+    url: '/ota/jobs/{jobId}/retry',
     ...options,
   });
 

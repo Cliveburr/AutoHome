@@ -57,6 +57,78 @@ paths:
           $ref: '#/components/responses/Unauthenticated'
         '403':
           $ref: '#/components/responses/Forbidden'
+  /ota/jobs:
+    post:
+      tags: [OTA]
+      operationId: createOtaJob
+      summary: Enfileira uma atualizacao OTA por modulo, familia ou residencia
+      security:
+        - sessionCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOtaJobRequest'
+      responses:
+        '202':
+          description: Job persistido e enfileirado de forma assincrona.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OtaJobResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/ModuleNotFound'
+  /ota/jobs/{jobId}:
+    get:
+      tags: [OTA]
+      operationId: getOtaJob
+      summary: Consulta o progresso e os itens persistidos de um job OTA
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: '#/components/parameters/OtaJobId'
+      responses:
+        '200':
+          description: Job OTA e seus itens.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OtaJobResponse'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/OtaJobNotFound'
+  /ota/jobs/{jobId}/retry:
+    post:
+      tags: [OTA]
+      operationId: retryOtaJob
+      summary: Cria um novo job somente com itens ainda nao confirmados
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: '#/components/parameters/OtaJobId'
+      responses:
+        '202':
+          description: Novo job de retry persistido e enfileirado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OtaJobResponse'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/OtaJobNotFound'
   /auth/login:
     post:
       tags: [Autenticacao]
@@ -1041,6 +1113,108 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/OtaFamilyAvailability'
+    CreateOtaJobRequest:
+      type: object
+      additionalProperties: false
+      required: [scope]
+      properties:
+        scope:
+          type: string
+          enum: [module, family, all]
+        protocolId:
+          type: string
+          minLength: 1
+          description: Obrigatorio quando scope e module.
+        family:
+          type: string
+          minLength: 1
+          description: Obrigatorio quando scope e family.
+    OtaItemStatus:
+      type: string
+      enum: [aguardando, enviando, validando, reiniciando, confirmado, falhou, indisponivel]
+    OtaJobItem:
+      type: object
+      additionalProperties: false
+      required: [id, moduleId, protocolId, family, expectedFirmwareSha256, status, queuedAt]
+      properties:
+        id:
+          type: string
+        moduleId:
+          type: string
+        protocolId:
+          type: string
+        family:
+          type: string
+        expectedFirmwareSha256:
+          type: string
+          description: Identidade SHA-256 do firmware local fixada no enfileiramento.
+        status:
+          $ref: '#/components/schemas/OtaItemStatus'
+        reason:
+          type: string
+        queuedAt:
+          type: string
+          format: date-time
+        sendingAt:
+          type: string
+          format: date-time
+        validatingAt:
+          type: string
+          format: date-time
+        restartingAt:
+          type: string
+          format: date-time
+        completedAt:
+          type: string
+          format: date-time
+    OtaJobSummary:
+      type: object
+      additionalProperties: false
+      required: [aguardando, enviando, validando, reiniciando, confirmado, falhou, indisponivel]
+      properties:
+        aguardando: { type: integer, minimum: 0 }
+        enviando: { type: integer, minimum: 0 }
+        validando: { type: integer, minimum: 0 }
+        reiniciando: { type: integer, minimum: 0 }
+        confirmado: { type: integer, minimum: 0 }
+        falhou: { type: integer, minimum: 0 }
+        indisponivel: { type: integer, minimum: 0 }
+    OtaJob:
+      type: object
+      additionalProperties: false
+      required: [id, scope, status, createdAt, updatedAt, summary, items]
+      properties:
+        id:
+          type: string
+        scope:
+          type: string
+          enum: [module, family, all]
+        family:
+          type: string
+        sourceJobId:
+          type: string
+        status:
+          type: string
+          enum: [aguardando, em_andamento, confirmado, concluido_com_falhas]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        summary:
+          $ref: '#/components/schemas/OtaJobSummary'
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OtaJobItem'
+    OtaJobResponse:
+      type: object
+      additionalProperties: false
+      required: [job]
+      properties:
+        job:
+          $ref: '#/components/schemas/OtaJob'
     ModuleResponse:
       type: object
       additionalProperties: false
@@ -1241,6 +1415,12 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
+    OtaJobNotFound:
+      description: O job OTA informado nao existe.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
     BadRequest:
       description: Requisicao invalida.
       content:
@@ -1281,6 +1461,13 @@ components:
                 details: {}
                 requestId: req_123
   parameters:
+    OtaJobId:
+      name: jobId
+      in: path
+      required: true
+      schema:
+        type: string
+        minLength: 1
     CommandId:
       name: commandId
       in: path

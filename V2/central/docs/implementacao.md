@@ -136,7 +136,7 @@ Todos os testes devem rodar sem usar o banco, firmware ou dispositivos reais da 
 
 **Manual:** configurar um diretório de teste com um `.bin`, iniciar a API, consultar OTA e confirmar que um módulo simulado com hash diferente aparece como atualização disponível.
 
-### T15 — Implementar fila e acompanhamento de OTA
+### T15 — Implementar fila e acompanhamento de OTA — CONCLUÍDA
 
 **Escopo:** criar `ota_jobs` e `ota_job_items`, iniciar atualização individual, por família e global, limitar concorrência e persistir os estados definidos em `ota.md`. Confirmar somente após o hash esperado retornar após reinício. Registrar auditoria por solicitação e por módulo.
 

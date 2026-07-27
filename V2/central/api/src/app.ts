@@ -12,6 +12,7 @@ import { type AppConfig } from './config.js';
 import { CommandService, type CommandFailure } from './commands.js';
 import { type Database } from './database.js';
 import { FirmwareReconciliationService, FirmwareRepository } from './firmware.js';
+import { OtaService, type OtaJobFailure } from './ota.js';
 import {
   type ModuleAdoptionFailure,
   type ModuleAvailability,
@@ -192,6 +193,36 @@ function commandError(
   return { ...errors[failure], details: {}, requestId };
 }
 
+function otaJobError(
+  failure: OtaJobFailure,
+  requestId: string,
+): {
+  statusCode: number;
+  code: string;
+  message: string;
+  requestId: string;
+  details: Record<string, never>;
+} {
+  const errors = {
+    module_not_found: {
+      statusCode: 404,
+      code: 'MODULE_NOT_FOUND',
+      message: 'Modulo adotado nao encontrado.',
+    },
+    family_not_found: {
+      statusCode: 404,
+      code: 'FIRMWARE_FAMILY_NOT_FOUND',
+      message: 'Familia de firmware nao encontrada.',
+    },
+    job_not_found: {
+      statusCode: 404,
+      code: 'OTA_JOB_NOT_FOUND',
+      message: 'Job OTA nao encontrado.',
+    },
+  } as const;
+  return { ...errors[failure], details: {}, requestId };
+}
+
 function isPosition(value: unknown): value is number {
   return typeof value === 'number' && Number.isInteger(value) && value >= 0;
 }
@@ -342,6 +373,17 @@ export function buildApp({ database, config, simulatedTransport }: AppDependenci
     firmwareRepository && modules
       ? new FirmwareReconciliationService(firmwareRepository, modules, developmentTransport)
       : undefined;
+  const ota =
+    database && audit && firmwareRepository && modules && config
+      ? new OtaService(
+          database,
+          firmwareRepository,
+          modules,
+          developmentTransport,
+          audit,
+          config.otaMaxConcurrency,
+        )
+      : undefined;
   const commands =
     database && audit && modules
       ? new CommandService(database, modules, audit, developmentTransport)
@@ -356,6 +398,7 @@ export function buildApp({ database, config, simulatedTransport }: AppDependenci
     void (async () => {
       await modules?.handleTransportEvent(event);
       const updatedCommands = (await commands?.handleTransportEvent(event)) ?? [];
+      await ota?.handleTransportEvent(event);
       if (!realtime || !modules) return;
       if (event.type === 'module.state') {
         const module = await modules.getDetail(event.protocolId);
@@ -499,6 +542,7 @@ export function buildApp({ database, config, simulatedTransport }: AppDependenci
       Body: {
         automaticConfirmation?: unknown;
         failNext?: unknown;
+        failNextTransfer?: unknown;
         available?: unknown;
         confirmCorrelationId?: unknown;
       };
@@ -510,6 +554,7 @@ export function buildApp({ database, config, simulatedTransport }: AppDependenci
           (body.automaticConfirmation !== undefined &&
             typeof body.automaticConfirmation !== 'boolean') ||
           (body.failNext !== undefined && typeof body.failNext !== 'boolean') ||
+          (body.failNextTransfer !== undefined && typeof body.failNextTransfer !== 'boolean') ||
           (body.available !== undefined && typeof body.available !== 'boolean') ||
           (body.confirmCorrelationId !== undefined && typeof body.confirmCorrelationId !== 'string')
         ) {
@@ -530,6 +575,11 @@ export function buildApp({ database, config, simulatedTransport }: AppDependenci
           }
           if (body.failNext)
             developmentTransport.failNextOperation(request.params.protocolId, 'command');
+          if (body.failNextTransfer)
+            developmentTransport.failNextTransfer(
+              request.params.protocolId,
+              'simulated transfer failure',
+            );
           if (body.available !== undefined)
             developmentTransport.setAvailability(request.params.protocolId, body.available);
           if (body.confirmCorrelationId) {
@@ -1041,6 +1091,79 @@ export function buildApp({ database, config, simulatedTransport }: AppDependenci
               });
             }
             return { command };
+          },
+        );
+      }
+
+      if (ota) {
+        app.post<{
+          Body: { scope?: unknown; protocolId?: unknown; family?: unknown };
+        }>(
+          '/api/v1/ota/jobs',
+          { preHandler: authorization.requireAdministrativeAccess },
+          async (request, reply) => {
+            const body = request.body ?? {};
+            const validScope =
+              body.scope === 'module' || body.scope === 'family' || body.scope === 'all';
+            if (
+              !validScope ||
+              (body.protocolId !== undefined &&
+                (typeof body.protocolId !== 'string' || !body.protocolId)) ||
+              (body.family !== undefined && (typeof body.family !== 'string' || !body.family)) ||
+              (body.scope === 'module' && typeof body.protocolId !== 'string') ||
+              (body.scope === 'family' && typeof body.family !== 'string')
+            ) {
+              return reply.status(400).send({
+                code: 'BAD_REQUEST',
+                message: 'Escopo OTA e destino validos sao obrigatorios.',
+                details: {},
+                requestId: request.id,
+              });
+            }
+            const result = await ota.create(
+              {
+                scope: body.scope as 'module' | 'family' | 'all',
+                ...(typeof body.protocolId === 'string' ? { protocolId: body.protocolId } : {}),
+                ...(typeof body.family === 'string' ? { family: body.family } : {}),
+              },
+              request.authenticatedSession!,
+              request.ip,
+            );
+            if ('failure' in result) {
+              const error = otaJobError(result.failure, request.id);
+              return reply.status(error.statusCode).send(error);
+            }
+            return reply.status(202).send({ job: result.job });
+          },
+        );
+
+        app.get<{ Params: { jobId: string } }>(
+          '/api/v1/ota/jobs/:jobId',
+          { preHandler: authorization.requireAdministrativeAccess },
+          async (request, reply) => {
+            const job = await ota.get(request.params.jobId);
+            if (!job) {
+              const error = otaJobError('job_not_found', request.id);
+              return reply.status(error.statusCode).send(error);
+            }
+            return { job };
+          },
+        );
+
+        app.post<{ Params: { jobId: string } }>(
+          '/api/v1/ota/jobs/:jobId/retry',
+          { preHandler: authorization.requireAdministrativeAccess },
+          async (request, reply) => {
+            const result = await ota.retry(
+              request.params.jobId,
+              request.authenticatedSession!,
+              request.ip,
+            );
+            if ('failure' in result) {
+              const error = otaJobError(result.failure, request.id);
+              return reply.status(error.statusCode).send(error);
+            }
+            return reply.status(202).send({ job: result.job });
           },
         );
       }

@@ -44,6 +44,12 @@ A área OTA é acessada a partir da página de módulos e organiza os módulos p
 
 Ao iniciar uma atualização, a central seleciona o binário disponível para a família do módulo, registra o hash esperado e inicia a transferência sem exigir seleção manual de arquivo pela interface.
 
+## Fila persistida
+
+`ota_jobs` registra a solicitação administrativa e `ota_job_items` fixa, para cada módulo, a família, o SHA-256 esperado e uma correlação interna. A API recebe somente o escopo (`module`, `family` ou `all`) e identificadores públicos; nunca recebe caminho, arquivo ou binário. O artefato é relido do diretório configurado pelo SHA-256 imediatamente antes do envio e uma ausência posterior falha apenas aquele item.
+
+Somente módulos adotados com hash atual conhecido e diferente do artefato local da família entram em uma solicitação nova. `OTA_MAX_CONCURRENCY` é o teto global de transferências ativas do processo: itens permanecem em `aguardando` e uma vaga é liberada tanto por confirmação como por falha ou indisponibilidade. A execução não tenta recuperar automaticamente itens que estavam ativos quando o processo foi reiniciado.
+
 ## Estados
 
 Cada execução individual de OTA tem um dos seguintes estados:
@@ -58,15 +64,21 @@ Cada execução individual de OTA tem um dos seguintes estados:
 
 O estado `confirmado` só é atribuído depois que a central receber o hash esperado do módulo após o reinício. Uma transferência concluída não é confirmação de atualização aplicada.
 
+As transições e seus horários são persistidos. Após a confirmação de transferência, a central passa por `validando` e `reiniciando`, consulta novamente o hash e só então marca `confirmado`; hash divergente é `falhou` e módulo inacessível é `indisponivel`.
+
 ## Lotes e Falhas
 
 Atualizações em massa são executadas em fila, em lotes pequenos. A quantidade máxima simultânea é configurável pela central para não saturar Wi-Fi, ponte ou Mesh.
 
 Uma falha ou indisponibilidade afeta apenas o módulo correspondente; os demais itens elegíveis do lote continuam. A central registra o progresso e permite executar novamente apenas os módulos que não foram confirmados.
 
+O retry cria outro job ligado ao job de origem, preserva o histórico e agenda exclusivamente itens cujo resultado anterior não foi `confirmado`.
+
 ## Auditoria
 
 Cada solicitação de OTA e o resultado de cada módulo são registrados na auditoria, incluindo usuário, módulo, família, hash esperado, resultado, data e hora. O log não armazena o binário nem segredos.
+
+O SHA-256 operacional do firmware é registrado explicitamente como `firmwareSha256`; hashes de credenciais continuam removidos pela sanitização de auditoria.
 
 ## Evolução de Segurança
 

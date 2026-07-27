@@ -202,6 +202,21 @@ describe('development simulated module insertion', () => {
       values: { brightness: 30 },
     });
 
+    const failNextTransfer = await app.inject({
+      method: 'POST',
+      url: '/api/v1/development/simulated-modules/gen1-lamp-1/commands/control',
+      payload: { failNextTransfer: true },
+    });
+    expect(failNextTransfer.statusCode).toBe(204);
+    await expect(
+      transport.transferFirmware({
+        protocolId: 'gen1-lamp-1',
+        expectedHash: 'new-hash',
+        firmware: new Uint8Array([1]),
+        correlationId: 'development-ota-failure',
+      }),
+    ).resolves.toEqual({ status: 'failed', reason: 'simulated_failure' });
+
     await app.close();
 
     const productionApp = buildApp({ config: { ...config, nodeEnv: 'production' } });

@@ -1,4 +1,3 @@
-import { randomUUID } from 'node:crypto';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -18,25 +17,14 @@ import { type AppConfig, ConfigurationError, loadConfig } from '../src/config.js
 import { Database } from '../src/database.js';
 import { BaseRepository } from '../src/repository.js';
 import { InMemoryModuleTransport } from '../src/transport.js';
+import { connectIsolatedTestDatabase, dropIsolatedTestDatabase } from './test-database.js';
 
 loadEnvFile(new URL('../.env', import.meta.url));
 
 const fixtureFirmwareDirectory = mkdtempSync(join(tmpdir(), 'autohome-central-api-'));
 
-function getTestDatabaseUri(name: string): string {
-  const mongodbUri = process.env.MONGODB_URI;
-  if (!mongodbUri) {
-    throw new Error('MONGODB_URI must be configured in api/.env to run integration tests.');
-  }
-
-  const uri = new URL(mongodbUri);
-  const configuredDatabase = uri.pathname.replace(/^\//, '') || 'autohome-central';
-  uri.pathname = `/${configuredDatabase}-test-${name}-${randomUUID().slice(0, 8)}`;
-  return uri.toString();
-}
-
 async function connectTestDatabase(name: string): Promise<Database> {
-  return Database.connect(getTestDatabaseUri(name));
+  return connectIsolatedTestDatabase(name);
 }
 
 function getFirstCookie(setCookie: string | string[] | undefined): string {
@@ -113,7 +101,7 @@ describe('MongoDB persistence', () => {
   });
 
   afterAll(async () => {
-    await database.db.dropDatabase();
+    await dropIsolatedTestDatabase(database);
     await database.close();
   });
 
@@ -142,8 +130,18 @@ describe('MongoDB persistence', () => {
         'commands',
         [{ commandId: 1 }, { moduleId: 1, createdAt: -1 }, { status: 1, createdAt: -1 }],
       ],
-      ['ota_jobs', [{ createdAt: -1 }, { family: 1 }, { status: 1 }]],
-      ['ota_job_items', [{ otaJobId: 1, moduleId: 1 }, { status: 1 }]],
+      ['ota_jobs', [{ jobId: 1 }, { createdAt: -1 }, { family: 1 }, { status: 1 }]],
+      [
+        'ota_job_items',
+        [
+          { itemId: 1 },
+          { otaJobId: 1, moduleId: 1 },
+          { moduleId: 1, status: 1 },
+          { family: 1, status: 1 },
+          { status: 1, queuedAt: 1 },
+          { correlationId: 1 },
+        ],
+      ],
     ]);
 
     const collectionNames = (await database.db.listCollections().toArray()).map(({ name }) => name);
@@ -165,7 +163,7 @@ describe('MongoDB persistence', () => {
     expect(response.statusCode).toBe(200);
     expect(response.json()).toEqual({ status: 'ok' });
 
-    await persistence.db.dropDatabase();
+    await dropIsolatedTestDatabase(persistence);
     await persistenceApp.close();
   });
 });
@@ -206,7 +204,7 @@ describe('authentication and sessions', () => {
   });
 
   afterAll(async () => {
-    await database.db.dropDatabase();
+    await dropIsolatedTestDatabase(database);
     await authenticationApp.close();
   });
 
@@ -380,7 +378,7 @@ describe('authorization and audit safety', () => {
 
   afterAll(async () => {
     await authorizationApp.close();
-    await database.db.dropDatabase();
+    await dropIsolatedTestDatabase(database);
     await database.close();
   });
 
@@ -464,7 +462,7 @@ describe('administrative user management', () => {
   });
 
   afterAll(async () => {
-    await database.db.dropDatabase();
+    await dropIsolatedTestDatabase(database);
     await userManagementApp.close();
   });
 
@@ -657,7 +655,7 @@ describe('areas and rooms administration', () => {
   });
 
   afterAll(async () => {
-    await database.db.dropDatabase();
+    await dropIsolatedTestDatabase(database);
     await organizationApp.close();
   });
 
@@ -855,7 +853,7 @@ describe('module discovery and adoption HTTP API', () => {
   });
 
   afterAll(async () => {
-    await database.db.dropDatabase();
+    await dropIsolatedTestDatabase(database);
     await modulesApp.close();
   });
 

@@ -234,6 +234,71 @@ export type OtaAvailabilityResponse = {
   families: Array<OtaFamilyAvailability>;
 };
 
+export type CreateOtaJobRequest = {
+  scope: 'module' | 'family' | 'all';
+  /**
+   * Obrigatorio quando scope e module.
+   */
+  protocolId?: string;
+  /**
+   * Obrigatorio quando scope e family.
+   */
+  family?: string;
+};
+
+export type OtaItemStatus =
+  | 'aguardando'
+  | 'enviando'
+  | 'validando'
+  | 'reiniciando'
+  | 'confirmado'
+  | 'falhou'
+  | 'indisponivel';
+
+export type OtaJobItem = {
+  id: string;
+  moduleId: string;
+  protocolId: string;
+  family: string;
+  /**
+   * Identidade SHA-256 do firmware local fixada no enfileiramento.
+   */
+  expectedFirmwareSha256: string;
+  status: OtaItemStatus;
+  reason?: string;
+  queuedAt: string;
+  sendingAt?: string;
+  validatingAt?: string;
+  restartingAt?: string;
+  completedAt?: string;
+};
+
+export type OtaJobSummary = {
+  aguardando: number;
+  enviando: number;
+  validando: number;
+  reiniciando: number;
+  confirmado: number;
+  falhou: number;
+  indisponivel: number;
+};
+
+export type OtaJob = {
+  id: string;
+  scope: 'module' | 'family' | 'all';
+  family?: string;
+  sourceJobId?: string;
+  status: 'aguardando' | 'em_andamento' | 'confirmado' | 'concluido_com_falhas';
+  createdAt: string;
+  updatedAt: string;
+  summary: OtaJobSummary;
+  items: Array<OtaJobItem>;
+};
+
+export type OtaJobResponse = {
+  job: OtaJob;
+};
+
 export type ModuleResponse = {
   module: Module;
 };
@@ -313,6 +378,8 @@ export type LoginRequestWritable = {
   password: string;
 };
 
+export type OtaJobId = string;
+
 export type CommandId = string;
 
 export type IdempotencyKey = string;
@@ -387,6 +454,113 @@ export type GetOtaAvailabilityResponses = {
 
 export type GetOtaAvailabilityResponse =
   GetOtaAvailabilityResponses[keyof GetOtaAvailabilityResponses];
+
+export type CreateOtaJobData = {
+  body: CreateOtaJobRequest;
+  path?: never;
+  query?: never;
+  url: '/ota/jobs';
+};
+
+export type CreateOtaJobErrors = {
+  /**
+   * Requisicao invalida.
+   */
+  400: Error;
+  /**
+   * A sessao autenticada e obrigatoria ou nao e mais valida.
+   */
+  401: Error;
+  /**
+   * A sessao autenticada nao tem permissao administrativa.
+   */
+  403: Error;
+  /**
+   * O modulo adotado informado nao existe.
+   */
+  404: Error;
+};
+
+export type CreateOtaJobError = CreateOtaJobErrors[keyof CreateOtaJobErrors];
+
+export type CreateOtaJobResponses = {
+  /**
+   * Job persistido e enfileirado de forma assincrona.
+   */
+  202: OtaJobResponse;
+};
+
+export type CreateOtaJobResponse = CreateOtaJobResponses[keyof CreateOtaJobResponses];
+
+export type GetOtaJobData = {
+  body?: never;
+  path: {
+    jobId: string;
+  };
+  query?: never;
+  url: '/ota/jobs/{jobId}';
+};
+
+export type GetOtaJobErrors = {
+  /**
+   * A sessao autenticada e obrigatoria ou nao e mais valida.
+   */
+  401: Error;
+  /**
+   * A sessao autenticada nao tem permissao administrativa.
+   */
+  403: Error;
+  /**
+   * O job OTA informado nao existe.
+   */
+  404: Error;
+};
+
+export type GetOtaJobError = GetOtaJobErrors[keyof GetOtaJobErrors];
+
+export type GetOtaJobResponses = {
+  /**
+   * Job OTA e seus itens.
+   */
+  200: OtaJobResponse;
+};
+
+export type GetOtaJobResponse = GetOtaJobResponses[keyof GetOtaJobResponses];
+
+export type RetryOtaJobData = {
+  body?: never;
+  path: {
+    jobId: string;
+  };
+  query?: never;
+  url: '/ota/jobs/{jobId}/retry';
+};
+
+export type RetryOtaJobErrors = {
+  /**
+   * A sessao autenticada e obrigatoria ou nao e mais valida.
+   */
+  401: Error;
+  /**
+   * A sessao autenticada nao tem permissao administrativa.
+   */
+  403: Error;
+  /**
+   * O job OTA informado nao existe.
+   */
+  404: Error;
+};
+
+export type RetryOtaJobError = RetryOtaJobErrors[keyof RetryOtaJobErrors];
+
+export type RetryOtaJobResponses = {
+  /**
+   * Novo job de retry persistido e enfileirado.
+   */
+  202: OtaJobResponse;
+};
+
+export type RetryOtaJobResponse = RetryOtaJobResponses[keyof RetryOtaJobResponses];
 
 export type LoginData = {
   body: LoginRequestWritable;

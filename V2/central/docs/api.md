@@ -39,6 +39,10 @@ O primeiro recorte publicado cobre saúde, início e encerramento de sessão, tr
 
 O contrato OpenAPI detalha esquemas de requisição e resposta, códigos HTTP e validações de cada recurso antes da implementação.
 
+## OTA
+
+Além de `GET /ota` para reconciliação, `POST /ota/jobs` aceita somente o escopo administrativo `module`, `family` ou `all` e os identificadores públicos necessários. Retorna `202` com o job persistido. `GET /ota/jobs/{jobId}` expõe o resumo e as transições de cada item; `POST /ota/jobs/{jobId}/retry` retorna `202` para um novo job que contém apenas itens anteriores não confirmados. As três rotas exigem cookie de administrador e não aceitam nem retornam caminhos ou bytes de firmware.
+
 ## Comandos
 
 Um comando é solicitado por `POST /commands` com `{ protocolId, capabilityId, action, parameters }` e o cabeçalho obrigatório `Idempotency-Key`. A chave é única por solicitante: uma repetição retorna o mesmo recurso e não cria novo despacho nem nova auditoria. O destino precisa estar adotado e a ação e os parâmetros completos precisam corresponder à capacidade declarada, incluindo tipo, enumeração e limites.

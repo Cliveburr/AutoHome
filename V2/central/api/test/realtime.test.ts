@@ -1,4 +1,3 @@
-import { randomUUID } from 'node:crypto';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
@@ -10,19 +9,11 @@ import { type AppConfig } from '../src/config.js';
 import { Database } from '../src/database.js';
 import { RealtimeService } from '../src/realtime.js';
 import { InMemoryModuleTransport } from '../src/transport.js';
+import { connectIsolatedTestDatabase, dropIsolatedTestDatabase } from './test-database.js';
 
 loadEnvFile(new URL('../.env', import.meta.url));
 
 const fixtureFirmwareDirectory = mkdtempSync(join(tmpdir(), 'autohome-central-realtime-'));
-
-function getTestDatabaseUri(): string {
-  const mongodbUri = process.env.MONGODB_URI;
-  if (!mongodbUri) throw new Error('MONGODB_URI must be configured in api/.env to run tests.');
-  const uri = new URL(mongodbUri);
-  const configuredDatabase = uri.pathname.replace(/^\//, '') || 'autohome-central';
-  uri.pathname = `/${configuredDatabase}-test-realtime-${randomUUID().slice(0, 8)}`;
-  return uri.toString();
-}
 
 function firstCookie(setCookie: string | string[] | undefined): string {
   return (Array.isArray(setCookie) ? setCookie[0] : setCookie)?.split(';')[0] ?? '';
@@ -55,7 +46,7 @@ describe('realtime WebSocket', () => {
   let requiredUserId: string;
 
   beforeAll(async () => {
-    database = await Database.connect(getTestDatabaseUri());
+    database = await connectIsolatedTestDatabase('realtime');
     transport = new InMemoryModuleTransport();
     const config: AppConfig = {
       mongodbUri: 'mongodb://unused-in-tests',
@@ -130,7 +121,7 @@ describe('realtime WebSocket', () => {
   });
 
   afterAll(async () => {
-    await database.db.dropDatabase();
+    await dropIsolatedTestDatabase(database);
     await app.close();
     rmSync(fixtureFirmwareDirectory, { force: true, recursive: true });
   });

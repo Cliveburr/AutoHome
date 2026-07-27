@@ -27,6 +27,7 @@ export interface AuditEntry {
 }
 
 const sensitiveDetailKey = /password|hash|cookie|token|secret|authorization/i;
+const operationalFirmwareIdentityKey = 'firmwareSha256';
 
 function sanitizeValue(value: unknown): unknown {
   if (Array.isArray(value)) {
@@ -43,7 +44,7 @@ function sanitizeValue(value: unknown): unknown {
 export function sanitizeDetails(details: Record<string, unknown> = {}): Record<string, unknown> {
   return Object.fromEntries(
     Object.entries(details)
-      .filter(([key]) => !sensitiveDetailKey.test(key))
+      .filter(([key]) => key === operationalFirmwareIdentityKey || !sensitiveDetailKey.test(key))
       .map(([key, value]) => [key, sanitizeValue(value)]),
   );
 }

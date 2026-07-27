@@ -10,19 +10,9 @@ import { Database } from '../src/database.js';
 import { FirmwareReconciliationService, FirmwareRepository } from '../src/firmware.js';
 import { ModuleInventoryService } from '../src/modules.js';
 import { InMemoryModuleTransport } from '../src/transport.js';
+import { connectIsolatedTestDatabase, dropIsolatedTestDatabase } from './test-database.js';
 
 loadEnvFile(new URL('../.env', import.meta.url));
-
-function getTestDatabaseUri(): string {
-  const mongodbUri = process.env.MONGODB_URI;
-  if (!mongodbUri) {
-    throw new Error('MONGODB_URI must be configured in api/.env to run integration tests.');
-  }
-  const uri = new URL(mongodbUri);
-  const configuredDatabase = uri.pathname.replace(/^\//, '') || 'autohome-central';
-  uri.pathname = `/${configuredDatabase}-test-firmware-${randomUUID().slice(0, 8)}`;
-  return uri.toString();
-}
 
 const temporaryDirectories: string[] = [];
 
@@ -85,22 +75,36 @@ describe('FirmwareRepository', () => {
       'Firmware directory for family gen1',
     );
   });
+
+  it('reads only a configured eligible bin by its verified hash', async () => {
+    const directory = await createFirmwareDirectory();
+    await writeFile(join(directory, 'firmware.bin'), 'firmware-bytes');
+    await writeFile(join(directory, 'ignored.txt'), 'not-firmware');
+    const repository = new FirmwareRepository({ gen1: directory });
+
+    await expect(repository.readArtifact('gen1', sha256('firmware-bytes'))).resolves.toEqual(
+      Buffer.from('firmware-bytes'),
+    );
+    await expect(repository.readArtifact('gen1', sha256('not-firmware'))).rejects.toThrow(
+      'Eligible firmware artifact',
+    );
+  });
 });
 
 describe('FirmwareReconciliationService', () => {
   let database: Database;
 
   beforeAll(async () => {
-    database = await Database.connect(getTestDatabaseUri());
+    database = await connectIsolatedTestDatabase('firmware');
   });
 
   afterAll(async () => {
-    await database.db.dropDatabase();
+    await dropIsolatedTestDatabase(database);
     await database.close();
   });
 
   afterEach(async () => {
-    await database.db.dropDatabase();
+    await dropIsolatedTestDatabase(database);
     await Promise.all(
       temporaryDirectories
         .splice(0)

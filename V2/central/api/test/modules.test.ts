@@ -1,4 +1,3 @@
-import { randomUUID } from 'node:crypto';
 import { loadEnvFile } from 'node:process';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { AuditService } from '../src/audit.js';
@@ -6,20 +5,9 @@ import { type AuthenticatedSession } from '../src/authentication.js';
 import { Database } from '../src/database.js';
 import { ModuleInventoryService } from '../src/modules.js';
 import { InMemoryModuleTransport } from '../src/transport.js';
+import { connectIsolatedTestDatabase, dropIsolatedTestDatabase } from './test-database.js';
 
 loadEnvFile(new URL('../.env', import.meta.url));
-
-function getTestDatabaseUri(): string {
-  const mongodbUri = process.env.MONGODB_URI;
-  if (!mongodbUri) {
-    throw new Error('MONGODB_URI must be configured in api/.env to run integration tests.');
-  }
-
-  const uri = new URL(mongodbUri);
-  const configuredDatabase = uri.pathname.replace(/^\//, '') || 'autohome-central';
-  uri.pathname = `/${configuredDatabase}-test-modules-${randomUUID().slice(0, 8)}`;
-  return uri.toString();
-}
 
 describe('module discovery inventory', () => {
   let database: Database;
@@ -37,12 +25,12 @@ describe('module discovery inventory', () => {
   };
 
   beforeAll(async () => {
-    database = await Database.connect(getTestDatabaseUri());
+    database = await connectIsolatedTestDatabase('modules');
     modules = new ModuleInventoryService(database, new AuditService(database));
   });
 
   afterAll(async () => {
-    await database.db.dropDatabase();
+    await dropIsolatedTestDatabase(database);
     await database.close();
   });
 
