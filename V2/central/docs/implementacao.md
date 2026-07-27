@@ -102,7 +102,7 @@ Todos os testes devem rodar sem usar o banco, firmware ou dispositivos reais da 
 
 **Manual:** iniciar a API em modo de desenvolvimento, inserir módulos simulados pelo mecanismo de desenvolvimento e observar logs de descoberta e estado.
 
-### T11 — Implementar descoberta e adoção de módulos
+### T11 — Implementar descoberta e adoção de módulos — CONCLUÍDA
 
 **Escopo:** persistir módulos observados, expor filtros de descoberta, adotar módulo e criar inventário com identidade, família, capacidades, transporte e disponibilidade. Módulos sem adoção não são operáveis.
 
