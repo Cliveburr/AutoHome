@@ -195,6 +195,33 @@ export class ModuleInventoryService {
     return this.listByStatus('cadastrado', filters);
   }
 
+  async recordFirmwareHash(protocolId: string, firmwareHash: string): Promise<void> {
+    const module = await this.findAdopted(protocolId);
+    if (!module) return;
+    const observedAt = new Date();
+    await Promise.all([
+      this.modules.updateOne(
+        { _id: module._id },
+        {
+          $set: {
+            availability: 'online',
+            lastSeenAt: observedAt,
+            lastObservedAt: observedAt,
+            updatedAt: observedAt,
+          },
+        },
+      ),
+      this.states.updateOne(
+        { moduleId: module._id },
+        {
+          $set: { firmwareHash, observedAt, updatedAt: observedAt },
+          $setOnInsert: { values: {} },
+        },
+        { upsert: true },
+      ),
+    ]);
+  }
+
   async adopt(
     protocolId: string,
     actor: AuthenticatedSession,

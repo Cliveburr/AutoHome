@@ -11,6 +11,7 @@ import { AuthorizationService } from './authorization.js';
 import { type AppConfig } from './config.js';
 import { CommandService, type CommandFailure } from './commands.js';
 import { type Database } from './database.js';
+import { FirmwareReconciliationService, FirmwareRepository } from './firmware.js';
 import {
   type ModuleAdoptionFailure,
   type ModuleAvailability,
@@ -334,6 +335,13 @@ export function buildApp({ database, config, simulatedTransport }: AppDependenci
     database && audit
       ? new ModuleInventoryService(database, audit, developmentTransport)
       : undefined;
+  const firmwareRepository = config
+    ? new FirmwareRepository({ gen1: config.firmwareGen1Dir })
+    : undefined;
+  const otaReconciliation =
+    firmwareRepository && modules
+      ? new FirmwareReconciliationService(firmwareRepository, modules, developmentTransport)
+      : undefined;
   const commands =
     database && audit && modules
       ? new CommandService(database, modules, audit, developmentTransport)
@@ -395,6 +403,12 @@ export function buildApp({ database, config, simulatedTransport }: AppDependenci
     });
   }
 
+  if (firmwareRepository) {
+    app.addHook('onReady', async () => {
+      await firmwareRepository.validateDirectories();
+    });
+  }
+
   app.addHook('onRequest', async (request) => {
     request.log.info({ requestId: request.id }, 'Request received');
   });
@@ -435,16 +449,23 @@ export function buildApp({ database, config, simulatedTransport }: AppDependenci
 
   if (developmentTransport) {
     app.post<{
-      Body: { protocolId?: unknown; family?: unknown; capabilities?: unknown; state?: unknown };
+      Body: {
+        protocolId?: unknown;
+        family?: unknown;
+        capabilities?: unknown;
+        state?: unknown;
+        firmwareHash?: unknown;
+      };
     }>('/api/v1/development/simulated-modules', async (request, reply) => {
-      const { protocolId, family, capabilities, state } = request.body ?? {};
+      const { protocolId, family, capabilities, state, firmwareHash } = request.body ?? {};
       if (
         typeof protocolId !== 'string' ||
         !protocolId ||
         typeof family !== 'string' ||
         !family ||
         !isModuleCapabilities(capabilities) ||
-        (state !== undefined && !isRecord(state))
+        (state !== undefined && !isRecord(state)) ||
+        (firmwareHash !== undefined && (typeof firmwareHash !== 'string' || !firmwareHash))
       ) {
         return reply.status(400).send({
           code: 'BAD_REQUEST',
@@ -460,6 +481,7 @@ export function buildApp({ database, config, simulatedTransport }: AppDependenci
           family,
           capabilities,
           ...(state === undefined ? {} : { state }),
+          ...(firmwareHash === undefined ? {} : { firmwareHash }),
         });
         return reply.status(201).send({ module });
       } catch (error) {
@@ -539,6 +561,12 @@ export function buildApp({ database, config, simulatedTransport }: AppDependenci
       secure: config.nodeEnv === 'production',
       path: '/',
     };
+
+    if (otaReconciliation) {
+      app.get('/api/v1/ota', { preHandler: authorization.requireAdministrativeAccess }, async () =>
+        otaReconciliation.reconcile(),
+      );
+    }
 
     if (realtime) {
       app.register(async (realtimeApp) => {

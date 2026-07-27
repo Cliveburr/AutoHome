@@ -39,6 +39,9 @@ import type {
   GetModuleDetailData,
   GetModuleDetailErrors,
   GetModuleDetailResponses,
+  GetOtaAvailabilityData,
+  GetOtaAvailabilityErrors,
+  GetOtaAvailabilityResponses,
   ListAreasData,
   ListAreasErrors,
   ListAreasResponses,
@@ -97,6 +100,28 @@ export const getHealth = <ThrowOnError extends boolean = false>(
 ): RequestResult<GetHealthResponses, GetHealthErrors, ThrowOnError> =>
   (options?.client ?? client).get<GetHealthResponses, GetHealthErrors, ThrowOnError>({
     url: '/health',
+    ...options,
+  });
+
+/**
+ * Consulta a disponibilidade local e reconcilia hashes de firmware
+ */
+export const getOtaAvailability = <ThrowOnError extends boolean = false>(
+  options?: Options<GetOtaAvailabilityData, ThrowOnError>,
+): RequestResult<GetOtaAvailabilityResponses, GetOtaAvailabilityErrors, ThrowOnError> =>
+  (options?.client ?? client).get<
+    GetOtaAvailabilityResponses,
+    GetOtaAvailabilityErrors,
+    ThrowOnError
+  >({
+    security: [
+      {
+        in: 'cookie',
+        name: 'autohome_session',
+        type: 'apiKey',
+      },
+    ],
+    url: '/ota',
     ...options,
   });
 

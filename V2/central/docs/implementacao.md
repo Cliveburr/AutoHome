@@ -128,7 +128,7 @@ Todos os testes devem rodar sem usar o banco, firmware ou dispositivos reais da 
 
 **Manual:** enviar um comando a um módulo simulado, observar `aguardando` e `enviado`, confirmar mudança para `confirmado`; desligar o módulo simulado e confirmar `indisponivel`.
 
-### T14 — Implementar repositório de firmware e reconciliação OTA
+### T14 — Implementar repositório de firmware e reconciliação OTA — CONCLUÍDA
 
 **Escopo:** ler diretório configurado por família, localizar `.bin`, calcular SHA-256, expor disponibilidade do firmware e solicitar hash atual aos módulos pela interface simulada. Não selecionar binário manualmente pela API.
 

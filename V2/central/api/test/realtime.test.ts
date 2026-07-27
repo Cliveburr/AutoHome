@@ -1,4 +1,7 @@
 import { randomUUID } from 'node:crypto';
+import { mkdtempSync, rmSync } from 'node:fs';
+import { join } from 'node:path';
+import { tmpdir } from 'node:os';
 import { loadEnvFile } from 'node:process';
 import { WebSocket } from 'ws';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
@@ -9,6 +12,8 @@ import { RealtimeService } from '../src/realtime.js';
 import { InMemoryModuleTransport } from '../src/transport.js';
 
 loadEnvFile(new URL('../.env', import.meta.url));
+
+const fixtureFirmwareDirectory = mkdtempSync(join(tmpdir(), 'autohome-central-realtime-'));
 
 function getTestDatabaseUri(): string {
   const mongodbUri = process.env.MONGODB_URI;
@@ -57,7 +62,7 @@ describe('realtime WebSocket', () => {
       sessionSecret: 'realtime-test-secret',
       nodeEnv: 'development',
       httpPort: 0,
-      firmwareGen1Dir: './firmware/gen1',
+      firmwareGen1Dir: fixtureFirmwareDirectory,
       otaMaxConcurrency: 1,
       bootstrapAdminPassword: 'bootstrap-password',
     };
@@ -127,6 +132,7 @@ describe('realtime WebSocket', () => {
   afterAll(async () => {
     await database.db.dropDatabase();
     await app.close();
+    rmSync(fixtureFirmwareDirectory, { force: true, recursive: true });
   });
 
   it('accepts an operational cookie and publishes public state envelopes', async () => {

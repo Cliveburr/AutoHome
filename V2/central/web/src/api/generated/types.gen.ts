@@ -212,6 +212,28 @@ export type Command = {
   failureReason?: 'transport_failed' | 'module_unavailable';
 };
 
+export type FirmwareArtifact = {
+  /**
+   * Hash SHA-256 do binario local elegivel.
+   */
+  hash: string;
+};
+
+export type OtaModuleReconciliation = {
+  protocolId: string;
+  status: 'atualizado' | 'atualizacao_disponivel' | 'desconhecido';
+};
+
+export type OtaFamilyAvailability = {
+  family: string;
+  artifacts: Array<FirmwareArtifact>;
+  modules: Array<OtaModuleReconciliation>;
+};
+
+export type OtaAvailabilityResponse = {
+  families: Array<OtaFamilyAvailability>;
+};
+
 export type ModuleResponse = {
   module: Module;
 };
@@ -335,6 +357,36 @@ export type GetHealthResponses = {
 };
 
 export type GetHealthResponse = GetHealthResponses[keyof GetHealthResponses];
+
+export type GetOtaAvailabilityData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: '/ota';
+};
+
+export type GetOtaAvailabilityErrors = {
+  /**
+   * A sessao autenticada e obrigatoria ou nao e mais valida.
+   */
+  401: Error;
+  /**
+   * A sessao autenticada nao tem permissao administrativa.
+   */
+  403: Error;
+};
+
+export type GetOtaAvailabilityError = GetOtaAvailabilityErrors[keyof GetOtaAvailabilityErrors];
+
+export type GetOtaAvailabilityResponses = {
+  /**
+   * Hashes de firmware local elegiveis e situacao dos modulos adotados.
+   */
+  200: OtaAvailabilityResponse;
+};
+
+export type GetOtaAvailabilityResponse =
+  GetOtaAvailabilityResponses[keyof GetOtaAvailabilityResponses];
 
 export type LoginData = {
   body: LoginRequestWritable;

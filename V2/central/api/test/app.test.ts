@@ -1,6 +1,9 @@
 import { randomUUID } from 'node:crypto';
+import { mkdtempSync, rmSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
 import { loadEnvFile } from 'node:process';
+import { tmpdir } from 'node:os';
 import argon2 from 'argon2';
 import cookie from '@fastify/cookie';
 import Fastify, { type FastifyInstance } from 'fastify';
@@ -17,6 +20,8 @@ import { BaseRepository } from '../src/repository.js';
 import { InMemoryModuleTransport } from '../src/transport.js';
 
 loadEnvFile(new URL('../.env', import.meta.url));
+
+const fixtureFirmwareDirectory = mkdtempSync(join(tmpdir(), 'autohome-central-api-'));
 
 function getTestDatabaseUri(name: string): string {
   const mongodbUri = process.env.MONGODB_URI;
@@ -60,6 +65,7 @@ const app = buildApp();
 
 afterAll(async () => {
   await app.close();
+  rmSync(fixtureFirmwareDirectory, { force: true, recursive: true });
 });
 
 describe('initialization endpoint', () => {
@@ -188,7 +194,7 @@ describe('authentication and sessions', () => {
     sessionSecret: 'test-session-secret',
     nodeEnv: 'test',
     httpPort: 3000,
-    firmwareGen1Dir: './firmware/gen1',
+    firmwareGen1Dir: fixtureFirmwareDirectory,
     otaMaxConcurrency: 1,
     bootstrapAdminPassword: 'bootstrap-password',
   };
@@ -427,7 +433,7 @@ describe('administrative user management', () => {
     sessionSecret: 'user-management-test-secret',
     nodeEnv: 'test',
     httpPort: 3000,
-    firmwareGen1Dir: './firmware/gen1',
+    firmwareGen1Dir: fixtureFirmwareDirectory,
     otaMaxConcurrency: 1,
     bootstrapAdminPassword: 'bootstrap-password',
   };
@@ -629,7 +635,7 @@ describe('areas and rooms administration', () => {
     sessionSecret: 'organization-test-secret',
     nodeEnv: 'test',
     httpPort: 3000,
-    firmwareGen1Dir: './firmware/gen1',
+    firmwareGen1Dir: fixtureFirmwareDirectory,
     otaMaxConcurrency: 1,
     bootstrapAdminPassword: 'bootstrap-password',
   };
@@ -819,7 +825,7 @@ describe('module discovery and adoption HTTP API', () => {
     sessionSecret: 'module-discovery-test-secret',
     nodeEnv: 'development',
     httpPort: 3000,
-    firmwareGen1Dir: './firmware/gen1',
+    firmwareGen1Dir: fixtureFirmwareDirectory,
     otaMaxConcurrency: 1,
     bootstrapAdminPassword: 'bootstrap-password',
   };
@@ -1041,5 +1047,30 @@ describe('module discovery and adoption HTTP API', () => {
       headers: { cookie: pendingCookie },
     });
     expect(roomInUse.statusCode).toBe(409);
+
+    const anonymousOta = await modulesApp.inject({ method: 'GET', url: '/api/v1/ota' });
+    expect(anonymousOta.statusCode).toBe(401);
+    const basicOta = await modulesApp.inject({
+      method: 'GET',
+      url: '/api/v1/ota',
+      headers: { cookie: basicCookie },
+    });
+    expect(basicOta.statusCode).toBe(403);
+    const ota = await modulesApp.inject({
+      method: 'GET',
+      url: '/api/v1/ota',
+      headers: { cookie: pendingCookie },
+    });
+    expect(ota.statusCode).toBe(200);
+    expect(ota.json()).toMatchObject({
+      families: [
+        {
+          family: 'gen1',
+          artifacts: [],
+          modules: [{ protocolId: 'gen1-lamp-garage', status: 'desconhecido' }],
+        },
+      ],
+    });
+    expect(JSON.stringify(ota.json())).not.toContain(fixtureFirmwareDirectory);
   });
 });

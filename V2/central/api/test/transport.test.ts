@@ -1,7 +1,16 @@
-import { describe, expect, it } from 'vitest';
+import { mkdtempSync, rmSync } from 'node:fs';
+import { join } from 'node:path';
+import { tmpdir } from 'node:os';
+import { afterAll, describe, expect, it } from 'vitest';
 import { buildApp } from '../src/app.js';
 import { type AppConfig } from '../src/config.js';
 import { InMemoryModuleTransport, type TransportEvent } from '../src/transport.js';
+
+const fixtureFirmwareDirectory = mkdtempSync(join(tmpdir(), 'autohome-central-transport-'));
+
+afterAll(() => {
+  rmSync(fixtureFirmwareDirectory, { force: true, recursive: true });
+});
 
 describe('InMemoryModuleTransport', () => {
   it('simulates discovery, state and hash queries, commands and configuration confirmation', async () => {
@@ -166,7 +175,7 @@ describe('development simulated module insertion', () => {
     sessionSecret: 'development-transport-test-secret',
     nodeEnv: 'development',
     httpPort: 3000,
-    firmwareGen1Dir: './firmware/gen1',
+    firmwareGen1Dir: fixtureFirmwareDirectory,
     otaMaxConcurrency: 1,
   };
 

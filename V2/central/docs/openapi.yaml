@@ -17,6 +17,8 @@ tags:
     description: Organizacao administrativa da residencia em areas e comodos.
   - name: Modulos
     description: Descoberta administrativa e inventario de modulos adotados.
+  - name: OTA
+    description: Disponibilidade local e reconciliacao administrativa de firmware.
 paths:
   /health:
     get:
@@ -37,6 +39,24 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HealthUnavailable'
+  /ota:
+    get:
+      tags: [OTA]
+      operationId: getOtaAvailability
+      summary: Consulta a disponibilidade local e reconcilia hashes de firmware
+      security:
+        - sessionCookie: []
+      responses:
+        '200':
+          description: Hashes de firmware local elegiveis e situacao dos modulos adotados.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OtaAvailabilityResponse'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
   /auth/login:
     post:
       tags: [Autenticacao]
@@ -979,6 +999,48 @@ components:
         failureReason:
           type: string
           enum: [transport_failed, module_unavailable]
+    FirmwareArtifact:
+      type: object
+      additionalProperties: false
+      required: [hash]
+      properties:
+        hash:
+          type: string
+          description: Hash SHA-256 do binario local elegivel.
+    OtaModuleReconciliation:
+      type: object
+      additionalProperties: false
+      required: [protocolId, status]
+      properties:
+        protocolId:
+          type: string
+        status:
+          type: string
+          enum: [atualizado, atualizacao_disponivel, desconhecido]
+    OtaFamilyAvailability:
+      type: object
+      additionalProperties: false
+      required: [family, artifacts, modules]
+      properties:
+        family:
+          type: string
+        artifacts:
+          type: array
+          items:
+            $ref: '#/components/schemas/FirmwareArtifact'
+        modules:
+          type: array
+          items:
+            $ref: '#/components/schemas/OtaModuleReconciliation'
+    OtaAvailabilityResponse:
+      type: object
+      additionalProperties: false
+      required: [families]
+      properties:
+        families:
+          type: array
+          items:
+            $ref: '#/components/schemas/OtaFamilyAvailability'
     ModuleResponse:
       type: object
       additionalProperties: false
