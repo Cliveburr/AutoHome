@@ -2,6 +2,10 @@
 
 Execute este procedimento de ponta a ponta. Não encerre o trabalho após apresentar o plano.
 
+Prossiga autonomamente por todas as etapas. Peça direção somente quando surgir
+uma decisão material, ambígua ou incerta que não possa ser resolvida pela
+documentação e pelo contexto disponíveis.
+
 Durante a fase atual de desenvolvimento, não introduza compatibilidade retroativa,
 caminhos legados ou preservação de comportamento antigo, salvo solicitação explícita
 do usuário.
@@ -15,5 +19,4 @@ do usuário.
 7. Após todas as validações passarem, marque a tarefa como concluída em implementacao.md de forma bem clara.
 8. Se os testes finais passarem e a revisão não encontrar problemas, inclua todas as alterações pendentes no commit e faça o commit imediatamente com o identificador e nome da tarefa atual.
 
-Se na etapa do plan houver bloqueio real que impeça a implementação, apresente as evidências e o próximo passo necessário com sugestões de solução; caso contrário, prossiga autonomamente até concluir a
-tarefa.
+Se na etapa do plan houver bloqueio real que impeça a implementação, apresente as evidências e o próximo passo necessário com sugestões de solução.
