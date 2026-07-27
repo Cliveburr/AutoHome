@@ -14,3 +14,7 @@ web_search = "cached"  # default; serves results from the web search cache
 # web_search = "indexed" # gate external web access through the search index
 # web_search = "live"  # fetch the most recent data from the web (same as --search)
 # web_search = "disabled"
+
+[mcp_servers.codegraph]
+command = "codegraph"
+args = ["serve", "--mcp"]
