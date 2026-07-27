@@ -31,7 +31,7 @@ No primeiro início, a variável de ambiente `BOOTSTRAP_ADMIN_PASSWORD` pode sub
 
 - Usuários são criados, alterados, ativados, desativados e têm senhas redefinidas somente por administradores.
 - Senhas são persistidas exclusivamente como hash Argon2id.
-- A interface web usa sessões autenticadas por cookie `HttpOnly`, `Secure` sob HTTPS e `SameSite` apropriado.
+- A interface web usa sessões autenticadas por cookie `HttpOnly`, `Secure` sob HTTPS e `SameSite` apropriado. Esse cookie assinado é a única credencial das rotas HTTP e do WebSocket; não há Bearer token.
 - Sessões devem poder ser invalidadas por um administrador e após redefinição de senha.
 - MongoDB não é exposto publicamente; somente a central acessa o banco.
 
@@ -47,6 +47,8 @@ Devem ser auditados, no mínimo:
 - Alterações administrativas em dispositivos, vínculos, ambientes, grupos, cenas, automações, agendamentos e atualizações OTA.
 
 Senhas, hashes, cookies, tokens e outros segredos nunca são persistidos no log de auditoria.
+
+O envio de comando registra ator, módulo, capacidade, ação, correlação e resultado seguro. A confirmação e falha/indisponibilidade registram a mesma correlação, sem parâmetros brutos, pacotes ou binários. Sessões que ainda exigem troca de senha são recusadas tanto em comandos quanto no handshake de tempo real.
 
 ## Exposição Futura
 

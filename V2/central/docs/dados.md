@@ -18,7 +18,7 @@ A central separa intenção administrativa, estado confirmado por módulos e his
 | `modules` | Inventário, identidade, capacidades, transporte e organização. | `protocolId` único, família, `roomId`, disponibilidade |
 | `module_states` | Último estado confirmado, disponibilidade e última comunicação. | `moduleId` único, última comunicação |
 | `module_configurations` | Configurações desejadas, enviadas e confirmadas. | `moduleId`, estado de sincronização |
-| `commands` | Solicitações operacionais, correlação e confirmação. | `commandId` único, `moduleId`, estado, data/hora |
+| `commands` | Solicitações operacionais, correlação e confirmação. | `commandId` único, `solicitante + Idempotency-Key` único, `moduleId`, estado, data/hora |
 | `ota_jobs` | Execuções individuais ou em lote de OTA. | data/hora, família, estado |
 | `ota_job_items` | Resultado de OTA por módulo. | `otaJobId`, `moduleId`, estado |
 
@@ -27,11 +27,11 @@ A central separa intenção administrativa, estado confirmado por módulos e his
 - Um módulo tem no máximo um `roomId`; ele pode não ter cômodo.
 - Um cômodo pode ter uma área ou permanecer sem área.
 - O estado atual consultado pela interface vem de `module_states` e deve indicar quando está desatualizado ou indisponível.
-- `commands` preserva solicitante, alvo, conteúdo seguro da solicitação, identificador de correlação, estado e confirmação ou falha.
+- `commands` preserva solicitante interno, alvo interno, conteúdo já validado da solicitação, identificador de correlação, chave de idempotência, estado, datas de envio/conclusão e motivo seguro de falha. Esses campos internos não fazem parte da projeção HTTP pública.
 - `module_configurations` preserva as versões desejada, enviada e confirmada sem depender de um contador textual de versão.
 - `ota_job_items` registra o hash esperado, progresso, estado e resultado de cada módulo.
 - `audit_logs` não armazena senhas, hashes de senha, cookies, tokens ou binários.
 
 ## Retenção
 
-Auditoria, inventário, configurações, comandos e histórico de OTA não expiram automaticamente no MVP. Telemetria e histórico de sensores não são coletados como série temporal no MVP; sua retenção será definida quando essas capacidades entrarem no escopo.
+Auditoria, inventário, configurações, comandos e histórico de OTA não expiram automaticamente no MVP. O buffer de eventos em tempo real é limitado, em memória e descartado ao reiniciar; ele serve somente à reconexão e nunca substitui `commands`, `module_states` ou consultas HTTP. Telemetria e histórico de sensores não são coletados como série temporal no MVP; sua retenção será definida quando essas capacidades entrarem no escopo.

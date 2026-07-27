@@ -120,7 +120,7 @@ Todos os testes devem rodar sem usar o banco, firmware ou dispositivos reais da 
 
 ## Operação de Módulos
 
-### T13 — Implementar comandos e estados em tempo real
+### T13 — Implementar comandos e estados em tempo real — CONCLUÍDA
 
 **Escopo:** implementar `POST /commands`, consulta de comando, chave de idempotência, estados de comando e WebSocket autenticado. Publicar mudanças de estado, disponibilidade e comando; implementar reconexão por `eventId` ou reconciliação HTTP.
 

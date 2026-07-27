@@ -47,6 +47,6 @@ A configuração de vínculos é exclusiva de administradores e deve ter confirm
 
 ## Comandos Operacionais
 
-Usuários `basico` e `administrador` podem enviar comandos operacionais para capacidades de módulos cadastrados. A central registra a solicitação, encaminha o comando, acompanha a confirmação e publica o resultado para a interface.
+Usuários `basico` e `administrador`, com sessão ativa e senha já alterada, podem enviar comandos operacionais para capacidades de módulos cadastrados. A central valida a capacidade, ação e parâmetros completos contra a declaração persistida, registra a solicitação de modo idempotente por usuário e chave, encaminha o comando e acompanha somente eventos da correlação correspondente. Confirmação, falha simulada e indisponibilidade são persistidas e publicadas em tempo real sem expor o pacote do transporte.
 
 Configurações, adoção, organização, vínculos e diagnósticos administrativos são exclusivos de administradores.

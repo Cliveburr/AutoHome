@@ -41,13 +41,13 @@ O contrato OpenAPI detalha esquemas de requisição e resposta, códigos HTTP e 
 
 ## Comandos
 
-Um comando é solicitado por `POST /commands` com destino, ação, parâmetros e uma chave de idempotência. A resposta retorna um `commandId` e estado inicial, nunca uma confirmação antecipada do módulo.
+Um comando é solicitado por `POST /commands` com `{ protocolId, capabilityId, action, parameters }` e o cabeçalho obrigatório `Idempotency-Key`. A chave é única por solicitante: uma repetição retorna o mesmo recurso e não cria novo despacho nem nova auditoria. O destino precisa estar adotado e a ação e os parâmetros completos precisam corresponder à capacidade declarada, incluindo tipo, enumeração e limites.
 
-Estados mínimos são `aguardando`, `enviado`, `confirmado`, `falhou` e `indisponivel`. O cliente consulta `GET /commands/{commandId}` ou recebe atualizações em tempo real.
+Estados são `aguardando`, `enviado`, `confirmado`, `falhou` e `indisponivel`. A central persiste primeiro a intenção, marca o encaminhamento e só então aceita a confirmação, falha ou indisponibilidade cuja correlação corresponda ao comando enviado. A projeção de `GET /commands/{commandId}` não inclui `_id`, sessão, solicitante interno, correlação ou segredos.
 
 ## Tempo Real
 
-O canal WebSocket usa a sessão web autenticada. Eventos seguem o envelope:
+O canal WebSocket é `GET /api/v1/realtime` e usa o cookie assinado `autohome_session`; usuários `basico` e `administrador` com senha já alterada podem conectar. O cursor opcional é enviado como `?eventId=<ultimo-evento-processado>`. Eventos seguem o envelope:
 
 ```json
 {
@@ -63,10 +63,9 @@ Eventos iniciais:
 - `module.state.changed`
 - `module.availability.changed`
 - `command.updated`
-- `ota.item.updated`
-- `discovery.module.seen`
+- `realtime.reconciliation.required`
 
-A reconexão informa o último `eventId` processado. A central reenvia eventos disponíveis após esse cursor ou exige reconciliação pela API quando o cursor não puder ser atendido.
+A reconexão recebe somente os eventos posteriores ao cursor, na ordem publicada, enquanto ele existir no buffer em memória. Cursor expirado, desconhecido ou de uma central reiniciada recebe `realtime.reconciliation.required`, cujos recursos indicam recarregar `GET /modules` e o detalhe necessário, incluindo `GET /commands/{commandId}`. O buffer não é fonte de verdade nem contém cookie, auditoria ou pacote bruto do transporte.
 
 ## Limites
 

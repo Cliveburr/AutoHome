@@ -48,6 +48,12 @@ export class AuthorizationService {
     request.authenticatedSession = session;
   };
 
+  readonly requireOperationalAccess: AuthorizationHook = async (request, reply) => {
+    await this.requireAuthentication(request, reply);
+    if (reply.sent || !request.authenticatedSession) return;
+    if (request.authenticatedSession.user.passwordChangeRequired) forbidden(request, reply);
+  };
+
   requireRole(...allowedRoles: UserRole[]): AuthorizationHook {
     return async (request, reply) => {
       await this.requireAuthentication(request, reply);

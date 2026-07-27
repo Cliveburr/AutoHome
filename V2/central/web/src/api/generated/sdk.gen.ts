@@ -12,6 +12,9 @@ import type {
   CreateAreaData,
   CreateAreaErrors,
   CreateAreaResponses,
+  CreateCommandData,
+  CreateCommandErrors,
+  CreateCommandResponses,
   CreateModuleLocalLinkData,
   CreateModuleLocalLinkErrors,
   CreateModuleLocalLinkResponses,
@@ -24,6 +27,9 @@ import type {
   DeleteRoomData,
   DeleteRoomErrors,
   DeleteRoomResponses,
+  GetCommandData,
+  GetCommandErrors,
+  GetCommandResponses,
   GetCurrentSessionData,
   GetCurrentSessionErrors,
   GetCurrentSessionResponses,
@@ -487,4 +493,44 @@ export const createModuleLocalLink = <ThrowOnError extends boolean = false>(
       'Content-Type': 'application/json',
       ...options.headers,
     },
+  });
+
+/**
+ * Solicita um comando operacional idempotente para um modulo adotado
+ */
+export const createCommand = <ThrowOnError extends boolean = false>(
+  options: Options<CreateCommandData, ThrowOnError>,
+): RequestResult<CreateCommandResponses, CreateCommandErrors, ThrowOnError> =>
+  (options.client ?? client).post<CreateCommandResponses, CreateCommandErrors, ThrowOnError>({
+    security: [
+      {
+        in: 'cookie',
+        name: 'autohome_session',
+        type: 'apiKey',
+      },
+    ],
+    url: '/commands',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Consulta o estado publico persistido de um comando operacional
+ */
+export const getCommand = <ThrowOnError extends boolean = false>(
+  options: Options<GetCommandData, ThrowOnError>,
+): RequestResult<GetCommandResponses, GetCommandErrors, ThrowOnError> =>
+  (options.client ?? client).get<GetCommandResponses, GetCommandErrors, ThrowOnError>({
+    security: [
+      {
+        in: 'cookie',
+        name: 'autohome_session',
+        type: 'apiKey',
+      },
+    ],
+    url: '/commands/{commandId}',
+    ...options,
   });

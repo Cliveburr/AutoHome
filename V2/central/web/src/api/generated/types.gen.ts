@@ -185,6 +185,33 @@ export type CreateLocalLinkRequest = {
   target: LocalLinkTarget;
 };
 
+export type CreateCommandRequest = {
+  protocolId: string;
+  capabilityId: string;
+  action: string;
+  parameters: {
+    [key: string]: boolean | number | string;
+  };
+};
+
+export type Command = {
+  /**
+   * Identificador publico estavel do comando.
+   */
+  commandId: string;
+  protocolId: string;
+  capabilityId: string;
+  action: string;
+  parameters: {
+    [key: string]: boolean | number | string;
+  };
+  status: 'aguardando' | 'enviado' | 'confirmado' | 'falhou' | 'indisponivel';
+  createdAt: string;
+  sentAt?: string;
+  completedAt?: string;
+  failureReason?: 'transport_failed' | 'module_unavailable';
+};
+
 export type ModuleResponse = {
   module: Module;
 };
@@ -203,6 +230,10 @@ export type LocalLinkResponse = {
 
 export type ModuleListResponse = {
   modules: Array<Module>;
+};
+
+export type CommandResponse = {
+  command: Command;
 };
 
 export type HealthAvailable = {
@@ -259,6 +290,10 @@ export type LoginRequestWritable = {
   username: string;
   password: string;
 };
+
+export type CommandId = string;
+
+export type IdempotencyKey = string;
 
 export type AreaId = string;
 
@@ -976,3 +1011,78 @@ export type CreateModuleLocalLinkResponses = {
 
 export type CreateModuleLocalLinkResponse =
   CreateModuleLocalLinkResponses[keyof CreateModuleLocalLinkResponses];
+
+export type CreateCommandData = {
+  body: CreateCommandRequest;
+  headers: {
+    'Idempotency-Key': string;
+  };
+  path?: never;
+  query?: never;
+  url: '/commands';
+};
+
+export type CreateCommandErrors = {
+  /**
+   * Requisicao invalida.
+   */
+  400: Error;
+  /**
+   * A sessao autenticada e obrigatoria ou nao e mais valida.
+   */
+  401: Error;
+  /**
+   * O modulo adotado informado nao existe.
+   */
+  404: Error;
+  /**
+   * A capacidade, acao ou parametros nao correspondem a declaracao do modulo.
+   */
+  422: Error;
+};
+
+export type CreateCommandError = CreateCommandErrors[keyof CreateCommandErrors];
+
+export type CreateCommandResponses = {
+  /**
+   * Repeticao idempotente; retorna o recurso criado na primeira solicitacao.
+   */
+  200: CommandResponse;
+  /**
+   * Comando criado e encaminhado ao transporte quando disponivel.
+   */
+  201: CommandResponse;
+};
+
+export type CreateCommandResponse = CreateCommandResponses[keyof CreateCommandResponses];
+
+export type GetCommandData = {
+  body?: never;
+  path: {
+    commandId: string;
+  };
+  query?: never;
+  url: '/commands/{commandId}';
+};
+
+export type GetCommandErrors = {
+  /**
+   * A sessao autenticada e obrigatoria ou nao e mais valida.
+   */
+  401: Error;
+  /**
+   * O comando informado nao existe.
+   */
+  404: Error;
+};
+
+export type GetCommandError = GetCommandErrors[keyof GetCommandErrors];
+
+export type GetCommandResponses = {
+  /**
+   * Comando encontrado.
+   */
+  200: CommandResponse;
+};
+
+export type GetCommandResponse = GetCommandResponses[keyof GetCommandResponses];

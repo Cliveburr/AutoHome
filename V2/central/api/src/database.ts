@@ -30,6 +30,7 @@ const collectionIndexes = new Map<string, readonly IndexDescription[]>([
     'commands',
     [
       { key: { commandId: 1 }, unique: true },
+      { key: { requesterUserId: 1, idempotencyKey: 1 }, unique: true },
       { key: { moduleId: 1, createdAt: -1 } },
       { key: { status: 1, createdAt: -1 } },
     ],

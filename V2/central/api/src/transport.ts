@@ -39,6 +39,7 @@ export interface ModuleState {
 
 export type TransportEvent =
   | { type: 'module.discovered'; module: TransportModule; occurredAt: Date }
+  | { type: 'module.available'; protocolId: string; occurredAt: Date }
   | { type: 'module.state'; protocolId: string; state: ModuleState; occurredAt: Date }
   | {
       type: 'operation.confirmed';
@@ -156,7 +157,11 @@ export class InMemoryModuleTransport implements ModuleTransport {
   }
 
   setAvailability(protocolId: string, available: boolean): void {
-    this.requireModule(protocolId).available = available;
+    const simulated = this.requireModule(protocolId);
+    if (simulated.available === available) return;
+    simulated.available = available;
+    if (available) this.emit({ type: 'module.available', protocolId, occurredAt: new Date() });
+    else this.emitUnavailable(protocolId, 'state');
   }
 
   setAutoConfirm(protocolId: string, operation: TransportOperation, enabled: boolean): void {

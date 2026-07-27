@@ -157,6 +157,9 @@ export class ModuleInventoryService {
       case 'module.discovered':
         await this.recordDiscovery(event.module, event.occurredAt);
         return;
+      case 'module.available':
+        await this.recordAvailability(event.protocolId, 'online', event.occurredAt, false);
+        return;
       case 'module.state':
         await this.recordState(event.protocolId, event.state, event.occurredAt);
         return;

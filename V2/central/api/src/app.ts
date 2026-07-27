@@ -1,5 +1,6 @@
 import Fastify from 'fastify';
 import cookie from '@fastify/cookie';
+import websocket from '@fastify/websocket';
 import { AuditService } from './audit.js';
 import {
   AuthenticationService,
@@ -8,6 +9,7 @@ import {
 } from './authentication.js';
 import { AuthorizationService } from './authorization.js';
 import { type AppConfig } from './config.js';
+import { CommandService, type CommandFailure } from './commands.js';
 import { type Database } from './database.js';
 import {
   type ModuleAdoptionFailure,
@@ -17,6 +19,7 @@ import {
   type ModuleFilters,
 } from './modules.js';
 import { type OrganizationFailure, OrganizationService } from './organization.js';
+import { RealtimeService } from './realtime.js';
 import {
   InMemoryModuleTransport,
   type ModuleCapability,
@@ -163,6 +166,31 @@ function moduleMutationError(
   return { ...errors[failure], details: {}, requestId };
 }
 
+function commandError(
+  failure: CommandFailure,
+  requestId: string,
+): {
+  statusCode: number;
+  code: string;
+  message: string;
+  requestId: string;
+  details: Record<string, never>;
+} {
+  const errors = {
+    module_not_found: {
+      statusCode: 404,
+      code: 'MODULE_NOT_FOUND',
+      message: 'Modulo adotado nao encontrado.',
+    },
+    command_invalid: {
+      statusCode: 422,
+      code: 'COMMAND_INVALID',
+      message: 'A acao ou os parametros nao correspondem a declaracao do modulo.',
+    },
+  } as const;
+  return { ...errors[failure], details: {}, requestId };
+}
+
 function isPosition(value: unknown): value is number {
   return typeof value === 'number' && Number.isInteger(value) && value >= 0;
 }
@@ -266,6 +294,8 @@ function transportEventLogData(event: TransportEvent): Record<string, string> {
         protocolId: event.module.protocolId,
         family: event.module.family,
       };
+    case 'module.available':
+      return { type: event.type, protocolId: event.protocolId };
     case 'module.state':
       return { type: event.type, protocolId: event.protocolId };
     case 'operation.confirmed':
@@ -304,22 +334,53 @@ export function buildApp({ database, config, simulatedTransport }: AppDependenci
     database && audit
       ? new ModuleInventoryService(database, audit, developmentTransport)
       : undefined;
+  const commands =
+    database && audit && modules
+      ? new CommandService(database, modules, audit, developmentTransport)
+      : undefined;
+  const realtime = config ? new RealtimeService() : undefined;
 
   developmentTransport?.subscribe((event) => {
     app.log.info(
       { transportEvent: transportEventLogData(event) },
       'Simulated module transport event',
     );
-    void modules?.handleTransportEvent(event).catch((error: unknown) => {
+    void (async () => {
+      await modules?.handleTransportEvent(event);
+      const updatedCommands = (await commands?.handleTransportEvent(event)) ?? [];
+      if (!realtime || !modules) return;
+      if (event.type === 'module.state') {
+        const module = await modules.getDetail(event.protocolId);
+        if (module?.state) {
+          realtime.publish('module.state.changed', {
+            protocolId: module.protocolId,
+            state: module.state,
+          });
+        }
+      }
+      if (event.type === 'module.unavailable' || event.type === 'module.available') {
+        const module = await modules.getDetail(event.protocolId);
+        if (module) {
+          realtime.publish('module.availability.changed', {
+            protocolId: module.protocolId,
+            availability: module.availability,
+          });
+        }
+      }
+      for (const command of updatedCommands) {
+        realtime.publish('command.updated', { command });
+      }
+    })().catch((error: unknown) => {
       app.log.error(
         { err: error, transportEvent: transportEventLogData(event) },
-        'Unable to persist simulated module transport event',
+        'Unable to process simulated module transport event',
       );
     });
   });
 
   if (config) {
     app.register(cookie, { secret: config.sessionSecret });
+    app.register(websocket);
   }
 
   if (database) {
@@ -410,6 +471,63 @@ export function buildApp({ database, config, simulatedTransport }: AppDependenci
         });
       }
     });
+
+    app.post<{
+      Params: { protocolId: string };
+      Body: {
+        automaticConfirmation?: unknown;
+        failNext?: unknown;
+        available?: unknown;
+        confirmCorrelationId?: unknown;
+      };
+    }>(
+      '/api/v1/development/simulated-modules/:protocolId/commands/control',
+      async (request, reply) => {
+        const body = request.body ?? {};
+        if (
+          (body.automaticConfirmation !== undefined &&
+            typeof body.automaticConfirmation !== 'boolean') ||
+          (body.failNext !== undefined && typeof body.failNext !== 'boolean') ||
+          (body.available !== undefined && typeof body.available !== 'boolean') ||
+          (body.confirmCorrelationId !== undefined && typeof body.confirmCorrelationId !== 'string')
+        ) {
+          return reply.status(400).send({
+            code: 'BAD_REQUEST',
+            message: 'Os controles simulados devem ser validos.',
+            details: {},
+            requestId: request.id,
+          });
+        }
+        try {
+          if (body.automaticConfirmation !== undefined) {
+            developmentTransport.setAutoConfirm(
+              request.params.protocolId,
+              'command',
+              body.automaticConfirmation,
+            );
+          }
+          if (body.failNext)
+            developmentTransport.failNextOperation(request.params.protocolId, 'command');
+          if (body.available !== undefined)
+            developmentTransport.setAvailability(request.params.protocolId, body.available);
+          if (body.confirmCorrelationId) {
+            developmentTransport.confirmOperation(
+              request.params.protocolId,
+              'command',
+              body.confirmCorrelationId,
+            );
+          }
+          return reply.status(204).send();
+        } catch {
+          return reply.status(404).send({
+            code: 'SIMULATED_MODULE_NOT_FOUND',
+            message: 'Modulo simulado nao encontrado.',
+            details: {},
+            requestId: request.id,
+          });
+        }
+      },
+    );
   }
 
   if (authentication && config) {
@@ -421,6 +539,18 @@ export function buildApp({ database, config, simulatedTransport }: AppDependenci
       secure: config.nodeEnv === 'production',
       path: '/',
     };
+
+    if (realtime) {
+      app.register(async (realtimeApp) => {
+        realtimeApp.get<{ Querystring: { eventId?: string } }>(
+          '/api/v1/realtime',
+          { websocket: true, preValidation: authorization.requireOperationalAccess },
+          (socket, request) => {
+            realtime.connect(socket, request.query?.eventId);
+          },
+        );
+      });
+    }
 
     app.post<{ Body: { username?: string; password?: string } }>(
       '/api/v1/auth/login',
@@ -816,6 +946,77 @@ export function buildApp({ database, config, simulatedTransport }: AppDependenci
     }
 
     if (modules) {
+      if (commands) {
+        app.post<{
+          Headers: { 'idempotency-key'?: string };
+          Body: {
+            protocolId?: unknown;
+            capabilityId?: unknown;
+            action?: unknown;
+            parameters?: unknown;
+          };
+        }>(
+          '/api/v1/commands',
+          { preHandler: authorization.requireOperationalAccess },
+          async (request, reply) => {
+            const body = request.body ?? {};
+            const idempotencyKey = request.headers['idempotency-key'];
+            if (
+              typeof idempotencyKey !== 'string' ||
+              !idempotencyKey ||
+              typeof body.protocolId !== 'string' ||
+              !body.protocolId ||
+              typeof body.capabilityId !== 'string' ||
+              !body.capabilityId ||
+              typeof body.action !== 'string' ||
+              !body.action ||
+              !isRecord(body.parameters)
+            ) {
+              return reply.status(400).send({
+                code: 'BAD_REQUEST',
+                message: 'Idempotency-Key, destino, acao e parametros sao obrigatorios.',
+                details: {},
+                requestId: request.id,
+              });
+            }
+            const result = await commands.create(
+              {
+                protocolId: body.protocolId,
+                capabilityId: body.capabilityId,
+                action: body.action,
+                parameters: body.parameters,
+              },
+              idempotencyKey,
+              request.authenticatedSession!,
+              request.ip,
+            );
+            if ('failure' in result) {
+              const error = commandError(result.failure, request.id);
+              return reply.status(error.statusCode).send(error);
+            }
+            if (result.created) realtime?.publish('command.updated', { command: result.command });
+            return reply.status(result.created ? 201 : 200).send({ command: result.command });
+          },
+        );
+
+        app.get<{ Params: { commandId: string } }>(
+          '/api/v1/commands/:commandId',
+          { preHandler: authorization.requireOperationalAccess },
+          async (request, reply) => {
+            const command = await commands.get(request.params.commandId);
+            if (!command) {
+              return reply.status(404).send({
+                code: 'COMMAND_NOT_FOUND',
+                message: 'Comando nao encontrado.',
+                details: {},
+                requestId: request.id,
+              });
+            }
+            return { command };
+          },
+        );
+      }
+
       app.get<{ Querystring: Record<string, unknown> }>(
         '/api/v1/discovery',
         { preHandler: authorization.requireAdministrativeAccess },
