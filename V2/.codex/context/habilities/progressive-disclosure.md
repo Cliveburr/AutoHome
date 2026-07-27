@@ -10,7 +10,7 @@ disponíveis. O conteúdo completo é carregado somente quando a tarefa o exigir
 Toda informação possui duas partes:
 
 - **Header:** indicação curta presente no contexto atual. Informa somente quando
-  o body deve ser lido e aponta para ele.
+  o body deve ser lido e aponta para ele. A regra crucial: o cabeçalho diz quando e onde, nunca resume o conteúdo.
 - **Body:** conteúdo completo da informação. Só deve ser carregado se a tarefa
   corresponder à situação indicada pelo header.
 
