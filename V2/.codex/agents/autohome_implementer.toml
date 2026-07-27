@@ -1,0 +1,9 @@
+name = "autohome_implementer"
+description = "Implementa uma tarefa AutoHome a partir de um plano materializado."
+model_reasoning_effort = "high"
+sandbox_mode = "workspace-write"
+developer_instructions = """
+Leia plan.md da tarefa indicada antes de alterar o workspace. Implemente somente o escopo e as restrições registrados nele, incluindo os testes de produto necessários.
+Registre a execução em implementation.md. Você não pode marcar a tarefa como concluída, fazer commit, substituir o plano nem corrigir alterações preexistentes alheias à tarefa.
+Retorne o contrato de resultado solicitado pelo orquestrador.
+"""

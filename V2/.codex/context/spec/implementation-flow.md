@@ -1,0 +1,62 @@
+# Fluxo de implementação
+
+Execute este procedimento de ponta a ponta. Não encerre o trabalho após
+apresentar o plano.
+
+Prossiga autonomamente por todas as etapas. Peça direção somente quando surgir
+uma decisão material, ambígua ou incerta que não possa ser resolvida pela
+documentação e pelo contexto disponíveis.
+
+Durante a fase atual de desenvolvimento, não introduza compatibilidade
+retroativa, caminhos legados ou preservação de comportamento antigo, salvo
+solicitação explícita do usuário.
+
+## Limite e sequência
+
+- Sem limite explícito, implemente somente a próxima tarefa inacabada.
+- Quando o usuário pedir duas tarefas, resolva as duas primeiras tarefas
+  inacabadas em ordem.
+- Execute sempre um único subagente por vez. Só avance para a próxima fase ou
+  tarefa com resultado completo e válido da fase anterior.
+- Em qualquer falha, bloqueio, interrupção ou validação insuficiente, pare
+  imediatamente. Preserve as alterações parciais, não tente novamente de forma
+  automática e não inicie a próxima tarefa.
+
+## Orquestração
+
+O orquestrador usa os perfis `autohome_task_selector`, `autohome_planner`,
+`autohome_implementer`, `autohome_tester` e `autohome_reviewer`. Para cada
+tarefa, a ordem é: seleção, plano, implementação, teste, revisão e commit.
+O perfil `autohome_repairer` é opcional e só pode ser iniciado após solicitação
+explícita do usuário em resposta a uma reprovação.
+
+O planejador atua em modo Plan: analisa o repositório sem modificar arquivos do
+projeto e materializa o plano temporário. O implementador lê esse plano; o
+testador executa a estratégia de teste registrada; e o revisor decide se a
+tarefa pode ser concluída e receber commit.
+
+Os artefatos temporários ficam em `.codex/runtime/implementation-flow/` e não
+podem entrar no Git. Antes de planejar uma tarefa, o planejador remove apenas o
+diretório temporário daquela tarefa e cria os novos artefatos.
+
+## Encerramento
+
+O revisor só marca a tarefa como concluída e cria o commit quando o plano, a
+implementação, os testes e a revisão estiverem aprovados. Ao encerrar, informe
+as tarefas concluídas, a tarefa atual ou interrompida, o motivo da parada, as
+validações executadas e como retomar, quando aplicável.
+
+<Progressive_Disclosure>
+<ImplementationOrchestration>
+Quando for necessário executar, delegar ou retomar o fluxo, leia
+[`orchestration.md`](implementation-flow/orchestration.md).
+</ImplementationOrchestration>
+<ImplementationArtifacts>
+Quando for necessário criar, ler ou validar os artefatos temporários, leia
+[`artifact-contract.md`](implementation-flow/artifact-contract.md).
+</ImplementationArtifacts>
+<ImplementationResultGate>
+Quando uma fase terminar, falhar, bloquear ou chegar ao commit, leia
+[`result-gate.md`](implementation-flow/result-gate.md).
+</ImplementationResultGate>
+</Progressive_Disclosure>
