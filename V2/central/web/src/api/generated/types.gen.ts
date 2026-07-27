@@ -58,6 +58,37 @@ export type RoomListResponse = {
   rooms: Array<Room>;
 };
 
+export type Module = {
+  /**
+   * Identificador publico estavel; nunca o `_id` interno do MongoDB.
+   */
+  id: string;
+  /**
+   * Identidade imutavel anunciada pelo protocolo do modulo.
+   */
+  protocolId: string;
+  family: string;
+  capabilities: Array<string>;
+  transport: 'simulated';
+  status: 'descoberto' | 'cadastrado';
+  availability: 'online' | 'offline';
+  discoveredAt: string;
+  lastSeenAt: string;
+  lastObservedAt: string;
+  /**
+   * Presente somente depois da adocao administrativa.
+   */
+  adoptedAt?: string;
+};
+
+export type ModuleResponse = {
+  module: Module;
+};
+
+export type ModuleListResponse = {
+  modules: Array<Module>;
+};
+
 export type HealthAvailable = {
   status: 'ok';
 };
@@ -116,6 +147,18 @@ export type LoginRequestWritable = {
 export type AreaId = string;
 
 export type RoomId = string;
+
+export type ProtocolId = string;
+
+export type ProtocolIdFilter = string;
+
+export type ModuleFamilyFilter = string;
+
+export type ModuleCapabilityFilter = string;
+
+export type ModuleTransportFilter = 'simulated';
+
+export type ModuleAvailabilityFilter = 'online' | 'offline';
 
 export type GetHealthData = {
   body?: never;
@@ -534,3 +577,124 @@ export type UpdateRoomResponses = {
 };
 
 export type UpdateRoomResponse = UpdateRoomResponses[keyof UpdateRoomResponses];
+
+export type ListDiscoveredModulesData = {
+  body?: never;
+  path?: never;
+  query?: {
+    protocolId?: string;
+    family?: string;
+    capability?: string;
+    transport?: 'simulated';
+    availability?: 'online' | 'offline';
+  };
+  url: '/discovery';
+};
+
+export type ListDiscoveredModulesErrors = {
+  /**
+   * Requisicao invalida.
+   */
+  400: Error;
+  /**
+   * A sessao autenticada e obrigatoria ou nao e mais valida.
+   */
+  401: Error;
+  /**
+   * A sessao autenticada nao tem permissao administrativa.
+   */
+  403: Error;
+};
+
+export type ListDiscoveredModulesError =
+  ListDiscoveredModulesErrors[keyof ListDiscoveredModulesErrors];
+
+export type ListDiscoveredModulesResponses = {
+  /**
+   * Modulos no estado descoberto que atendem aos filtros.
+   */
+  200: ModuleListResponse;
+};
+
+export type ListDiscoveredModulesResponse =
+  ListDiscoveredModulesResponses[keyof ListDiscoveredModulesResponses];
+
+export type AdoptDiscoveredModuleData = {
+  body?: never;
+  path: {
+    protocolId: string;
+  };
+  query?: never;
+  url: '/discovery/{protocolId}/adopt';
+};
+
+export type AdoptDiscoveredModuleErrors = {
+  /**
+   * Requisicao invalida.
+   */
+  400: Error;
+  /**
+   * A sessao autenticada e obrigatoria ou nao e mais valida.
+   */
+  401: Error;
+  /**
+   * A sessao autenticada nao tem permissao administrativa.
+   */
+  403: Error;
+  /**
+   * O modulo informado nao foi descoberto pela Central.
+   */
+  404: Error;
+  /**
+   * O modulo informado ja foi adotado e nao pode ser adotado novamente.
+   */
+  409: Error;
+};
+
+export type AdoptDiscoveredModuleError =
+  AdoptDiscoveredModuleErrors[keyof AdoptDiscoveredModuleErrors];
+
+export type AdoptDiscoveredModuleResponses = {
+  /**
+   * Modulo adotado, ainda sem organizacao de residencia.
+   */
+  200: ModuleResponse;
+};
+
+export type AdoptDiscoveredModuleResponse =
+  AdoptDiscoveredModuleResponses[keyof AdoptDiscoveredModuleResponses];
+
+export type ListModulesData = {
+  body?: never;
+  path?: never;
+  query?: {
+    protocolId?: string;
+    family?: string;
+    capability?: string;
+    transport?: 'simulated';
+    availability?: 'online' | 'offline';
+  };
+  url: '/modules';
+};
+
+export type ListModulesErrors = {
+  /**
+   * Requisicao invalida.
+   */
+  400: Error;
+  /**
+   * A sessao autenticada e obrigatoria ou nao e mais valida.
+   */
+  401: Error;
+};
+
+export type ListModulesError = ListModulesErrors[keyof ListModulesErrors];
+
+export type ListModulesResponses = {
+  /**
+   * Modulos adotados que atendem aos filtros.
+   */
+  200: ModuleListResponse;
+};
+
+export type ListModulesResponse = ListModulesResponses[keyof ListModulesResponses];

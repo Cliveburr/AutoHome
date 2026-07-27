@@ -14,6 +14,7 @@ import { AuthorizationService } from '../src/authorization.js';
 import { type AppConfig, ConfigurationError, loadConfig } from '../src/config.js';
 import { Database } from '../src/database.js';
 import { BaseRepository } from '../src/repository.js';
+import { InMemoryModuleTransport } from '../src/transport.js';
 
 loadEnvFile(new URL('../.env', import.meta.url));
 
@@ -806,5 +807,165 @@ describe('areas and rooms administration', () => {
     expect(auditLogs.map(({ action }) => action)).toEqual(
       expect.arrayContaining(['area.created', 'room.created', 'room.updated']),
     );
+  });
+});
+
+describe('module discovery and adoption HTTP API', () => {
+  let database: Database;
+  let modulesApp: ReturnType<typeof buildApp>;
+  const transport = new InMemoryModuleTransport();
+  const config: AppConfig = {
+    mongodbUri: 'mongodb://unused-in-tests',
+    sessionSecret: 'module-discovery-test-secret',
+    nodeEnv: 'development',
+    httpPort: 3000,
+    firmwareGen1Dir: './firmware/gen1',
+    otaMaxConcurrency: 1,
+    bootstrapAdminPassword: 'bootstrap-password',
+  };
+
+  async function login(username: string, password: string): Promise<string> {
+    const response = await modulesApp.inject({
+      method: 'POST',
+      url: '/api/v1/auth/login',
+      payload: { username, password },
+    });
+    expect(response.statusCode).toBe(200);
+    return getFirstCookie(response.headers['set-cookie']);
+  }
+
+  async function waitForDiscovered(protocolId: string): Promise<void> {
+    for (let attempt = 0; attempt < 30; attempt += 1) {
+      if (await database.db.collection('modules').findOne({ protocolId })) return;
+      await new Promise((resolve) => setTimeout(resolve, 10));
+    }
+    throw new Error(`Discovery for ${protocolId} was not persisted.`);
+  }
+
+  beforeAll(async () => {
+    database = await connectTestDatabase('module-discovery');
+    modulesApp = buildApp({ database, config, simulatedTransport: transport });
+    await modulesApp.ready();
+  });
+
+  afterAll(async () => {
+    await database.db.dropDatabase();
+    await modulesApp.close();
+  });
+
+  it('publishes discovery only to administrators and moves an adopted module to the authenticated inventory', async () => {
+    const pendingCookie = await login('admin', config.bootstrapAdminPassword!);
+    const pendingDiscovery = await modulesApp.inject({
+      method: 'GET',
+      url: '/api/v1/discovery',
+      headers: { cookie: pendingCookie },
+    });
+    expect(pendingDiscovery.statusCode).toBe(403);
+
+    const passwordChange = await modulesApp.inject({
+      method: 'POST',
+      url: '/api/v1/auth/change-password',
+      headers: { cookie: pendingCookie },
+      payload: { currentPassword: config.bootstrapAdminPassword, newPassword: 'admin-password' },
+    });
+    expect(passwordChange.statusCode).toBe(200);
+
+    const basicUser = await modulesApp.inject({
+      method: 'POST',
+      url: '/api/v1/users',
+      headers: { cookie: pendingCookie },
+      payload: { username: 'module-basic', password: 'basic-password', role: 'basico' },
+    });
+    expect(basicUser.statusCode).toBe(201);
+    const basicCookie = await login('module-basic', 'basic-password');
+
+    const created = await modulesApp.inject({
+      method: 'POST',
+      url: '/api/v1/development/simulated-modules',
+      payload: {
+        protocolId: 'gen1-lamp-garage',
+        family: 'gen1',
+        capabilities: ['dimmer', 'energy'],
+        state: { brightness: 30 },
+      },
+    });
+    expect(created.statusCode).toBe(201);
+    await waitForDiscovered('gen1-lamp-garage');
+
+    const basicDiscovery = await modulesApp.inject({
+      method: 'GET',
+      url: '/api/v1/discovery',
+      headers: { cookie: basicCookie },
+    });
+    expect(basicDiscovery.statusCode).toBe(403);
+
+    const discovery = await modulesApp.inject({
+      method: 'GET',
+      url: '/api/v1/discovery?capability=energy&availability=online&transport=simulated',
+      headers: { cookie: pendingCookie },
+    });
+    expect(discovery.statusCode).toBe(200);
+    expect(discovery.json().modules).toEqual([
+      expect.objectContaining({
+        protocolId: 'gen1-lamp-garage',
+        family: 'gen1',
+        capabilities: ['dimmer', 'energy'],
+        transport: 'simulated',
+        availability: 'online',
+        status: 'descoberto',
+      }),
+    ]);
+    expect(discovery.json().modules[0]).not.toHaveProperty('_id');
+
+    const missing = await modulesApp.inject({
+      method: 'POST',
+      url: '/api/v1/discovery/unknown/adopt',
+      headers: { cookie: pendingCookie },
+    });
+    expect(missing.statusCode).toBe(404);
+    expect(missing.json().code).toBe('DISCOVERED_MODULE_NOT_FOUND');
+
+    const adopted = await modulesApp.inject({
+      method: 'POST',
+      url: '/api/v1/discovery/gen1-lamp-garage/adopt',
+      headers: { cookie: pendingCookie },
+    });
+    expect(adopted.statusCode).toBe(200);
+    expect(adopted.json().module).toMatchObject({
+      protocolId: 'gen1-lamp-garage',
+      status: 'cadastrado',
+    });
+    expect(adopted.json().module).not.toHaveProperty('roomId');
+
+    const repeatedAdoption = await modulesApp.inject({
+      method: 'POST',
+      url: '/api/v1/discovery/gen1-lamp-garage/adopt',
+      headers: { cookie: pendingCookie },
+    });
+    expect(repeatedAdoption.statusCode).toBe(409);
+    expect(repeatedAdoption.json().code).toBe('MODULE_ALREADY_ADOPTED');
+
+    const noLongerDiscovered = await modulesApp.inject({
+      method: 'GET',
+      url: '/api/v1/discovery',
+      headers: { cookie: pendingCookie },
+    });
+    expect(noLongerDiscovered.json()).toEqual({ modules: [] });
+
+    const inventory = await modulesApp.inject({
+      method: 'GET',
+      url: '/api/v1/modules?family=gen1',
+      headers: { cookie: basicCookie },
+    });
+    expect(inventory.statusCode).toBe(200);
+    expect(inventory.json().modules).toEqual([
+      expect.objectContaining({ protocolId: 'gen1-lamp-garage', status: 'cadastrado' }),
+    ]);
+
+    const audit = await database.db.collection('audit_logs').findOne({ action: 'module.adopted' });
+    expect(audit).toMatchObject({
+      result: 'success',
+      details: expect.objectContaining({ protocolId: 'gen1-lamp-garage' }),
+    });
   });
 });

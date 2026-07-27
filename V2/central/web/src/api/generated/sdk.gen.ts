@@ -3,6 +3,9 @@
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
 import type {
+  AdoptDiscoveredModuleData,
+  AdoptDiscoveredModuleErrors,
+  AdoptDiscoveredModuleResponses,
   ChangePasswordData,
   ChangePasswordErrors,
   ChangePasswordResponses,
@@ -27,6 +30,12 @@ import type {
   ListAreasData,
   ListAreasErrors,
   ListAreasResponses,
+  ListDiscoveredModulesData,
+  ListDiscoveredModulesErrors,
+  ListDiscoveredModulesResponses,
+  ListModulesData,
+  ListModulesErrors,
+  ListModulesResponses,
   ListRoomsData,
   ListRoomsErrors,
   ListRoomsResponses,
@@ -308,4 +317,66 @@ export const updateRoom = <ThrowOnError extends boolean = false>(
       'Content-Type': 'application/json',
       ...options.headers,
     },
+  });
+
+/**
+ * Lista modulos observados e ainda nao adotados
+ */
+export const listDiscoveredModules = <ThrowOnError extends boolean = false>(
+  options?: Options<ListDiscoveredModulesData, ThrowOnError>,
+): RequestResult<ListDiscoveredModulesResponses, ListDiscoveredModulesErrors, ThrowOnError> =>
+  (options?.client ?? client).get<
+    ListDiscoveredModulesResponses,
+    ListDiscoveredModulesErrors,
+    ThrowOnError
+  >({
+    security: [
+      {
+        in: 'cookie',
+        name: 'autohome_session',
+        type: 'apiKey',
+      },
+    ],
+    url: '/discovery',
+    ...options,
+  });
+
+/**
+ * Adota uma unica vez um modulo descoberto
+ */
+export const adoptDiscoveredModule = <ThrowOnError extends boolean = false>(
+  options: Options<AdoptDiscoveredModuleData, ThrowOnError>,
+): RequestResult<AdoptDiscoveredModuleResponses, AdoptDiscoveredModuleErrors, ThrowOnError> =>
+  (options.client ?? client).post<
+    AdoptDiscoveredModuleResponses,
+    AdoptDiscoveredModuleErrors,
+    ThrowOnError
+  >({
+    security: [
+      {
+        in: 'cookie',
+        name: 'autohome_session',
+        type: 'apiKey',
+      },
+    ],
+    url: '/discovery/{protocolId}/adopt',
+    ...options,
+  });
+
+/**
+ * Lista somente modulos adotados no inventario
+ */
+export const listModules = <ThrowOnError extends boolean = false>(
+  options?: Options<ListModulesData, ThrowOnError>,
+): RequestResult<ListModulesResponses, ListModulesErrors, ThrowOnError> =>
+  (options?.client ?? client).get<ListModulesResponses, ListModulesErrors, ThrowOnError>({
+    security: [
+      {
+        in: 'cookie',
+        name: 'autohome_session',
+        type: 'apiKey',
+      },
+    ],
+    url: '/modules',
+    ...options,
   });

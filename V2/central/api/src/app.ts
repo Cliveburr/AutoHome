@@ -9,6 +9,12 @@ import {
 import { AuthorizationService } from './authorization.js';
 import { type AppConfig } from './config.js';
 import { type Database } from './database.js';
+import {
+  type ModuleAdoptionFailure,
+  type ModuleAvailability,
+  ModuleInventoryService,
+  type ModuleFilters,
+} from './modules.js';
 import { type OrganizationFailure, OrganizationService } from './organization.js';
 import { InMemoryModuleTransport, type TransportEvent } from './transport.js';
 
@@ -93,6 +99,33 @@ function organizationError(
   return { ...error, details: {}, requestId };
 }
 
+function moduleAdoptionError(
+  failure: ModuleAdoptionFailure,
+  requestId: string,
+): {
+  statusCode: number;
+  code: string;
+  message: string;
+  requestId: string;
+  details: Record<string, never>;
+} {
+  const errors = {
+    module_not_found: {
+      statusCode: 404,
+      code: 'DISCOVERED_MODULE_NOT_FOUND',
+      message: 'Modulo descoberto nao encontrado.',
+    },
+    module_already_adopted: {
+      statusCode: 409,
+      code: 'MODULE_ALREADY_ADOPTED',
+      message: 'O modulo ja foi adotado.',
+    },
+  } as const;
+  const error = errors[failure];
+
+  return { ...error, details: {}, requestId };
+}
+
 function isPosition(value: unknown): value is number {
   return typeof value === 'number' && Number.isInteger(value) && value >= 0;
 }
@@ -103,6 +136,31 @@ function isStringList(value: unknown): value is string[] {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function isModuleAvailability(value: unknown): value is ModuleAvailability {
+  return value === 'online' || value === 'offline';
+}
+
+function moduleFiltersFromQuery(query: Record<string, unknown>): ModuleFilters | undefined {
+  const { protocolId, family, capability, transport, availability } = query;
+  if (
+    (protocolId !== undefined && (typeof protocolId !== 'string' || !protocolId)) ||
+    (family !== undefined && (typeof family !== 'string' || !family)) ||
+    (capability !== undefined && (typeof capability !== 'string' || !capability)) ||
+    (transport !== undefined && transport !== 'simulated') ||
+    (availability !== undefined && !isModuleAvailability(availability))
+  ) {
+    return undefined;
+  }
+
+  return {
+    ...(typeof protocolId === 'string' ? { protocolId } : {}),
+    ...(typeof family === 'string' ? { family } : {}),
+    ...(typeof capability === 'string' ? { capability } : {}),
+    ...(transport === 'simulated' ? { transport } : {}),
+    ...(isModuleAvailability(availability) ? { availability } : {}),
+  };
 }
 
 function transportEventLogData(event: TransportEvent): Record<string, string> {
@@ -136,6 +194,7 @@ export function buildApp({ database, config, simulatedTransport }: AppDependenci
     ? new AuthenticationService(database, config?.bootstrapAdminPassword, audit)
     : undefined;
   const organization = database && audit ? new OrganizationService(database, audit) : undefined;
+  const modules = database && audit ? new ModuleInventoryService(database, audit) : undefined;
   const developmentTransport =
     config?.nodeEnv === 'development'
       ? (simulatedTransport ?? new InMemoryModuleTransport())
@@ -146,6 +205,12 @@ export function buildApp({ database, config, simulatedTransport }: AppDependenci
       { transportEvent: transportEventLogData(event) },
       'Simulated module transport event',
     );
+    void modules?.handleTransportEvent(event).catch((error: unknown) => {
+      app.log.error(
+        { err: error, transportEvent: transportEventLogData(event) },
+        'Unable to persist simulated module transport event',
+      );
+    });
   });
 
   if (config) {
@@ -641,6 +706,67 @@ export function buildApp({ database, config, simulatedTransport }: AppDependenci
             return reply.status(error.statusCode).send(error);
           }
           return reply.status(204).send();
+        },
+      );
+    }
+
+    if (modules) {
+      app.get<{ Querystring: Record<string, unknown> }>(
+        '/api/v1/discovery',
+        { preHandler: authorization.requireAdministrativeAccess },
+        async (request, reply) => {
+          const filters = moduleFiltersFromQuery(request.query);
+          if (!filters) {
+            return reply.status(400).send({
+              code: 'BAD_REQUEST',
+              message: 'Filtros de descoberta invalidos.',
+              details: {},
+              requestId: request.id,
+            });
+          }
+          return { modules: await modules.listDiscovered(filters) };
+        },
+      );
+
+      app.post<{ Params: { protocolId: string } }>(
+        '/api/v1/discovery/:protocolId/adopt',
+        { preHandler: authorization.requireAdministrativeAccess },
+        async (request, reply) => {
+          if (!request.params.protocolId) {
+            return reply.status(400).send({
+              code: 'BAD_REQUEST',
+              message: 'protocolId e obrigatorio.',
+              details: {},
+              requestId: request.id,
+            });
+          }
+          const result = await modules.adopt(
+            request.params.protocolId,
+            request.authenticatedSession!,
+            request.ip,
+          );
+          if ('failure' in result) {
+            const error = moduleAdoptionError(result.failure, request.id);
+            return reply.status(error.statusCode).send(error);
+          }
+          return { module: result.module };
+        },
+      );
+
+      app.get<{ Querystring: Record<string, unknown> }>(
+        '/api/v1/modules',
+        { preHandler: authorization.requireAuthentication },
+        async (request, reply) => {
+          const filters = moduleFiltersFromQuery(request.query);
+          if (!filters) {
+            return reply.status(400).send({
+              code: 'BAD_REQUEST',
+              message: 'Filtros de modulos invalidos.',
+              details: {},
+              requestId: request.id,
+            });
+          }
+          return { modules: await modules.listRegistered(filters) };
         },
       );
     }

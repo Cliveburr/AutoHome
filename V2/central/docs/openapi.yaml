@@ -15,6 +15,8 @@ tags:
     description: Sessao autenticada e credenciais do usuario.
   - name: Organizacao
     description: Organizacao administrativa da residencia em areas e comodos.
+  - name: Modulos
+    description: Descoberta administrativa e inventario de modulos adotados.
 paths:
   /health:
     get:
@@ -310,6 +312,82 @@ paths:
           $ref: '#/components/responses/RoomNotFound'
         '409':
           $ref: '#/components/responses/RoomInUse'
+  /discovery:
+    get:
+      tags: [Modulos]
+      operationId: listDiscoveredModules
+      summary: Lista modulos observados e ainda nao adotados
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: '#/components/parameters/ProtocolIdFilter'
+        - $ref: '#/components/parameters/ModuleFamilyFilter'
+        - $ref: '#/components/parameters/ModuleCapabilityFilter'
+        - $ref: '#/components/parameters/ModuleTransportFilter'
+        - $ref: '#/components/parameters/ModuleAvailabilityFilter'
+      responses:
+        '200':
+          description: Modulos no estado descoberto que atendem aos filtros.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModuleListResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /discovery/{protocolId}/adopt:
+    post:
+      tags: [Modulos]
+      operationId: adoptDiscoveredModule
+      summary: Adota uma unica vez um modulo descoberto
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: '#/components/parameters/ProtocolId'
+      responses:
+        '200':
+          description: Modulo adotado, ainda sem organizacao de residencia.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModuleResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/DiscoveredModuleNotFound'
+        '409':
+          $ref: '#/components/responses/ModuleAlreadyAdopted'
+  /modules:
+    get:
+      tags: [Modulos]
+      operationId: listModules
+      summary: Lista somente modulos adotados no inventario
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: '#/components/parameters/ProtocolIdFilter'
+        - $ref: '#/components/parameters/ModuleFamilyFilter'
+        - $ref: '#/components/parameters/ModuleCapabilityFilter'
+        - $ref: '#/components/parameters/ModuleTransportFilter'
+        - $ref: '#/components/parameters/ModuleAvailabilityFilter'
+      responses:
+        '200':
+          description: Modulos adotados que atendem aos filtros.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModuleListResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
 components:
   securitySchemes:
     sessionCookie:
@@ -425,6 +503,73 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Room'
+    Module:
+      type: object
+      additionalProperties: false
+      required:
+        [
+          id,
+          protocolId,
+          family,
+          capabilities,
+          transport,
+          status,
+          availability,
+          discoveredAt,
+          lastSeenAt,
+          lastObservedAt,
+        ]
+      properties:
+        id:
+          type: string
+          description: Identificador publico estavel; nunca o `_id` interno do MongoDB.
+        protocolId:
+          type: string
+          description: Identidade imutavel anunciada pelo protocolo do modulo.
+        family:
+          type: string
+        capabilities:
+          type: array
+          items:
+            type: string
+        transport:
+          type: string
+          enum: [simulated]
+        status:
+          type: string
+          enum: [descoberto, cadastrado]
+        availability:
+          type: string
+          enum: [online, offline]
+        discoveredAt:
+          type: string
+          format: date-time
+        lastSeenAt:
+          type: string
+          format: date-time
+        lastObservedAt:
+          type: string
+          format: date-time
+        adoptedAt:
+          type: string
+          format: date-time
+          description: Presente somente depois da adocao administrativa.
+    ModuleResponse:
+      type: object
+      additionalProperties: false
+      required: [module]
+      properties:
+        module:
+          $ref: '#/components/schemas/Module'
+    ModuleListResponse:
+      type: object
+      additionalProperties: false
+      required: [modules]
+      properties:
+        modules:
+          type: array
+          items:
+            $ref: '#/components/schemas/Module'
     HealthAvailable:
       type: object
       required: [status]
@@ -539,6 +684,18 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
+    DiscoveredModuleNotFound:
+      description: O modulo informado nao foi descoberto pela Central.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ModuleAlreadyAdopted:
+      description: O modulo informado ja foi adotado e nao pode ser adotado novamente.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
     BadRequest:
       description: Requisicao invalida.
       content:
@@ -591,3 +748,40 @@ components:
       required: true
       schema:
         type: string
+    ProtocolId:
+      name: protocolId
+      in: path
+      required: true
+      schema:
+        type: string
+        minLength: 1
+    ProtocolIdFilter:
+      name: protocolId
+      in: query
+      schema:
+        type: string
+        minLength: 1
+    ModuleFamilyFilter:
+      name: family
+      in: query
+      schema:
+        type: string
+        minLength: 1
+    ModuleCapabilityFilter:
+      name: capability
+      in: query
+      schema:
+        type: string
+        minLength: 1
+    ModuleTransportFilter:
+      name: transport
+      in: query
+      schema:
+        type: string
+        enum: [simulated]
+    ModuleAvailabilityFilter:
+      name: availability
+      in: query
+      schema:
+        type: string
+        enum: [online, offline]

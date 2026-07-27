@@ -4,5 +4,14 @@ export function configureApiClient(baseUrl = import.meta.env.VITE_API_BASE_URL ?
   return client.setConfig({ baseUrl, credentials: 'include' });
 }
 
-export { changePassword, getCurrentSession, getHealth, login, logout } from './generated';
+export {
+  adoptDiscoveredModule,
+  changePassword,
+  getCurrentSession,
+  getHealth,
+  listDiscoveredModules,
+  listModules,
+  login,
+  logout,
+} from './generated';
 export type * from './generated';

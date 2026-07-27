@@ -35,6 +35,11 @@ projeto e materializa o plano temporário. O implementador lê esse plano; o
 testador executa a estratégia de teste registrada; e o revisor decide se a
 tarefa pode ser concluída e receber commit.
 
+Antes de entregar a implementação, o implementador deve executar toda geração
+de código prevista no plano, formatar os arquivos gerados e confirmar
+`format:check`. Essa pré-checagem evita que saída gerada fora do padrão de
+formatação chegue à fase de testes independentes.
+
 Os artefatos temporários ficam em `.codex/runtime/implementation-flow/` e não
 podem entrar no Git. Antes de planejar uma tarefa, o planejador remove apenas o
 diretório temporário daquela tarefa e cria os novos artefatos.
