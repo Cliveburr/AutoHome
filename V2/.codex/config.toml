@@ -19,6 +19,21 @@ web_search = "cached"  # default; serves results from the web search cache
 command = "codegraph"
 args = ["serve", "--mcp"]
 
+[mcp_servers.kicad]
+command = "uvx"
+args = [
+  "kicad-mcp-pro@3.29.1",
+  "--transport",
+  "streamable-http",
+  "--port",
+  "3334",
+]
+
+[mcp_servers.kicad.env]
+"KICAD_MCP_PROJECT_DIR" = "D:\\Git\\AutoHome\\V2\\modules\\gen1\\hardware\\three_button_with_rele"
+"KICAD_MCP_OPERATING_MODE" = "write"
+"KICAD_MCP_PROFILE" = "full"
+
 # This repository is a coding-only workspace. Keep the code navigation MCP;
 # disable the browser-oriented runtime inherited from the user configuration.
 [mcp_servers.node_repl]
