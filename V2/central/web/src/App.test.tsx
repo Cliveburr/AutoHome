@@ -10,6 +10,7 @@ const api = vi.hoisted(() => ({
   createAdministrativeArea: vi.fn(),
   createAdministrativeRoom: vi.fn(),
   createOperationalCommand: vi.fn(),
+  adoptDiscoveredModule: vi.fn(),
   getOperationalCommand: vi.fn(),
   getOperationalModuleDetail: vi.fn(),
   getSession: vi.fn(),
@@ -18,6 +19,9 @@ const api = vi.hoisted(() => ({
   listOperationalAreas: vi.fn(),
   listOperationalModules: vi.fn(),
   listOperationalRooms: vi.fn(),
+  listDiscoveredModules: vi.fn(),
+  setModuleConfiguration: vi.fn(),
+  updateModuleOrganization: vi.fn(),
   loginSession: vi.fn(),
   logoutSession: vi.fn(),
   setUnauthenticatedHandler: vi.fn(),
@@ -103,6 +107,10 @@ beforeEach(() => {
   api.listOperationalAreas.mockResolvedValue(inventory.areas);
   api.listOperationalRooms.mockResolvedValue(inventory.rooms);
   api.listOperationalModules.mockResolvedValue(inventory.modules);
+  api.listDiscoveredModules.mockResolvedValue([
+    { ...inventory.modules[0], status: 'descoberto', roomId: undefined },
+  ]);
+  api.adoptDiscoveredModule.mockResolvedValue(inventory.modules[0]);
   api.getOperationalModuleDetail.mockResolvedValue({
     ...inventory.modules[0],
     configurations: [],
@@ -254,5 +262,17 @@ describe('App operation', () => {
 
     expect(await screen.findByRole('heading', { name: 'Olá, morador' })).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'Áreas e cômodos' })).not.toBeInTheDocument();
+  });
+
+  it('filters discovered modules and adopts one from administration', async () => {
+    api.getSession.mockResolvedValue(activeSession);
+    const user = userEvent.setup();
+    renderApp('/admin/discovery');
+
+    expect(await screen.findByRole('heading', { name: 'Descoberta' })).toBeInTheDocument();
+    await user.type(screen.getByLabelText('Identificador'), 'light-1');
+    expect(await screen.findByText(/light-1/)).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Adotar' }));
+    expect(api.adoptDiscoveredModule).toHaveBeenCalledWith('light-1', expect.anything());
   });
 });

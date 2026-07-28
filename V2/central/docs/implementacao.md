@@ -164,7 +164,7 @@ Criação de scripts para subir tanto a api quanto o web já em modo hotreload e
 
 **Manual:** entrar como usuário básico, abrir um cômodo com módulo simulado, enviar uma comutação e observar a transição visual até a confirmação; verificar comportamento em largura de celular.
 
-### T18 — Implementar administração de residência e módulos
+### T18 — Implementar administração de residência e módulos — CONCLUÍDA
 
 **Escopo:** criar telas de Descoberta, Módulos, detalhe/configuração de módulo e Áreas e Cômodos. Incluir filtros, adoção, organização e acompanhamento de sincronização de configuração.
 

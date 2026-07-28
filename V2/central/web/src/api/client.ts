@@ -9,13 +9,17 @@ import {
   getCommand as generatedGetCommand,
   getCurrentSession as generatedGetCurrentSession,
   getModuleDetail as generatedGetModuleDetail,
+  listDiscoveredModules as generatedListDiscoveredModules,
   listAreas as generatedListAreas,
   listModules as generatedListModules,
   listRooms as generatedListRooms,
   login as generatedLogin,
   logout as generatedLogout,
+  adoptDiscoveredModule as generatedAdoptDiscoveredModule,
   updateArea as generatedUpdateArea,
   updateRoom as generatedUpdateRoom,
+  updateModuleOrganization as generatedUpdateModuleOrganization,
+  setModuleConfiguration as generatedSetModuleConfiguration,
 } from './generated/sdk.gen';
 import type {
   ChangePasswordRequest,
@@ -26,6 +30,9 @@ import type {
   LoginRequestWritable,
   Module,
   ModuleDetail,
+  ModuleConfiguration,
+  SetModuleConfigurationRequest,
+  UpdateModuleOrganizationRequest,
   SessionResponse,
   Area,
   Room,
@@ -211,6 +218,34 @@ export async function listOperationalModules(): Promise<Module[]> {
   }
 }
 
+export async function listDiscoveredModules(
+  filters: {
+    protocolId?: string;
+    family?: string;
+    capability?: string;
+    availability?: 'online' | 'offline';
+  } = {},
+): Promise<Module[]> {
+  try {
+    const { data } = await generatedListDiscoveredModules({ query: filters, throwOnError: true });
+    return data.modules;
+  } catch (error) {
+    throw toApiRequestError(error);
+  }
+}
+
+export async function adoptDiscoveredModule(protocolId: string): Promise<Module> {
+  try {
+    const { data } = await generatedAdoptDiscoveredModule({
+      path: { protocolId },
+      throwOnError: true,
+    });
+    return data.module;
+  } catch (error) {
+    throw toApiRequestError(error);
+  }
+}
+
 export async function getOperationalModuleDetail(protocolId: string): Promise<ModuleDetail> {
   try {
     const { data } = await generatedGetModuleDetail({
@@ -218,6 +253,38 @@ export async function getOperationalModuleDetail(protocolId: string): Promise<Mo
       throwOnError: true,
     });
     return data.module;
+  } catch (error) {
+    throw toApiRequestError(error);
+  }
+}
+
+export async function updateModuleOrganization(
+  protocolId: string,
+  body: UpdateModuleOrganizationRequest,
+): Promise<Module> {
+  try {
+    const { data } = await generatedUpdateModuleOrganization({
+      path: { protocolId },
+      body,
+      throwOnError: true,
+    });
+    return data.module;
+  } catch (error) {
+    throw toApiRequestError(error);
+  }
+}
+
+export async function setModuleConfiguration(
+  protocolId: string,
+  body: SetModuleConfigurationRequest,
+): Promise<ModuleConfiguration> {
+  try {
+    const { data } = await generatedSetModuleConfiguration({
+      path: { protocolId },
+      body,
+      throwOnError: true,
+    });
+    return data.configuration;
   } catch (error) {
     throw toApiRequestError(error);
   }
@@ -258,9 +325,12 @@ export type {
   Module,
   ModuleCapability,
   ModuleDetail,
+  ModuleConfiguration,
   ModuleState,
   ParameterDeclaration,
   Room,
+  SetModuleConfigurationRequest,
+  UpdateModuleOrganizationRequest,
   SessionResponse,
   UpdateAreaRequest,
   UpdateRoomRequest,

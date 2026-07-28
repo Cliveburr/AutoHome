@@ -12,4 +12,4 @@
 - `openapi.yaml`: fonte canônica OpenAPI 3.1 do contrato HTTP publicado, incluindo reconciliação e jobs OTA administrativos; gere o cliente com `npm run generate:api`.
 - `operacao.md`: configuração de ambiente, inicialização, saúde, logs e persistência.
 - `desenvolvimento.md`: comandos de desenvolvimento local/LAN, hot reload, validação manual e propósito dos scripts npm.
-- `implementacao.md`: tarefas isoladas, critérios de aceite e verificações manuais para construir a central; T01–T15 concluídas.
+- `implementacao.md`: tarefas isoladas, critérios de aceite e verificações manuais para construir a central; T01–T18 concluídas.

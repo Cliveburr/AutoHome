@@ -22,6 +22,7 @@ import {
 } from './operation';
 import { OperationalRealtime } from './realtime';
 import { AdminOrganizationPage } from './AdminOrganizationPage';
+import { AdminModulesPage, DiscoveryPage } from './AdminModulesPage';
 
 function LoadingPage() {
   return (
@@ -262,6 +263,8 @@ function AuthenticatedShell() {
       </nav>
       {session?.user.role === 'administrador' ? (
         <nav className="administration-navigation" aria-label="Administração">
+          <NavLink to="/admin/discovery">Descoberta</NavLink>
+          <NavLink to="/admin/modules">Módulos</NavLink>
           <NavLink to="/admin/organization">Áreas e cômodos</NavLink>
         </nav>
       ) : null}
@@ -468,6 +471,8 @@ export function App() {
             <Route index element={<RoomsPage />} />
             <Route path="rooms/:roomId" element={<RoomPage />} />
             <Route element={<RequireAdministrator />}>
+              <Route path="admin/discovery" element={<DiscoveryPage />} />
+              <Route path="admin/modules/*" element={<AdminModulesPage />} />
               <Route path="admin/organization" element={<AdminOrganizationPage />} />
             </Route>
           </Route>

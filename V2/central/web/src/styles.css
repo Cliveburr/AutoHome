@@ -210,6 +210,69 @@
   @apply bg-white text-red-700 ring-1 ring-inset ring-red-200;
 }
 
+.filter-bar,
+.filter-control,
+.detail-grid {
+  @apply mt-4 grid gap-3 sm:grid-cols-2;
+}
+
+.filter-bar label,
+.filter-control,
+.admin-card label {
+  @apply grid gap-1 text-sm font-medium text-slate-800;
+}
+
+.filter-bar input,
+.filter-control input,
+.admin-card label input,
+.admin-card label select {
+  @apply min-h-10 rounded-lg border border-slate-300 bg-white px-3 py-2;
+}
+
+.module-list {
+  @apply mt-5 grid gap-3;
+}
+
+.module-card {
+  @apply flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm;
+}
+
+.module-card h3 {
+  @apply font-bold text-slate-950;
+}
+
+.module-card p {
+  @apply mt-1 text-sm text-slate-600;
+}
+
+.module-card-actions,
+.configuration-row {
+  @apply flex flex-wrap items-center gap-2;
+}
+
+.module-card-actions button,
+.button-link,
+.admin-card > button,
+.configuration-row button {
+  @apply min-h-10 rounded-lg bg-brand-700 px-3 py-2 font-medium text-white disabled:opacity-60;
+}
+
+.button-link {
+  @apply inline-flex items-center;
+}
+
+.detail-section {
+  @apply mt-4;
+}
+
+.configuration-row {
+  @apply mt-3 border-t border-slate-100 pt-3;
+}
+
+.configuration-row label {
+  @apply min-w-52 flex-1;
+}
+
 @media (min-width: 1024px) {
   .room-grid {
     @apply grid-cols-3;
