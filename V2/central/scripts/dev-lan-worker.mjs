@@ -13,6 +13,8 @@ const command =
   workspace === '@autohome/api'
     ? {
         args: [
+          '--require',
+          resolve(centralDirectory, 'scripts', 'tsx-windows-preload.cjs'),
           resolve(centralDirectory, 'node_modules', 'tsx', 'dist', 'cli.mjs'),
           'watch',
           'src/main.ts',

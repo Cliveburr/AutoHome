@@ -153,11 +153,6 @@ function ChangePasswordPage() {
       setError('Informe a senha atual e a nova senha.');
       return;
     }
-    if (currentPassword === newPassword) {
-      setError('A nova senha deve ser diferente da atual.');
-      return;
-    }
-
     setError(undefined);
     setIsSubmitting(true);
     try {

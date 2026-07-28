@@ -208,18 +208,28 @@ describe('authentication and sessions', () => {
     await authenticationApp.close();
   });
 
-  it('creates the bootstrap administrator once with an Argon2id hash', async () => {
+  it('creates the bootstrap administrator lazily on the first valid login', async () => {
     const users = await database.db.collection('users').find().toArray();
 
-    expect(users).toHaveLength(1);
-    expect(users[0]).toMatchObject({
+    expect(users).toHaveLength(0);
+
+    const login = await authenticationApp.inject({
+      method: 'POST',
+      url: '/api/v1/auth/login',
+      payload: { username: 'admin', password: config.bootstrapAdminPassword },
+    });
+    expect(login.statusCode).toBe(200);
+
+    const createdUsers = await database.db.collection('users').find().toArray();
+    expect(createdUsers).toHaveLength(1);
+    expect(createdUsers[0]).toMatchObject({
       username: 'admin',
       role: 'administrador',
       active: true,
       passwordChangeRequired: true,
     });
-    expect(users[0]?.passwordHash).toMatch(/^\$argon2id\$/);
-    expect(users[0]?.passwordHash).not.toBe(config.bootstrapAdminPassword);
+    expect(createdUsers[0]?.passwordHash).toMatch(/^\$argon2id\$/);
+    expect(createdUsers[0]?.passwordHash).not.toBe(config.bootstrapAdminPassword);
 
     await authenticationApp.ready();
     expect(await database.db.collection('users').countDocuments()).toBe(1);
@@ -334,7 +344,7 @@ describe('authorization and audit safety', () => {
   beforeAll(async () => {
     database = await connectTestDatabase('authorization');
     const audit = new AuditService(database);
-    const authentication = new AuthenticationService(database, undefined, audit);
+    const authentication = new AuthenticationService(database, 'admin', audit);
     await authentication.initialize();
 
     const now = new Date();

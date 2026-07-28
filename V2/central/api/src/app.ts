@@ -355,7 +355,12 @@ export function buildApp({ database, config, simulatedTransport }: AppDependenci
   const app = Fastify({ logger: { base: { component: 'api' } } });
   const audit = database ? new AuditService(database) : undefined;
   const authentication = database
-    ? new AuthenticationService(database, config?.bootstrapAdminPassword, audit)
+    ? new AuthenticationService(
+        database,
+        config?.bootstrapAdminPassword,
+        config?.bootstrapAdminEasyPass ?? false,
+        audit,
+      )
     : undefined;
   const developmentTransport =
     config?.nodeEnv === 'development'
@@ -442,7 +447,6 @@ export function buildApp({ database, config, simulatedTransport }: AppDependenci
 
   if (authentication) {
     app.addHook('onReady', async () => {
-      await authentication.initialize();
     });
   }
 

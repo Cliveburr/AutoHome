@@ -6,6 +6,7 @@ export interface AppConfig {
   firmwareGen1Dir: string;
   otaMaxConcurrency: number;
   bootstrapAdminPassword?: string;
+  bootstrapAdminEasyPass?: boolean;
 }
 
 export class ConfigurationError extends Error {
@@ -47,6 +48,9 @@ export function loadConfig(environment: NodeJS.ProcessEnv = process.env): AppCon
   }
 
   const bootstrapAdminPassword = environment.BOOTSTRAP_ADMIN_PASSWORD?.trim();
+  const bootstrapAdminEasyPass = ['1', 'true', 'yes', 'on'].includes(
+    environment.BOOTSTRAP_ADMIN_EASYPASS?.trim().toLowerCase() ?? '',
+  );
 
   return {
     mongodbUri,
@@ -59,5 +63,6 @@ export function loadConfig(environment: NodeJS.ProcessEnv = process.env): AppCon
       'OTA_MAX_CONCURRENCY',
     ),
     ...(bootstrapAdminPassword ? { bootstrapAdminPassword } : {}),
+    bootstrapAdminEasyPass,
   };
 }
