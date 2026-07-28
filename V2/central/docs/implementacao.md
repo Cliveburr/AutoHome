@@ -146,7 +146,7 @@ Todos os testes devem rodar sem usar o banco, firmware ou dispositivos reais da 
 
 ## Interface Web
 
-### T16 — Implementar fundação da web, login e sessão
+### T16 — Implementar fundação da web, login e sessão — CONCLUÍDA
 
 **Escopo:** criar aplicação React com Vite, PWA responsiva, React Router, TanStack Query, Tailwind CSS e componentes acessíveis. Implementar login, logout, troca obrigatória de senha, proteção de rotas e cliente OpenAPI gerado.
 
