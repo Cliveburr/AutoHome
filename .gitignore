@@ -86,3 +86,4 @@ Control/**/*.exe
 *.bin
 
 /Interfaces/Api/AH.Interfaces.Api/Images/home
+.history
