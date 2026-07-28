@@ -1,6 +1,10 @@
 import { client } from './generated/client.gen';
 import {
   changePassword as generatedChangePassword,
+  createArea as generatedCreateArea,
+  createRoom as generatedCreateRoom,
+  deleteArea as generatedDeleteArea,
+  deleteRoom as generatedDeleteRoom,
   createCommand as generatedCreateCommand,
   getCommand as generatedGetCommand,
   getCurrentSession as generatedGetCurrentSession,
@@ -10,9 +14,13 @@ import {
   listRooms as generatedListRooms,
   login as generatedLogin,
   logout as generatedLogout,
+  updateArea as generatedUpdateArea,
+  updateRoom as generatedUpdateRoom,
 } from './generated/sdk.gen';
 import type {
   ChangePasswordRequest,
+  CreateAreaRequest,
+  CreateRoomRequest,
   Command,
   CreateCommandRequest,
   LoginRequestWritable,
@@ -21,6 +29,8 @@ import type {
   SessionResponse,
   Area,
   Room,
+  UpdateAreaRequest,
+  UpdateRoomRequest,
 } from './generated/types.gen';
 
 interface ApiErrorPayload {
@@ -126,6 +136,72 @@ export async function listOperationalRooms(): Promise<Room[]> {
   }
 }
 
+export async function listAdministrativeAreas(): Promise<Area[]> {
+  return listOperationalAreas();
+}
+
+export async function listAdministrativeRooms(): Promise<Room[]> {
+  return listOperationalRooms();
+}
+
+export async function createAdministrativeArea(body: CreateAreaRequest): Promise<Area> {
+  try {
+    const { data } = await generatedCreateArea({ body, throwOnError: true });
+    return data.area;
+  } catch (error) {
+    throw toApiRequestError(error);
+  }
+}
+
+export async function updateAdministrativeArea(
+  areaId: string,
+  body: UpdateAreaRequest,
+): Promise<Area> {
+  try {
+    const { data } = await generatedUpdateArea({ path: { areaId }, body, throwOnError: true });
+    return data.area;
+  } catch (error) {
+    throw toApiRequestError(error);
+  }
+}
+
+export async function deleteAdministrativeArea(areaId: string): Promise<void> {
+  try {
+    await generatedDeleteArea({ path: { areaId }, throwOnError: true });
+  } catch (error) {
+    throw toApiRequestError(error);
+  }
+}
+
+export async function createAdministrativeRoom(body: CreateRoomRequest): Promise<Room> {
+  try {
+    const { data } = await generatedCreateRoom({ body, throwOnError: true });
+    return data.room;
+  } catch (error) {
+    throw toApiRequestError(error);
+  }
+}
+
+export async function updateAdministrativeRoom(
+  roomId: string,
+  body: UpdateRoomRequest,
+): Promise<Room> {
+  try {
+    const { data } = await generatedUpdateRoom({ path: { roomId }, body, throwOnError: true });
+    return data.room;
+  } catch (error) {
+    throw toApiRequestError(error);
+  }
+}
+
+export async function deleteAdministrativeRoom(roomId: string): Promise<void> {
+  try {
+    await generatedDeleteRoom({ path: { roomId }, throwOnError: true });
+  } catch (error) {
+    throw toApiRequestError(error);
+  }
+}
+
 export async function listOperationalModules(): Promise<Module[]> {
   try {
     const { data } = await generatedListModules({ throwOnError: true });
@@ -177,6 +253,8 @@ export type {
   Area,
   Command,
   CreateCommandRequest,
+  CreateAreaRequest,
+  CreateRoomRequest,
   Module,
   ModuleCapability,
   ModuleDetail,
@@ -184,5 +262,7 @@ export type {
   ParameterDeclaration,
   Room,
   SessionResponse,
+  UpdateAreaRequest,
+  UpdateRoomRequest,
   User,
 } from './generated/types.gen';

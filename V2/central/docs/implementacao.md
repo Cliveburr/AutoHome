@@ -156,7 +156,7 @@ Criação de scripts para subir tanto a api quanto o web já em modo hotreload e
 
 **Manual:** abrir a web em desktop e celular, entrar com a conta bootstrap, trocar a senha, atualizar a página e confirmar que a sessão permanece válida; sair e confirmar redirecionamento ao login.
 
-### T17 — Implementar operação por cômodos
+### T17 — Implementar operação por cômodos — CONCLUÍDA
 
 **Escopo:** criar lista de cômodos e detalhe de cômodo, com controles derivados das capacidades, estados confirmados/pendentes/indisponíveis e atualizações WebSocket. Garantir que usuários básicos não vejam opções administrativas.
 

@@ -75,10 +75,6 @@ explicitamente uma demonstração ou inspeção visual.
 Ao encerrar, informe
 as tarefas concluídas, a tarefa atual ou interrompida, o motivo da parada, as
 validações executadas e como retomar, quando aplicável.
-Se o usuário pedir demonstração manual, execute `npm run dev` a partir de
-`central/`, confirme as limitações do ambiente e encerre ou mantenha a stack
-conforme solicitado. Esse comando não faz parte do gate automatizado padrão.
-
 
 <Progressive_Disclosure>
 <ImplementationOrchestration>

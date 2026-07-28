@@ -1,8 +1,9 @@
 import { randomUUID } from 'node:crypto';
-import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawn, spawnSync } from 'node:child_process';
+import { inspectRegistry, isPortInUse, removeStaleRegistry } from './dev-lan-registry.mjs';
 
 const scriptDirectory = dirname(fileURLToPath(import.meta.url));
 const centralDirectory = resolve(scriptDirectory, '..');
@@ -11,13 +12,40 @@ const registryPath = resolve(runtimeDirectory, 'dev-lan.json');
 const workerPath = resolve(scriptDirectory, 'dev-lan-worker.mjs');
 
 try {
-  await readFile(registryPath, 'utf8');
-  console.error(
-    'Uma execução de desenvolvimento já foi registrada. Execute npm run dev:stop antes de iniciar outra.',
-  );
-  process.exitCode = 1;
+  const inspection = await inspectRegistry(registryPath);
+  if (inspection.state === 'active') {
+    console.error(
+      'Uma execução de desenvolvimento já está ativa. Execute npm run dev:stop antes de iniciar outra.',
+    );
+    process.exitCode = 1;
+  } else {
+    await removeStaleRegistry(registryPath);
+    console.warn(
+      inspection.state === 'invalid'
+        ? 'Registro de desenvolvimento inválido removido; iniciando uma nova execução.'
+        : 'Registro de desenvolvimento obsoleto removido; iniciando uma nova execução.',
+    );
+  }
 } catch (error) {
-  if (error.code !== 'ENOENT') throw error;
+  if (error.code === 'ENOENT') {
+    // No previous execution is registered.
+  } else {
+    throw error;
+  }
+}
+
+if (!process.exitCode) {
+  const occupiedPorts = (
+    await Promise.all(
+      [3000, 5173].map(async (port) => ((await isPortInUse(port)) ? port : undefined)),
+    )
+  ).filter((port) => port !== undefined);
+  if (occupiedPorts.length) {
+    console.error(
+      `A porta ${occupiedPorts.join(' e ')} já está em uso. Encerre a execução existente antes de iniciar a Central.`,
+    );
+    process.exitCode = 1;
+  }
 }
 
 if (!process.exitCode) {

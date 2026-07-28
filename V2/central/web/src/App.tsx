@@ -21,6 +21,7 @@ import {
   type OperationControl,
 } from './operation';
 import { OperationalRealtime } from './realtime';
+import { AdminOrganizationPage } from './AdminOrganizationPage';
 
 function LoadingPage() {
   return (
@@ -64,6 +65,15 @@ function RequireAuthenticated() {
   if (isLoading) return <LoadingPage />;
   if (!session) return <Navigate to="/login" replace />;
   if (session.user.passwordChangeRequired) return <Navigate to="/change-password" replace />;
+  return <Outlet />;
+}
+
+function RequireAdministrator() {
+  const { isLoading, session } = useAuth();
+  if (isLoading) return <LoadingPage />;
+  if (!session) return <Navigate to="/login" replace />;
+  if (session.user.passwordChangeRequired) return <Navigate to="/change-password" replace />;
+  if (session.user.role !== 'administrador') return <Navigate to="/" replace />;
   return <Outlet />;
 }
 
@@ -247,10 +257,14 @@ function AuthenticatedShell() {
       </header>
       <nav className="operation-navigation" aria-label="Operação">
         <NavLink to="/" end>
-          {' '}
-          Cômodos{' '}
+          Cômodos
         </NavLink>
       </nav>
+      {session?.user.role === 'administrador' ? (
+        <nav className="administration-navigation" aria-label="Administração">
+          <NavLink to="/admin/organization">Áreas e cômodos</NavLink>
+        </nav>
+      ) : null}
       <section className="operation-content">
         <Outlet />
       </section>
@@ -453,6 +467,9 @@ export function App() {
           <Route path="/" element={<AuthenticatedShell />}>
             <Route index element={<RoomsPage />} />
             <Route path="rooms/:roomId" element={<RoomPage />} />
+            <Route element={<RequireAdministrator />}>
+              <Route path="admin/organization" element={<AdminOrganizationPage />} />
+            </Route>
           </Route>
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />

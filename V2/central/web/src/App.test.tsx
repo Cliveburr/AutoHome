@@ -7,10 +7,14 @@ import type { OperationInventory } from './operation';
 
 const api = vi.hoisted(() => ({
   changeSessionPassword: vi.fn(),
+  createAdministrativeArea: vi.fn(),
+  createAdministrativeRoom: vi.fn(),
   createOperationalCommand: vi.fn(),
   getOperationalCommand: vi.fn(),
   getOperationalModuleDetail: vi.fn(),
   getSession: vi.fn(),
+  listAdministrativeAreas: vi.fn(),
+  listAdministrativeRooms: vi.fn(),
   listOperationalAreas: vi.fn(),
   listOperationalModules: vi.fn(),
   listOperationalRooms: vi.fn(),
@@ -231,5 +235,24 @@ describe('App operation', () => {
     expect(
       await screen.findByText('Nenhum cômodo está disponível para operação.'),
     ).toBeInTheDocument();
+  });
+
+  it('shows organization administration only to administrators', async () => {
+    api.getSession.mockResolvedValue(activeSession);
+    api.listAdministrativeAreas.mockResolvedValue(inventory.areas);
+    api.listAdministrativeRooms.mockResolvedValue(inventory.rooms);
+    renderApp('/admin/organization');
+
+    expect(await screen.findByRole('heading', { name: 'Áreas e cômodos' })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'Nome da área Social' })).toBeInTheDocument();
+    expect(screen.getByDisplayValue('Sala')).toBeInTheDocument();
+  });
+
+  it('redirects basic users away from organization administration', async () => {
+    api.getSession.mockResolvedValue(basicSession);
+    renderApp('/admin/organization');
+
+    expect(await screen.findByRole('heading', { name: 'Olá, morador' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Áreas e cômodos' })).not.toBeInTheDocument();
   });
 });

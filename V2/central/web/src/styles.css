@@ -89,6 +89,18 @@
   @apply bg-brand-700 text-white;
 }
 
+.administration-navigation {
+  @apply mt-3 flex justify-center lg:col-start-1 lg:row-start-3 lg:block lg:pt-3;
+}
+
+.administration-navigation a {
+  @apply min-h-11 rounded-lg px-4 py-2 font-medium text-slate-700;
+}
+
+.administration-navigation a.active {
+  @apply bg-slate-200 text-brand-700;
+}
+
 .operation-content {
   @apply pb-20 pt-6 lg:pb-6 lg:pt-8;
 }
@@ -156,6 +168,46 @@
 
 .back-link {
   @apply inline-flex min-h-11 items-center font-semibold text-brand-700 underline;
+}
+
+.admin-grid {
+  @apply mt-6 grid gap-4 lg:grid-cols-2;
+}
+
+.admin-card {
+  @apply rounded-2xl border border-slate-200 bg-white p-4 shadow-sm;
+}
+
+.admin-card h3 {
+  @apply text-lg font-bold;
+}
+
+.inline-form {
+  @apply mt-3 flex flex-wrap gap-2;
+}
+
+.inline-form input,
+.inline-form select,
+.admin-list input,
+.admin-list select {
+  @apply min-h-10 min-w-0 flex-1 rounded-lg border border-slate-300 bg-white px-3 py-2;
+}
+
+.inline-form button,
+.admin-list button {
+  @apply min-h-10 rounded-lg bg-brand-700 px-3 py-2 font-medium text-white disabled:opacity-60;
+}
+
+.admin-list {
+  @apply mt-4 grid gap-2;
+}
+
+.admin-list li {
+  @apply flex flex-wrap items-center gap-2 border-t border-slate-100 pt-2;
+}
+
+.admin-list li button:last-child {
+  @apply bg-white text-red-700 ring-1 ring-inset ring-red-200;
 }
 
 @media (min-width: 1024px) {
