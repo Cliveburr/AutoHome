@@ -810,12 +810,45 @@ describe('areas and rooms administration', () => {
     });
     expect(basicUser.statusCode).toBe(201);
     const basicCookie = await login('basic-user', 'basic-password');
-    const denied = await organizationApp.inject({
+    const operationalAreas = await organizationApp.inject({
       method: 'GET',
       url: '/api/v1/areas',
       headers: { cookie: basicCookie },
     });
-    expect(denied.statusCode).toBe(403);
+    expect(operationalAreas.statusCode).toBe(200);
+    expect(operationalAreas.json().areas).toEqual([
+      expect.objectContaining({ name: 'Sala', position: 0 }),
+      expect.objectContaining({ name: 'Cozinha', position: 1 }),
+    ]);
+
+    const operationalRooms = await organizationApp.inject({
+      method: 'GET',
+      url: '/api/v1/rooms',
+      headers: { cookie: basicCookie },
+    });
+    expect(operationalRooms.statusCode).toBe(200);
+    expect(operationalRooms.json().rooms).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ name: 'Varanda', position: 0 }),
+        expect.objectContaining({ name: 'Lavanderia', position: 0 }),
+      ]),
+    );
+
+    const deniedAreaMutation = await organizationApp.inject({
+      method: 'POST',
+      url: '/api/v1/areas',
+      headers: { cookie: basicCookie },
+      payload: { name: 'Quintal' },
+    });
+    expect(deniedAreaMutation.statusCode).toBe(403);
+
+    const deniedRoomMutation = await organizationApp.inject({
+      method: 'POST',
+      url: '/api/v1/rooms',
+      headers: { cookie: basicCookie },
+      payload: { name: 'Escritorio' },
+    });
+    expect(deniedRoomMutation.statusCode).toBe(403);
 
     const auditLogs = await database.db.collection('audit_logs').find().toArray();
     expect(auditLogs.map(({ action }) => action)).toEqual(

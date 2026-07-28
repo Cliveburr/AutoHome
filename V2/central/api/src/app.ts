@@ -446,8 +446,7 @@ export function buildApp({ database, config, simulatedTransport }: AppDependenci
   }
 
   if (authentication) {
-    app.addHook('onReady', async () => {
-    });
+    app.addHook('onReady', async () => {});
   }
 
   if (firmwareRepository) {
@@ -845,7 +844,7 @@ export function buildApp({ database, config, simulatedTransport }: AppDependenci
     if (organization) {
       app.get(
         '/api/v1/areas',
-        { preHandler: authorization.requireAdministrativeAccess },
+        { preHandler: authorization.requireOperationalAccess },
         async () => ({ areas: await organization.listAreas() }),
       );
 
@@ -929,7 +928,7 @@ export function buildApp({ database, config, simulatedTransport }: AppDependenci
 
       app.get(
         '/api/v1/rooms',
-        { preHandler: authorization.requireAdministrativeAccess },
+        { preHandler: authorization.requireOperationalAccess },
         async () => ({ rooms: await organization.listRooms() }),
       );
 

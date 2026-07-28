@@ -1,14 +1,26 @@
 import { client } from './generated/client.gen';
 import {
   changePassword as generatedChangePassword,
+  createCommand as generatedCreateCommand,
+  getCommand as generatedGetCommand,
   getCurrentSession as generatedGetCurrentSession,
+  getModuleDetail as generatedGetModuleDetail,
+  listAreas as generatedListAreas,
+  listModules as generatedListModules,
+  listRooms as generatedListRooms,
   login as generatedLogin,
   logout as generatedLogout,
 } from './generated/sdk.gen';
 import type {
   ChangePasswordRequest,
+  Command,
+  CreateCommandRequest,
   LoginRequestWritable,
+  Module,
+  ModuleDetail,
   SessionResponse,
+  Area,
+  Room,
 } from './generated/types.gen';
 
 interface ApiErrorPayload {
@@ -96,4 +108,81 @@ export async function logoutSession(): Promise<void> {
   }
 }
 
-export type { SessionResponse, User } from './generated/types.gen';
+export async function listOperationalAreas(): Promise<Area[]> {
+  try {
+    const { data } = await generatedListAreas({ throwOnError: true });
+    return data.areas;
+  } catch (error) {
+    throw toApiRequestError(error);
+  }
+}
+
+export async function listOperationalRooms(): Promise<Room[]> {
+  try {
+    const { data } = await generatedListRooms({ throwOnError: true });
+    return data.rooms;
+  } catch (error) {
+    throw toApiRequestError(error);
+  }
+}
+
+export async function listOperationalModules(): Promise<Module[]> {
+  try {
+    const { data } = await generatedListModules({ throwOnError: true });
+    return data.modules;
+  } catch (error) {
+    throw toApiRequestError(error);
+  }
+}
+
+export async function getOperationalModuleDetail(protocolId: string): Promise<ModuleDetail> {
+  try {
+    const { data } = await generatedGetModuleDetail({
+      path: { protocolId },
+      throwOnError: true,
+    });
+    return data.module;
+  } catch (error) {
+    throw toApiRequestError(error);
+  }
+}
+
+export async function createOperationalCommand(
+  body: CreateCommandRequest,
+  idempotencyKey: string,
+): Promise<Command> {
+  try {
+    const { data } = await generatedCreateCommand({
+      body,
+      headers: { 'Idempotency-Key': idempotencyKey },
+      throwOnError: true,
+    });
+    return data.command;
+  } catch (error) {
+    throw toApiRequestError(error);
+  }
+}
+
+export async function getOperationalCommand(commandId: string): Promise<Command> {
+  try {
+    const { data } = await generatedGetCommand({ path: { commandId }, throwOnError: true });
+    return data.command;
+  } catch (error) {
+    throw toApiRequestError(error);
+  }
+}
+
+export type {
+  ActionDeclaration,
+  Area,
+  Command,
+  CreateCommandRequest,
+  Module,
+  ModuleCapability,
+  ModuleDetail,
+  ModuleState,
+  ParameterDeclaration,
+  Room,
+  SessionResponse,
+  User,
+} from './generated/types.gen';

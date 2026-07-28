@@ -218,7 +218,7 @@ paths:
     get:
       tags: [Organizacao]
       operationId: listAreas
-      summary: Lista areas na ordem administrativa
+      summary: Lista areas para a operacao na ordem administrativa
       security:
         - sessionCookie: []
       responses:
@@ -230,8 +230,6 @@ paths:
                 $ref: '#/components/schemas/AreaListResponse'
         '401':
           $ref: '#/components/responses/Unauthenticated'
-        '403':
-          $ref: '#/components/responses/Forbidden'
     post:
       tags: [Organizacao]
       operationId: createArea
@@ -310,7 +308,7 @@ paths:
     get:
       tags: [Organizacao]
       operationId: listRooms
-      summary: Lista comodos ordenados por area e posicao
+      summary: Lista comodos para a operacao ordenados por area e posicao
       security:
         - sessionCookie: []
       responses:
@@ -322,8 +320,6 @@ paths:
                 $ref: '#/components/schemas/RoomListResponse'
         '401':
           $ref: '#/components/responses/Unauthenticated'
-        '403':
-          $ref: '#/components/responses/Forbidden'
     post:
       tags: [Organizacao]
       operationId: createRoom

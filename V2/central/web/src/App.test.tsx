@@ -3,16 +3,29 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import type { OperationInventory } from './operation';
 
 const api = vi.hoisted(() => ({
   changeSessionPassword: vi.fn(),
+  createOperationalCommand: vi.fn(),
+  getOperationalCommand: vi.fn(),
+  getOperationalModuleDetail: vi.fn(),
   getSession: vi.fn(),
+  listOperationalAreas: vi.fn(),
+  listOperationalModules: vi.fn(),
+  listOperationalRooms: vi.fn(),
   loginSession: vi.fn(),
   logoutSession: vi.fn(),
   setUnauthenticatedHandler: vi.fn(),
 }));
 
 vi.mock('./api/client', () => api);
+vi.mock('./realtime', () => ({
+  OperationalRealtime: class {
+    start() {}
+    stop() {}
+  },
+}));
 
 import { App } from './App';
 
@@ -26,11 +39,45 @@ const activeSession = {
   },
 };
 
+const basicSession = {
+  user: {
+    ...activeSession.user,
+    role: 'basico' as const,
+    username: 'morador',
+  },
+};
+
 const passwordChangeSession = {
   user: {
     ...activeSession.user,
     passwordChangeRequired: true,
   },
+};
+
+const inventory: OperationInventory = {
+  areas: [{ id: 'area-1', name: 'Social', position: 0 }],
+  rooms: [
+    { id: 'room-1', name: 'Sala', areaId: 'area-1', position: 0 },
+    { id: 'room-2', name: 'Entrada', position: 0 },
+  ],
+  modules: [
+    {
+      id: 'module-1',
+      protocolId: 'light-1',
+      family: 'gen1',
+      capabilities: [
+        { id: 'light', actions: [{ name: 'set', parameters: [{ key: 'on', type: 'boolean' }] }] },
+      ],
+      transport: 'simulated',
+      status: 'cadastrado',
+      availability: 'online',
+      discoveredAt: '2026-07-28T00:00:00.000Z',
+      lastSeenAt: '2026-07-28T00:00:00.000Z',
+      lastObservedAt: '2026-07-28T00:00:00.000Z',
+      name: 'Luz principal',
+      roomId: 'room-1',
+    },
+  ],
 };
 
 function renderApp(initialEntry = '/') {
@@ -49,6 +96,25 @@ beforeEach(() => {
   api.getSession.mockRejectedValue(
     Object.assign(new Error('Autenticação obrigatória.'), { status: 401 }),
   );
+  api.listOperationalAreas.mockResolvedValue(inventory.areas);
+  api.listOperationalRooms.mockResolvedValue(inventory.rooms);
+  api.listOperationalModules.mockResolvedValue(inventory.modules);
+  api.getOperationalModuleDetail.mockResolvedValue({
+    ...inventory.modules[0],
+    configurations: [],
+    localLinks: [],
+    state: { values: { on: false }, observedAt: '2026-07-28T00:00:00.000Z' },
+  });
+  api.createOperationalCommand.mockResolvedValue({
+    commandId: 'command-1',
+    protocolId: 'light-1',
+    capabilityId: 'light',
+    action: 'set',
+    parameters: { on: true },
+    status: 'enviado',
+    createdAt: '2026-07-28T00:00:00.000Z',
+  });
+  api.getOperationalCommand.mockResolvedValue({ status: 'pendente' });
 });
 
 describe('App', () => {
@@ -122,5 +188,48 @@ describe('App', () => {
 
     expect(await screen.findByRole('heading', { name: 'Entrar' })).toBeInTheDocument();
     expect(api.logoutSession).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('App operation', () => {
+  it('groups rooms, keeps unassigned rooms, and hides administration from a basic user', async () => {
+    api.getSession.mockResolvedValue(basicSession);
+    renderApp('/');
+
+    expect(await screen.findByRole('heading', { name: 'Olá, morador' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Social' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Sem área' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Sala/ })).toBeInTheDocument();
+    expect(screen.queryByText('Administração')).not.toBeInTheDocument();
+  });
+
+  it('renders declared controls in a room and submits an idempotent command', async () => {
+    api.getSession.mockResolvedValue(basicSession);
+    const user = userEvent.setup();
+    renderApp('/rooms/room-1');
+
+    await user.click(await screen.findByRole('button', { name: /Luz/i }));
+
+    expect(api.createOperationalCommand).toHaveBeenCalledWith(
+      expect.objectContaining({
+        protocolId: 'light-1',
+        capabilityId: 'light',
+        action: 'set',
+        parameters: { on: true },
+      }),
+      expect.any(String),
+    );
+  });
+
+  it('shows a useful empty state when no room is available', async () => {
+    api.getSession.mockResolvedValue(basicSession);
+    api.listOperationalAreas.mockResolvedValue([]);
+    api.listOperationalRooms.mockResolvedValue([]);
+    api.listOperationalModules.mockResolvedValue([]);
+    renderApp('/');
+
+    expect(
+      await screen.findByText('Nenhum cômodo está disponível para operação.'),
+    ).toBeInTheDocument();
   });
 });

@@ -20,3 +20,146 @@
     @apply outline-2 outline-offset-2 outline-brand-600;
   }
 }
+
+.auth-page,
+.page-status {
+  @apply grid min-h-screen place-items-center p-4;
+}
+
+.auth-card {
+  @apply w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-sm;
+}
+
+.auth-card h1,
+.operation-header h1,
+.operation-content h2 {
+  @apply mt-1 text-2xl font-bold text-slate-950;
+}
+
+.auth-card > p:not(.eyebrow) {
+  @apply mt-2 leading-6 text-slate-600;
+}
+
+.eyebrow {
+  @apply text-sm font-semibold tracking-wide text-brand-700;
+}
+
+.auth-form {
+  @apply mt-6 grid gap-4;
+}
+
+.auth-form label {
+  @apply grid gap-1 text-sm font-medium text-slate-800;
+}
+
+.auth-form input {
+  @apply rounded-lg border border-slate-300 px-3 py-2;
+}
+
+.auth-form button,
+.operation-control {
+  @apply min-h-12 rounded-xl bg-brand-700 px-4 py-3 font-semibold text-white shadow-sm disabled:cursor-wait disabled:opacity-70;
+}
+
+.secondary-button {
+  @apply min-h-11 rounded-lg border border-slate-300 bg-white px-4 py-2 font-medium text-slate-800 disabled:opacity-70;
+}
+
+.auth-card > .secondary-button {
+  @apply mt-4 w-full;
+}
+
+.operation-shell {
+  @apply mx-auto min-h-screen max-w-6xl p-4 sm:p-6 lg:grid lg:grid-cols-[13rem_1fr] lg:gap-8;
+}
+
+.operation-header {
+  @apply flex items-center justify-between gap-4 border-b border-slate-200 pb-4 lg:col-span-2;
+}
+
+.operation-navigation {
+  @apply fixed inset-x-0 bottom-0 z-10 flex justify-center border-t border-slate-200 bg-white p-2 shadow-[0_-4px_16px_rgb(15_23_42/0.06)] lg:static lg:block lg:self-start lg:border-0 lg:bg-transparent lg:p-0 lg:pt-8 lg:shadow-none;
+}
+
+.operation-navigation a {
+  @apply min-h-12 rounded-lg px-5 py-3 font-semibold text-slate-700;
+}
+
+.operation-navigation a.active {
+  @apply bg-brand-700 text-white;
+}
+
+.operation-content {
+  @apply pb-20 pt-6 lg:pb-6 lg:pt-8;
+}
+
+.room-group {
+  @apply mt-8;
+}
+
+.room-group h3,
+.module-controls h3 {
+  @apply text-lg font-bold text-slate-900;
+}
+
+.room-grid,
+.control-grid {
+  @apply mt-3 grid gap-3 sm:grid-cols-2;
+}
+
+.room-card,
+.module-controls,
+.empty-state,
+.control-card {
+  @apply rounded-2xl border border-slate-200 bg-white p-4 shadow-sm;
+}
+
+.room-card {
+  @apply block min-h-36 transition hover:border-brand-600 hover:shadow-md;
+}
+
+.room-card h4 {
+  @apply text-lg font-bold text-slate-950;
+}
+
+.room-card p,
+.room-card small,
+.module-controls > p,
+.empty-state p {
+  @apply mt-2 block text-slate-600;
+}
+
+.module-controls {
+  @apply mt-5;
+}
+
+.operation-control {
+  @apply flex w-full items-center justify-between gap-3 text-left;
+}
+
+.status {
+  @apply mt-2 inline-block rounded-full px-2.5 py-1 text-sm font-medium;
+}
+
+.pendente {
+  @apply bg-amber-100 text-amber-900;
+}
+
+.confirmado {
+  @apply bg-emerald-100 text-emerald-900;
+}
+
+.falhou,
+.indisponivel {
+  @apply bg-red-100 text-red-900;
+}
+
+.back-link {
+  @apply inline-flex min-h-11 items-center font-semibold text-brand-700 underline;
+}
+
+@media (min-width: 1024px) {
+  .room-grid {
+    @apply grid-cols-3;
+  }
+}

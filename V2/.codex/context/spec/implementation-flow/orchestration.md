@@ -3,23 +3,27 @@
 O orquestrador resolve a solicitação e controla a sequência. Não implementa,
 testa ou revisa em paralelo com qualquer subagente.
 
-1. Inicie um sub-agent `default` com o modelo e esforço do perfil
-   `autohome_task_selector`. Ele identifica Central ou firmware Gen1, resolve
-   uma ou duas tarefas inacabadas na ordem oficial e registra o estado inicial
-   do Git de cada tarefa.
-2. Para cada tarefa resolvida, inicie e aguarde, nesta ordem:
-   sub-agents `default` com as instruções equivalentes a
-   `autohome_planner`, `autohome_implementer`, `autohome_tester` e
-   `autohome_reviewer`, usando os parâmetros correspondentes da matriz abaixo.
-3. Só inicie a segunda tarefa depois que a primeira tiver sido aprovada e
+1. Faça um preflight leve no workspace: registre HEAD, status, package manager,
+   baseline de formatação e contagem de testes existentes. Verifique também se
+   há múltiplas cópias físicas de React ou outra dependência crítica.
+2. Se o pedido já identificar a área e a próxima tarefa, não inicie
+   `autohome_task_selector`. Caso contrário, use-o uma única vez.
+3. Inicie `autohome_planner` para materializar o plano e validar que cada
+   critério de aceite é suportado pelas APIs, permissões e contratos existentes.
+   Para uma tarefa clara, o mesmo agente pode continuar como implementador; não
+   repita a leitura integral do repositório em um novo agente.
+4. Execute os testes automatizados em um único `autohome_tester`. O tester deve
+   separar falhas de produto de falhas ambientais e não iniciar reparo por
+   `BLOCKED_EXTERNAL`.
+5. Inicie `autohome_reviewer` somente após os testes automatizados. O revisor
+   deve verificar remoções de testes existentes, arquivos fora do escopo,
+   baseline de formatação e `git diff --check` antes de aprovar.
+6. Para uma causa local, use no máximo um `autohome_repairer`; depois retorne
+   diretamente à fase afetada. Não crie `review.md` como pré-requisito do
+   reparo: ele é obrigatório quando a revisão reprova ou quando o orquestrador
+   precisa registrar a causa de retomada.
+7. Só inicie a segunda tarefa depois que a primeira tiver sido aprovada e
    commitada pelo revisor.
-4. Em qualquer resultado diferente de sucesso válido, preserve o workspace e
-   classifique a causa. Para falha local de código, teste, artefato, validação
-   ou revisão, inicie `autohome_repairer` automaticamente, retorne à primeira
-   fase afetada e só avance após resultado válido. Pare para intervenção humana
-   apenas se o planejamento encontrar decisão material/ambiguidade ou se houver
-   barreira externa sem solução local segura; não solicite confirmações de
-   reteste, reparo, marcador ou commit.
 
 O planejador deve ler a documentação da área: para a Central, comece por
 [`implementacao.md`](../../../../central/docs/implementacao.md) e
@@ -49,6 +53,18 @@ o esforço exibidos correspondem à matriz antes de aceitar o resultado.
 
 Cada prompt de subagente deve conter o identificador da tarefa, o diretório de
 artefatos, o estado inicial do Git e a exigência de validar o status definido
-em [`result-gate.md`](result-gate.md) antes de responder. Para testes que
-executem teardown destrutivo, o prompt também exige comprovar banco local
-isolado antes de qualquer exclusão.
+em [`result-gate.md`](result-gate.md) antes de responder. As instruções
+canônicas de artefatos e gates ficam em `.codex/context/spec/implementation-flow/`;
+não exija cópias desses documentos dentro do diretório temporário da tarefa.
+Para testes que executem teardown destrutivo, o prompt também exige comprovar
+banco local isolado antes de qualquer exclusão.
+
+O tester deve registrar duas seções independentes:
+
+- `AUTOMATED`: todos os comandos que podem bloquear o commit;
+- `MANUAL`: `PASS`, `NOT_RUN` ou `BLOCKED_EXTERNAL`, sem iniciar reparo de
+  código quando o bloqueio for ambiental.
+
+Antes de aprovar, o revisor deve comparar os arquivos de teste com o HEAD
+inicial. Remoções de testes existentes exigem justificativa explícita no plano;
+caso contrário, são regressão e reprovação.

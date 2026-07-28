@@ -573,27 +573,60 @@ export class ModuleInventoryService {
   }
 
   private async confirmLinkParticipant(protocolId: string, correlationId: string): Promise<void> {
-    const source = await this.modules.findOne({ 'localLinks.correlationId': correlationId });
-    if (!source) return;
-    const links = (source.localLinks ?? []).map((link) => {
-      if (link.correlationId !== correlationId || link.syncStatus !== 'pendente') return link;
-      const confirmedParticipantProtocolIds = [
-        ...new Set([...link.confirmedParticipantProtocolIds, protocolId]),
-      ];
-      return {
-        ...link,
-        confirmedParticipantProtocolIds,
-        syncStatus:
-          confirmedParticipantProtocolIds.length === link.participantProtocolIds.length
-            ? ('confirmada' as const)
-            : ('pendente' as const),
-        updatedAt: new Date(),
-      };
-    });
-    await this.modules.updateOne(
-      { _id: source._id },
-      { $set: { localLinks: links, updatedAt: new Date() } },
-    );
+    await this.modules.updateOne({ 'localLinks.correlationId': correlationId }, [
+      {
+        $set: {
+          localLinks: {
+            $map: {
+              input: '$localLinks',
+              as: 'link',
+              in: {
+                $cond: [
+                  {
+                    $and: [
+                      { $eq: ['$$link.correlationId', correlationId] },
+                      { $eq: ['$$link.syncStatus', 'pendente'] },
+                    ],
+                  },
+                  {
+                    $let: {
+                      vars: {
+                        confirmedParticipantProtocolIds: {
+                          $setUnion: ['$$link.confirmedParticipantProtocolIds', [protocolId]],
+                        },
+                      },
+                      in: {
+                        $mergeObjects: [
+                          '$$link',
+                          {
+                            confirmedParticipantProtocolIds: '$$confirmedParticipantProtocolIds',
+                            syncStatus: {
+                              $cond: [
+                                {
+                                  $eq: [
+                                    { $size: '$$confirmedParticipantProtocolIds' },
+                                    { $size: '$$link.participantProtocolIds' },
+                                  ],
+                                },
+                                'confirmada',
+                                'pendente',
+                              ],
+                            },
+                            updatedAt: new Date(),
+                          },
+                        ],
+                      },
+                    },
+                  },
+                  '$$link',
+                ],
+              },
+            },
+          },
+          updatedAt: new Date(),
+        },
+      },
+    ]);
   }
 
   private async failLinks(

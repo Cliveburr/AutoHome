@@ -270,7 +270,7 @@ export const getCurrentSession = <ThrowOnError extends boolean = false>(
   });
 
 /**
- * Lista areas na ordem administrativa
+ * Lista areas para a operacao na ordem administrativa
  */
 export const listAreas = <ThrowOnError extends boolean = false>(
   options?: Options<ListAreasData, ThrowOnError>,
@@ -350,7 +350,7 @@ export const updateArea = <ThrowOnError extends boolean = false>(
   });
 
 /**
- * Lista comodos ordenados por area e posicao
+ * Lista comodos para a operacao ordenados por area e posicao
  */
 export const listRooms = <ThrowOnError extends boolean = false>(
   options?: Options<ListRoomsData, ThrowOnError>,

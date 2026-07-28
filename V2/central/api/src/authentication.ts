@@ -60,9 +60,7 @@ export class AuthenticationService {
     this.bootstrapAdminEasyPass =
       typeof bootstrapAdminEasyPassOrAudit === 'boolean' ? bootstrapAdminEasyPassOrAudit : false;
     this.audit =
-      typeof bootstrapAdminEasyPassOrAudit === 'boolean'
-        ? audit
-        : bootstrapAdminEasyPassOrAudit;
+      typeof bootstrapAdminEasyPassOrAudit === 'boolean' ? audit : bootstrapAdminEasyPassOrAudit;
     this.users = database.db.collection<UserDocument>('users');
     this.sessions = database.db.collection<SessionDocument>('sessions');
   }

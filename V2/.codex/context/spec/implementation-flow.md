@@ -20,25 +20,29 @@ solicitação explícita do usuário.
 - Sem limite explícito, implemente somente a próxima tarefa inacabada.
 - Quando o usuário pedir duas tarefas, resolva as duas primeiras tarefas
   inacabadas em ordem.
-- Execute sempre um único subagente por vez. Só avance para a próxima fase ou
-  tarefa com resultado completo e válido da fase anterior.
-- Em qualquer falha, bloqueio, interrupção ou validação insuficiente, preserve
-  as alterações parciais e corrija automaticamente a causa local dentro do
-  escopo da tarefa. Repita as fases afetadas até obter resultado válido antes de
-  iniciar a próxima tarefa. Só interrompa para o usuário quando o planejador
-  identificar uma decisão material pendente ou houver uma barreira externa sem
-  solução local segura.
+- Execute um único subagente por vez, mas não crie um agente separado para cada
+  etapa quando a tarefa já identifica a área e a próxima entrega. Nesse caso,
+  use: preflight, planejamento/implementação, testes automatizados e revisão.
+- Pule o seletor quando o pedido já disser explicitamente “próxima tarefa da
+  Central” ou identificar a tarefa. Use o planejador somente para resolver
+  escopo, dependências e critérios de aceite.
+- Preserve alterações parciais. Para uma falha local, permita no máximo uma
+  correção por causa identificada e retorne diretamente à fase afetada. Não
+  reabra a mesma cadeia de agentes sem evidência nova.
+- Classifique falhas de ambiente (`ENOMEM`, processo não iniciado, navegador
+  indisponível, permissão do sistema ou rede) como `BLOCKED_EXTERNAL`. Elas não
+  autorizam alterações de produto nem loops de reparo.
 
 ## Orquestração
 
-O orquestrador usa as instruções dos perfis `autohome_task_selector`,
-`autohome_planner`, `autohome_implementer`, `autohome_tester` e
-`autohome_reviewer`, mas inicia cada sub-agent como `default` para poder
-transmitir modelo e esforço individualmente. Para cada tarefa, a ordem é:
-seleção, plano, implementação, teste, revisão e commit. O perfil
-`autohome_repairer` é acionado automaticamente para corrigir falhas locais de
-implementação, testes, artefatos ou revisão. Ele permanece limitado ao bloqueio
-registrado e devolve a tarefa à primeira fase que precisa ser revalidada.
+O orquestrador usa as instruções dos perfis `autohome_planner`,
+`autohome_implementer`, `autohome_tester` e `autohome_reviewer`, mas inicia cada
+sub-agent como `default` para poder transmitir modelo e esforço individualmente.
+Para cada tarefa, a ordem normal é: preflight, planejamento/implementação,
+testes automatizados, revisão e commit. O perfil `autohome_task_selector` é
+opcional quando a tarefa já foi identificada. O perfil `autohome_repairer` é
+acionado no máximo uma vez por causa local e permanece limitado ao bloqueio
+registrado.
 
 Cada chamada deve preencher explicitamente os campos `model` e
 `reasoning_effort` do `spawn_agent` conforme a matriz em
@@ -62,20 +66,18 @@ diretório temporário daquela tarefa e cria os novos artefatos.
 ## Encerramento
 
 O revisor só marca a tarefa como concluída e cria o commit quando o plano, a
-implementação, os testes e a revisão estiverem aprovados. Ao encerrar, informe
+implementação, os testes automatizados e a revisão estiverem aprovados. A
+validação manual é informativa por padrão: registre `PASS`, `NOT_RUN` ou
+`BLOCKED_EXTERNAL`, mas não bloqueie o commit por indisponibilidade do
+ambiente. Só torne a validação manual obrigatória quando o usuário pedir
+explicitamente uma demonstração ou inspeção visual.
+
+Ao encerrar, informe
 as tarefas concluídas, a tarefa atual ou interrompida, o motivo da parada, as
 validações executadas e como retomar, quando aplicável.
-Se todas tarefas forem concluídas com sucesso e a implementação pertencer à
-Central, execute `npm run dev` a partir de `central/`. Esse é o comando
-canônico para iniciar API e Web em desenvolvimento local, com watch/HMR; não
-inicie apenas um workspace. Confirme que os dois serviços estão ouvindo
-(`http://127.0.0.1:3000` e `http://127.0.0.1:5173`) e abra
-`http://127.0.0.1:5173` no navegador integrado do ChatGPT para validação
-manual. Mantenha os serviços em execução ao entregar a tarefa e informe os
-comandos, URLs e qualquer limitação observada. Se a inicialização falhar,
-corrija e valide novamente antes de encerrar; se houver uma barreira externa
-ao navegador integrado, informe-a explicitamente após deixar os serviços
-ouvindo.
+Se o usuário pedir demonstração manual, execute `npm run dev` a partir de
+`central/`, confirme as limitações do ambiente e encerre ou mantenha a stack
+conforme solicitado. Esse comando não faz parte do gate automatizado padrão.
 
 
 <Progressive_Disclosure>

@@ -20,7 +20,15 @@ Os artefatos obrigatórios são:
   disponível e status final dos testes.
 - `review.md`: decisão, evidências verificadas, arquivos autorizados para o
   commit, hash do commit quando aprovado ou relatório de falha quando negado.
+  Só é criado na revisão ou pelo orquestrador ao registrar uma causa que exige
+  retomada; não é pré-requisito para iniciar um reparo após falha de teste.
 
 Todo artefato deve identificar `run-id`, `task-id`, `HEAD` inicial e seu autor.
-O implementador e o testador devem parar se `plan.md` estiver ausente ou for de
-outra tarefa ou execução.
+Os contratos canônicos ficam em `.codex/context/spec/implementation-flow/` e
+não precisam ser copiados para o diretório temporário. O implementador e o
+testador devem parar se `plan.md` estiver ausente ou for de outra tarefa ou
+execução.
+
+`test-results.md` deve separar validações automatizadas das manuais. Falhas de
+ambiente devem ser registradas como `BLOCKED_EXTERNAL`, com evidência, sem
+alterar código para “corrigi-las”.

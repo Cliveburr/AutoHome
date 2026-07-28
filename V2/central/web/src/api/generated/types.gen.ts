@@ -683,10 +683,6 @@ export type ListAreasErrors = {
    * A sessao autenticada e obrigatoria ou nao e mais valida.
    */
   401: Error;
-  /**
-   * A sessao autenticada nao tem permissao administrativa.
-   */
-  403: Error;
 };
 
 export type ListAreasError = ListAreasErrors[keyof ListAreasErrors];
@@ -823,10 +819,6 @@ export type ListRoomsErrors = {
    * A sessao autenticada e obrigatoria ou nao e mais valida.
    */
   401: Error;
-  /**
-   * A sessao autenticada nao tem permissao administrativa.
-   */
-  403: Error;
 };
 
 export type ListRoomsError = ListRoomsErrors[keyof ListRoomsErrors];
