@@ -4,11 +4,12 @@ import { fileURLToPath } from 'node:url';
 
 const [workspace, token] = process.argv.slice(2);
 if ((workspace !== '@autohome/api' && workspace !== '@autohome/web') || !token) {
-  throw new Error('Worker LAN inválido.');
+  throw new Error('Worker de desenvolvimento inválido.');
 }
 
 const scriptDirectory = dirname(fileURLToPath(import.meta.url));
 const centralDirectory = resolve(scriptDirectory, '..');
+const host = process.env.AUTOHOME_DEV_HOST || '0.0.0.0';
 const command =
   workspace === '@autohome/api'
     ? {
@@ -20,15 +21,16 @@ const command =
           'src/main.ts',
         ],
         cwd: resolve(centralDirectory, 'api'),
-        env: { ...process.env, AUTOHOME_HTTP_HOST: '0.0.0.0' },
+        env: { ...process.env, AUTOHOME_HTTP_HOST: host },
       }
     : {
         args: [
           resolve(centralDirectory, 'node_modules', 'vite', 'bin', 'vite.js'),
           '--host',
-          '0.0.0.0',
+          host,
           '--port',
           '5173',
+          '--strictPort',
         ],
         cwd: resolve(centralDirectory, 'web'),
         env: process.env,

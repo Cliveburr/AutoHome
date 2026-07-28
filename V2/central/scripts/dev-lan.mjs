@@ -13,7 +13,7 @@ const workerPath = resolve(scriptDirectory, 'dev-lan-worker.mjs');
 try {
   await readFile(registryPath, 'utf8');
   console.error(
-    'Uma execução LAN já foi registrada. Execute npm run dev:stop antes de iniciar outra.',
+    'Uma execução de desenvolvimento já foi registrada. Execute npm run dev:stop antes de iniciar outra.',
   );
   process.exitCode = 1;
 } catch (error) {

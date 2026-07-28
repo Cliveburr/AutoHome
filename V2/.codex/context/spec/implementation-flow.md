@@ -65,6 +65,18 @@ O revisor só marca a tarefa como concluída e cria o commit quando o plano, a
 implementação, os testes e a revisão estiverem aprovados. Ao encerrar, informe
 as tarefas concluídas, a tarefa atual ou interrompida, o motivo da parada, as
 validações executadas e como retomar, quando aplicável.
+Se todas tarefas forem concluídas com sucesso e a implementação pertencer à
+Central, execute `npm run dev` a partir de `central/`. Esse é o comando
+canônico para iniciar API e Web em desenvolvimento local, com watch/HMR; não
+inicie apenas um workspace. Confirme que os dois serviços estão ouvindo
+(`http://127.0.0.1:3000` e `http://127.0.0.1:5173`) e abra
+`http://127.0.0.1:5173` no navegador integrado do ChatGPT para validação
+manual. Mantenha os serviços em execução ao entregar a tarefa e informe os
+comandos, URLs e qualquer limitação observada. Se a inicialização falhar,
+corrija e valide novamente antes de encerrar; se houver uma barreira externa
+ao navegador integrado, informe-a explicitamente após deixar os serviços
+ouvindo.
+
 
 <Progressive_Disclosure>
 <ImplementationOrchestration>
